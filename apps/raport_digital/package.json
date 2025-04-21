@@ -1,0 +1,8 @@
+{
+  "name": "@raport-digital/raport_digital",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "raport_digital"
+  }
+}
