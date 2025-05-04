@@ -1,10 +1,10 @@
 {
-  "name": "client-e2e",
+  "name": "@raport-digital/client-e2e",
   "version": "0.0.1",
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "client"
+      "@raport-digital/client"
     ]
   }
 }
