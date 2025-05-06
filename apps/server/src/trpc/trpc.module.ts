@@ -3,7 +3,8 @@ import { TrpcService } from "./trpc.service";
 import { TrpcRouter } from "./trpc.router";
 
 @Module({
-    providers: [TrpcService, TrpcRouter]
+    providers: [TrpcService, TrpcRouter],
+    exports: [TrpcService, TrpcRouter]
 })
 export class TrpcModule {
 

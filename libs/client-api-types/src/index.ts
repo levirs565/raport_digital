@@ -1,3 +1,3 @@
-import type { AppRouter } from "../../../apps/server/dist/trpc/trpc.router.d.ts"
+import type { AppRouterType } from "../../../apps/server/dist/app/app.router.d.ts"
 
-export type Router = AppRouter;
+export type Router = AppRouterType;
