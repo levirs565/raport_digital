@@ -1,7 +1,18 @@
 <script setup lang="ts">
-import NxWelcome from './NxWelcome.vue';
+import { ref } from "vue";
+import { trpc } from "../api";
+
+const data = ref<number | null>(null)
+
+function onClick() {
+  trpc.test.query().then((val) => {
+    console.log(val)
+    data.value = val;
+  })
+}
 </script>
 
 <template>
-  <NxWelcome title="raport_digital" />
+  <button @click="onClick">Click Here</button>
+  <p>{{ data }}</p>
 </template>
