@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { INestApplication, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TrpcModule } from '../trpc/trpc.module';
@@ -20,23 +20,21 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [AppController],
   providers: [AppService, AppRouter],
 })
-export class AppModule implements NestModule {
+export class AppModule {
   constructor(
     private readonly prismaClient: PrismaService, 
     private readonly configService: ConfigService
   ) {}
 
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(
-      session({
-        store: new PrismaSessionStore(this.prismaClient, {
-          checkPeriod: 2 * 60 * 1000,  //ms
-          dbRecordIdIsSessionId: true,
-          dbRecordIdFunction: undefined,
-        }),
-        secret: this.configService.getOrThrow<string>("SESSION_SECRET"),
-        resave: true
-      })
-    ).forRoutes("*");
+  configureApp(app: INestApplication) {
+    app.use(session({
+      store: new PrismaSessionStore(this.prismaClient, {
+        checkPeriod: 2 * 60 * 1000,  //ms
+        dbRecordIdIsSessionId: true,
+        dbRecordIdFunction: undefined,
+      }),
+      secret: this.configService.getOrThrow<string>("SESSION_SECRET"),
+      resave: true
+    }));
   }
 }

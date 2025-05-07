@@ -16,9 +16,10 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
-  const appRouter = app.get(AppRouter);
+  const appModule = app.get(AppModule);
+  appModule.configureApp(app);
 
-  trpcExpress
+  const appRouter = app.get(AppRouter);
 
   app.use(
     "/api",

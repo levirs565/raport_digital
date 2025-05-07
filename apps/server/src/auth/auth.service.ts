@@ -21,13 +21,13 @@ export class AuthService {
             }
         })
 
-        if (!account || await argon2.verify(account.password_hash, password)) {
+        if (!account || !(await argon2.verify(account.password_hash, password))) {
             throw new TRPCError({
                 code: "NOT_FOUND",
                 message: "Invalid username ord passsword"
             })
         }
-
+        
         if (account.type == "GURU") {
             const guru = await this.prismaClient.guru.findUnique({
                 where: {
