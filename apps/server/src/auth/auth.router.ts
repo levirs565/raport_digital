@@ -3,6 +3,7 @@ import { TrpcService } from "../trpc/trpc.service";
 import { AuthService } from "./auth.service";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
+import { $Enums } from "@prisma/client";
 
 @Injectable()
 export class AuthRouter {
@@ -36,8 +37,8 @@ export class AuthRouter {
             .query(({ ctx: { session: { account } } }) => {
                 if (!account) return null;
                 return {
-                    username: account.username,
-                    type: account.type
+                    username: account.username as string,
+                    type: account.type as $Enums.AkunType
                 }
             })
     })

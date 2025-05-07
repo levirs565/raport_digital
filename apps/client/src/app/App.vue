@@ -1,41 +1,28 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { watch } from "vue";
 import { injectTrpc, useTrcpQuery } from "../api-vue";
+import { validateUserRole } from "../router";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
+const router = useRouter();
 const trpc = injectTrpc();
-const queryClient = useQueryClient();
-
 const { data } = useTrcpQuery(trpc!.auth.state.queryOptions());
-const { mutateAsync } = useMutation(trpc!.auth.login.mutationOptions());
-const key = trpc!.auth.state.queryKey()
 
-const userName = ref("");
-const password = ref("");
+watch([data, route], ([currentData, currentRoute]) => {
+  const validation = validateUserRole(
+    currentRoute,
+    currentData?.type
+  )
+  if (validation != true) {
+    router.push(validation.path)
+  }
+})
 
-function onLogin() {
-  console.log("Test")
-  mutateAsync({
-    username: userName.value,
-    password: password.value
-  }).then(() => {
-    queryClient.invalidateQueries({
-      queryKey: key
-    })
-  })
-}
 </script>
 
 <template>
   <v-app>
-    <v-main max-width="360px" class="mx-auto w-100">
-      <v-form>
-        <v-card class="pa-4" style="text-align: center">
-          <v-text-field v-model="userName" label="Username" autocomplete="current-username"/>
-          <v-text-field v-model="password" label="Password" type="password" autocomplete="current-password"/>
-          <v-btn @click="onLogin">Login</v-btn>
-        </v-card>
-      </v-form>
-    </v-main>
+    <router-view />
   </v-app>
 </template>

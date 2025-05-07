@@ -1,15 +1,13 @@
 import { inject } from "vue";
 import { trpc } from "./api";
-import { TRPCQueryKey } from "@trpc/tanstack-react-query"
-import { useQuery } from "@tanstack/vue-query";
+import { DataTag, dataTagErrorSymbol, dataTagSymbol, QueryClient, useQuery, UseQueryReturnType } from "@tanstack/vue-query";
 
+export const QUERY_CLIENT_KEY = Symbol()
 export const TRPC_KEY = Symbol()
 export const injectTrpc = () => inject<typeof trpc>(TRPC_KEY);
+export const injectQueryClient = () => inject<QueryClient>(QUERY_CLIENT_KEY)
 
-type FixTRPC<T> = {
-    queryKey: TRPCQueryKey
-  } & Omit<T, "queryKey">
-
-export function useTrcpQuery<T>(options: T) {
-    return useQuery(options as FixTRPC<T>)
+export function useTrcpQuery<T extends { queryKey: DataTag<any, any, any> }>(options: T):
+  UseQueryReturnType<T["queryKey"][dataTagSymbol], T["queryKey"][dataTagErrorSymbol]> {
+  return useQuery(options);
 }
