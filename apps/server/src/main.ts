@@ -8,6 +8,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { AppRouter } from './app/app.router';
 import * as trpcExpress from "@trpc/server/adapters/express";
+import { createContext } from './trpc/trpc.context';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,10 +17,14 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
 
   const appRouter = app.get(AppRouter);
+
+  trpcExpress
+
   app.use(
     "/api",
     trpcExpress.createExpressMiddleware({
-      router: appRouter.router
+      router: appRouter.router,
+      createContext: createContext
     })
   )
 

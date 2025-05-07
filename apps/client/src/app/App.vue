@@ -1,18 +1,24 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { trpc } from "../api";
+// import { ref } from "vue";
+import { useQueryClient } from "@tanstack/vue-query";
+import { injectTrpc, useTrcpQuery } from "../api-vue";
 
-const data = ref<number | null>(null)
+const trpc = injectTrpc();
+const queryClient = useQueryClient();
+
+const options = trpc!.test.queryOptions();
+
+const { data } = useTrcpQuery(options); 
+const key = trpc!.test.queryKey()
 
 function onClick() {
-  trpc.test.query().then((val) => {
-    console.log(val)
-    data.value = val;
+  queryClient.invalidateQueries({
+    queryKey: key
   })
 }
 </script>
 
 <template>
-  <button @click="onClick">Click Here</button>
+  <button @click="onClick">Click Now</button>
   <p>{{ data }}</p>
 </template>

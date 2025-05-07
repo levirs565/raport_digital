@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AkunType {
+  OPERATOR
+  GURU
+  KEPALA_SEKOLAH
+}
+
+model Akun {
+  username String @id
+  password_hash String
+  type AkunType
+
+  Guru Guru?
+  KepalaSekolah Kepala_Sekolah?
+}
+
+model Guru {
+  username String @id
+  nama_lengkap String
+  NIP String? @unique
+  tanda_tangan String?
+  is_verified Boolean
+
+  akun Akun @relation(fields: [username], references: [username])
+}
+
+model Kepala_Sekolah {
+  username String @id
+  nama_lengkap String
+  NIP String? @unique
+  tanda_tangan String?
+
+  akun Akun @relation(fields: [username], references: [username])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.Text
+  expiresAt DateTime
+}

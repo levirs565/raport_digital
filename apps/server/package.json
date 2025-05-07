@@ -45,5 +45,8 @@
         }
       }
     }
+  },
+  "scripts": {
+    "add-account": "ts-node --project tsconfig.app.json ./src/add-account.ts"
   }
 }
