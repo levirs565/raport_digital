@@ -7,7 +7,7 @@ export class TrpcRouter {
     
     haloCount = 0
     router = this.trpc.router({
-        test: this.trpc.publicProcedure.query(() => {
+        test: this.trpc.procedure.query(() => {
             this.haloCount++;
             return this.haloCount;
         })

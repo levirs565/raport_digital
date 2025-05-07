@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { TRPCError } from "@trpc/server";
 import * as argon2 from "argon2";
-import { AccountData } from "../session";
+import { AccountData } from "../types";
 
 type LoginResult = {
     state: "PENDING_VERIFICATION"

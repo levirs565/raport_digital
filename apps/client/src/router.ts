@@ -3,11 +3,12 @@ import { UserRole } from "@raport-digital/client-api-types";
 import Login from "./pages/auth/Login.vue";
 import MainLayout from "./pages/MainLayout.vue";
 import { injectQueryClient, injectTrpc } from "./api-vue";
+import Dashboard from "./pages/dashboard/Dashboard.vue";
 
 
 declare module 'vue-router' {
     interface RouteMeta {
-        userRole: UserRole | "NOT-LOGGED" | "LOGGED" | null
+        userRole: UserRole
     }
 }
 
@@ -24,7 +25,13 @@ const routes: RouteRecordRaw[] = [
         component: MainLayout,
         meta: {
             userRole: "LOGGED"
-        }
+        },
+        children: [
+            {
+                path: '/',
+                component: Dashboard
+            }
+        ]
     }
 ]
 
