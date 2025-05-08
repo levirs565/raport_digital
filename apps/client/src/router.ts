@@ -4,6 +4,8 @@ import Login from "./pages/auth/Login.vue";
 import MainLayout from "./pages/MainLayout.vue";
 import { injectQueryClient, injectTrpc } from "./api-vue";
 import Dashboard from "./pages/dashboard/Dashboard.vue";
+import RegisterGuru from "./pages/auth/RegisterGuru.vue";
+import WaitVerification from "./pages/auth/WaitVerification.vue";
 
 
 declare module 'vue-router' {
@@ -16,6 +18,20 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/login',
         component: Login,
+        meta: {
+            userRole: "NOT-LOGGED"
+        }
+    },
+    {
+        path: '/register-guru',
+        component: RegisterGuru,
+        meta: {
+            userRole: "NOT-LOGGED"
+        }
+    },
+    {
+        path: '/wait-verification',
+        component: WaitVerification,
         meta: {
             userRole: "NOT-LOGGED"
         }
