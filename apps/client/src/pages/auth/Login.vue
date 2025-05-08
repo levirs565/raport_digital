@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { injectTrpc } from "../../api-vue";
+import logo from "../../logo.png";
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
@@ -11,6 +12,7 @@ const key = trpc!.auth.state.queryKey()
 
 const userName = ref("");
 const password = ref("");
+const showPassword = ref(false);
 
 function onLogin() {
     console.log("Test")
@@ -28,10 +30,23 @@ function onLogin() {
 <template>
     <v-main max-width="360px" class="mx-auto w-100">
         <v-form>
+            <v-img :src="logo"
+                height="200"
+                width="200"
+                class="mx-auto"
+                />
             <v-card class="pa-4" style="text-align: center">
+                <v-card-title>LOGIN</v-card-title>
                 <v-text-field v-model="userName" label="Username" autocomplete="current-username" />
-                <v-text-field v-model="password" label="Password" type="password" autocomplete="current-password" />
+                <v-text-field 
+                    v-model="password" 
+                    label="Password" 
+                    :type="showPassword ? 'text' : 'password'" 
+                    :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                    @click:append-inner="showPassword = !showPassword"
+                    autocomplete="current-password" />
                 <v-btn @click="onLogin">Login</v-btn>
+                <v-card-text>Belum punya akun? <router-link to="/" text="Register"></router-link></v-card-text>
             </v-card>
         </v-form>
     </v-main>
