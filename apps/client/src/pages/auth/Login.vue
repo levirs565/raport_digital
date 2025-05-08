@@ -3,9 +3,11 @@ import { ref } from "vue";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import { injectTrpc } from "../../api-vue";
 import logo from "../../logo.png";
+import { useRouter } from "vue-router";
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
+const router = useRouter();
 
 const { mutateAsync } = useMutation(trpc!.auth.login.mutationOptions());
 const key = trpc!.auth.state.queryKey()
@@ -15,14 +17,16 @@ const password = ref("");
 const showPassword = ref(false);
 
 function onLogin() {
-    console.log("Test")
     mutateAsync({
         username: userName.value,
         password: password.value
-    }).then(() => {
+    }).then((result) => {
         queryClient.invalidateQueries({
             queryKey: key
         })
+        if(result.state == "PENDING_VERIFICATION"){
+            router.push("/wait-verification")
+        }
     })
 }
 </script>
