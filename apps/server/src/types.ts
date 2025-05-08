@@ -3,6 +3,7 @@ import { $Enums } from "@prisma/client"
 export type AccountData = {
   username: string,
   type: $Enums.AkunType
+  namaLengkap?: string
 }
 
 declare module 'express-session' {

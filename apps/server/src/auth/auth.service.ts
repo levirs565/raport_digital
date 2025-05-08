@@ -28,25 +28,40 @@ export class AuthService {
             })
         }
         
+        let name: string | undefined = undefined;
         if (account.type == "GURU") {
             const guru = await this.prismaClient.guru.findUnique({
                 where: {
                     username
                 },
                 select: {
-                    is_verified: true
+                    is_verified: true,
+                    nama_lengkap: true
                 }
             })
             if (!guru?.is_verified)
                 return {
                     state: "PENDING_VERIFICATION",
                 }
+
+            name = guru?.nama_lengkap;
+        } else if (account.type == "KEPALA_SEKOLAH" ){
+            const kepalaSekolah = await this.prismaClient.kepala_Sekolah.findUnique({
+                where: {
+                    username
+                },
+                select: {
+                    nama_lengkap: true
+                }
+            })
+            name = kepalaSekolah?.nama_lengkap
         }
 
         return {
             state: "SUCCESS",
             username,
-            type: account.type
+            type: account.type,
+            namaLengkap: name
         }
     }
 
