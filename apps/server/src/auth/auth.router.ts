@@ -27,12 +27,14 @@ export class AuthRouter {
                         type: result.type
                     }
                 }
+                return result;
             }),
         logout: this.trpc.procedure
             .meta({
                 allowedRole: "LOGGED"
             }).mutation(({ ctx }) => {
                 ctx.session.account = undefined;
+                return true;
             }),
         state: this.trpc.procedure
             .query(({ ctx: { session: { account } } }) => {
