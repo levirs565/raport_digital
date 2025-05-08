@@ -9,13 +9,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { AuthModule } from '../auth/auth.module';
+import { OperatorModule } from '../operator/operator.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PrismaModule,
     TrpcModule,
-    AuthModule
+    AuthModule,
+    OperatorModule
   ],
   controllers: [AppController],
   providers: [AppService, AppRouter],

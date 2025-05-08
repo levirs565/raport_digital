@@ -30,5 +30,8 @@ export class TrpcService {
 
         return next();
     })
+    operatorProcedure = this.procedure.meta({
+        allowedRole: "OPERATOR"
+    })
     router = this.trpc.router
 }

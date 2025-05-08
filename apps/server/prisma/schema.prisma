@@ -47,3 +47,14 @@ model Session {
   data      String   @db.Text
   expiresAt DateTime
 }
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+model Periode_Ajar {
+  id_periode_ajar String @id @db.VarChar(36) @default(uuid())
+  tahunAjar Int
+  semester Semester
+}
