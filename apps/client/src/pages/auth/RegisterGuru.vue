@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useMutation} from "@tanstack/vue-query";
 import { injectTrpc } from "../../api-vue";
 import logo from "../../logo.png";
 import { useRouter } from "vue-router";
