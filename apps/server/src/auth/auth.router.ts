@@ -4,6 +4,14 @@ import { AuthService } from "./auth.service";
 import z from "zod";
 import { $Enums } from "@prisma/client";
 
+const loginSchema = z.object({
+    username: z.string(),
+    password: z.string()
+})
+const registerAkunGuruSchema = loginSchema.extend({
+    namaLengkap: z.string()
+})
+
 @Injectable()
 export class AuthRouter {
     constructor(
@@ -12,14 +20,25 @@ export class AuthRouter {
     ) { }
 
     router = this.trpc.router({
+        registerAkunGuru: this.trpc.procedure
+            .meta({
+                allowedRole: "NOT-LOGGED"
+            })
+            .input(registerAkunGuruSchema)
+            .mutation(async ({ input }) => {
+                await this.service.createGuruAccount(
+                    input.username,
+                    input.password,
+                    input.namaLengkap
+                )
+                return true
+            }),
         login: this.trpc.procedure
             .meta({
                 allowedRole: "NOT-LOGGED"
             })
-            .input(z.object({
-                username: z.string(),
-                password: z.string()
-            })).mutation(async ({ ctx, input }) => {
+            .input(loginSchema)
+            .mutation(async ({ ctx, input }) => {
                 const result = await this.service.login(input.username, input.password);
                 if (result.state == "SUCCESS") {
                     ctx.session.account = {

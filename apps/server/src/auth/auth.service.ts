@@ -50,12 +50,26 @@ export class AuthService {
         }
     }
 
-    async hashPassword(password: string): Promise<string> {
+    private async hashPassword(password: string): Promise<string> {
         return argon2.hash(password);
     }
 
+    private async ensureUserNameAvailable(username: string) {
+        if (await this.prismaClient.akun.count({
+            where: {
+                username
+            }
+        }) > 0) {
+            throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: "Username not available"
+            })
+        }
+    }
+
     async createOperatorAccount(username: string, password: string) {
-        return await this.prismaClient.akun.create({
+        await this.ensureUserNameAvailable(username);
+        await this.prismaClient.akun.create({
             data: {
                 username,
                 password_hash: await this.hashPassword(password),
@@ -65,7 +79,8 @@ export class AuthService {
     }
 
     async createKepalaSekolahAccount(username: string, passsword: string, nama: string) {
-        return await this.prismaClient.akun.create({
+        await this.ensureUserNameAvailable(username);
+        await this.prismaClient.akun.create({
             data: {
                 username,
                 password_hash: await this.hashPassword(passsword),
@@ -80,6 +95,7 @@ export class AuthService {
     }
 
     async createGuruAccount(username: string, passsword: string, nama: string) {
+        await this.ensureUserNameAvailable(username);
         await this.prismaClient.akun.create({
             data: {
                 username,
