@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { TRPCError } from "@trpc/server";
-import { $Enums, Periode_Ajar, Prisma } from "@prisma/client";
+import { $Enums, Periode_Ajar } from "@prisma/client";
+import { PrismaHelper } from "../../utils";
 
 @Injectable()
 export class OperatorPeriodeAjarService {
@@ -62,7 +63,7 @@ export class OperatorPeriodeAjarService {
                 }
             })
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError && e.code == "P2025") {
+            if (PrismaHelper.isRecordNotFoundError(e)) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: "Periode ajar not found"
