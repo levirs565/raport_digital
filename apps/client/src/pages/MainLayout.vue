@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { provide, ref } from 'vue';
+import { computed, provide, ref } from 'vue';
 import { APP_BAR_TOGGLE_KEY } from '../components/CAppBarHarmbugerKey';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { UserType } from '@raport-digital/client-api-types';
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
@@ -23,13 +24,21 @@ function onLogout() {
         })
     })
 }
+
+const userRoleMap: Record<UserType, string> = {
+    GURU: "Guru",
+    KEPALA_SEKOLAH: "Kepala Sekolah",
+    OPERATOR: "Operator"
+}
+
+const accountTitle = computed(() => data.value?.type == "OPERATOR" ? "Operator" : data.value?.namaLengkap)
+const accountSubtitle = computed(() => userRoleMap[data.value!.type])
 </script>
 <template>
     <v-navigation-drawer v-model="drawer">
-        <v-list-item :title="data?.username" :subtitle="data?.type"/>
-        <v-divider/>
-        <v-list-item title="Logout" @click="onLogout"/>
+        <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
+        <v-divider />
+        <v-list-item title="Logout" @click="onLogout" />
     </v-navigation-drawer>
-
     <router-view />
 </template>
