@@ -14,6 +14,10 @@ type LoginResult = {
 export class AuthService {
     constructor(private readonly prismaClient: PrismaService) { }
 
+    private async verifyPassword(hash: string, password: string) {
+        return argon2.verify(hash, password);
+    }
+
     async login(username: string, password: string): Promise<LoginResult> {
         const account = await this.prismaClient.akun.findUnique({
             where: {
@@ -21,10 +25,10 @@ export class AuthService {
             }
         })
 
-        if (!account || !(await argon2.verify(account.password_hash, password))) {
+        if (!account || !(await this.verifyPassword(account.password_hash, password))) {
             throw new TRPCError({
                 code: "NOT_FOUND",
-                message: "Invalid username ord passsword"
+                message: "Invalid username or passsword"
             })
         }
         
@@ -122,6 +126,33 @@ export class AuthService {
                         is_verified: false,
                     }
                 }
+            }
+        })
+    }
+
+    async changePassword(username: string, oldPassword: string, newPassword: string) {
+        const account = await this.prismaClient.akun.findUnique({
+            where: {
+                username
+            },
+            select: {
+                password_hash: true
+            }
+        })
+
+        if (!(await this.verifyPassword(account!.password_hash, oldPassword))) {
+            throw new TRPCError({
+                code: "FORBIDDEN",
+                message: "Password not match"  
+            })
+        }
+
+        await this.prismaClient.akun.update({
+            where: {
+                username
+            },
+            data: {
+                password_hash: await this.hashPassword(newPassword)
             }
         })
     }

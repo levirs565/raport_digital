@@ -64,6 +64,18 @@ export class AuthRouter {
                     type: account.type as $Enums.AkunType,
                     namaLengkap: account.namaLengkap as string | undefined
                 }
+            }),
+        updatePassword: this.trpc.procedure
+            .input(z.object({
+                oldPassword: z.string(),
+                newPassword: z.string()
+            }))
+            .meta({
+                allowedRole: "LOGGED"
+            })
+            .mutation(async ({ ctx, input }) => {
+                await this.service.changePassword(ctx.session.account!.username, input.oldPassword, input.newPassword);
+                return true;
             })
     })
 }
