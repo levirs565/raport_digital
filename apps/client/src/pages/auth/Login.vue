@@ -46,7 +46,7 @@ function onLogin() {
                     @click:append-inner="showPassword = !showPassword"
                     autocomplete="current-password" />
                 <v-btn @click="onLogin">Login</v-btn>
-                <v-card-text>Belum punya akun? <router-link to="/" text="Register"></router-link></v-card-text>
+                <v-card-text>Belum punya akun? <router-link to="/register-guru" text="Register"></router-link></v-card-text>
             </v-card>
         </v-form>
     </v-main>
