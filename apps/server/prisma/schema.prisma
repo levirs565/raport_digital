@@ -30,6 +30,8 @@ model Guru {
   is_verified Boolean
 
   akun Akun @relation(fields: [username], references: [username])
+
+  Guru_Mata_Pelajaran Guru_Mata_Pelajaran[]
 }
 
 model Kepala_Sekolah {
@@ -57,4 +59,26 @@ model Periode_Ajar {
   id_periode_ajar String @id @db.VarChar(36) @default(uuid())
   tahunAjar Int
   semester Semester
+
+  Mata_Pelajaran Mata_Pelajaran[]
+}
+
+model Mata_Pelajaran {
+  id_mata_pelajaran String @id @db.VarChar(36) @default(uuid())
+  nama String
+  kelompok_mapel String?
+  id_periode_ajar String
+
+  Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
+
+  Guru_Mata_Pelajaran Guru_Mata_Pelajaran[]
+}
+
+model Guru_Mata_Pelajaran {
+  id_mata_pelajaran String
+  username_guru String
+  @@id([id_mata_pelajaran,username_guru])
+
+  Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
+  Guru Guru @relation(fields: [username_guru], references: [username])
 }
