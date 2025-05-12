@@ -82,3 +82,34 @@ model Guru_Mata_Pelajaran {
   Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
   Guru Guru @relation(fields: [username_guru], references: [username])
 }
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+model Siswa {
+  id_siswa String @id @db.VarChar(36) @default(uuid())
+  NIS String @unique
+  NISN String @unique
+  nama String
+  jenis_kelamin JenisKelamin
+  tempat_lahir String
+  tgl_lahir DateTime @db.Date
+  alamat String
+  agama String
+  status_dlm_keluarga String
+  anak_ke Int
+  no_telp String
+  sekolah_asal String
+  tgl_diterima DateTime @db.Date
+  tingkat_diterima Int
+  nama_ayah String
+  nama_ibu String
+  pekerjaan_ayah String
+  pekerjaan_ibu String
+  alamat_ortu String
+  nama_wali String
+  pekerjaan_wali String
+  alamat_wali String
+}

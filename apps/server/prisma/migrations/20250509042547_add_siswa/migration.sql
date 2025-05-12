@@ -1,0 +1,30 @@
+-- CreateTable
+CREATE TABLE `Siswa` (
+    `id_siswa` VARCHAR(36) NOT NULL,
+    `NIS` VARCHAR(191) NOT NULL,
+    `NISN` VARCHAR(191) NOT NULL,
+    `nama` VARCHAR(191) NOT NULL,
+    `jenis_kelamin` ENUM('LAKI_LAKI', 'PEREMPUAN') NOT NULL,
+    `tempat_lahir` VARCHAR(191) NOT NULL,
+    `tgl_lahir` DATE NOT NULL,
+    `alamat` VARCHAR(191) NOT NULL,
+    `agama` VARCHAR(191) NOT NULL,
+    `status_dlm_keluarga` VARCHAR(191) NOT NULL,
+    `anak_ke` INTEGER NOT NULL,
+    `no_telp` VARCHAR(191) NOT NULL,
+    `sekolah_asal` VARCHAR(191) NOT NULL,
+    `tgl_diterima` DATE NOT NULL,
+    `tingkat_diterima` INTEGER NOT NULL,
+    `nama_ayah` VARCHAR(191) NOT NULL,
+    `nama_ibu` VARCHAR(191) NOT NULL,
+    `pekerjaan_ayah` VARCHAR(191) NOT NULL,
+    `pekerjaan_ibu` VARCHAR(191) NOT NULL,
+    `alamat_ortu` VARCHAR(191) NOT NULL,
+    `nama_wali` VARCHAR(191) NOT NULL,
+    `pekerjaan_wali` VARCHAR(191) NOT NULL,
+    `alamat_wali` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `Siswa_NIS_key`(`NIS`),
+    UNIQUE INDEX `Siswa_NISN_key`(`NISN`),
+    PRIMARY KEY (`id_siswa`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
