@@ -25,8 +25,8 @@ export class OperatorMataPelajaranRouter {
             .input(baseInputSchema)
             .query(({ input }) => this.service.getAll(input.periodeAjarId)),
         get: this.trpc.operatorProcedure
-            .input(z.string())
-            .query(({ input }) => this.service.get(input)),
+            .input(z.object({id: z.string()}))
+            .query(({ input }) => this.service.get(input.id)),
         add: this.trpc.operatorProcedure
             .input(baseInputSchema.extend(baseWriteSchema))
             .mutation(({ input }) => this.service.add(

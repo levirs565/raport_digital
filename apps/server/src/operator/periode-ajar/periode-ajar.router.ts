@@ -20,8 +20,8 @@ export class OperatorPeriodeAjarRouter {
         getAll: this.trpc.operatorProcedure
             .query(async () => this.service.getAll()),
         get: this.trpc.operatorProcedure
-            .input(z.string())
-            .query(async ({ input }) => this.service.get(input)),
+            .input(z.object({ id: z.string() }))
+            .query(async ({ input }) => this.service.get(input.id)),
         add: this.trpc.operatorProcedure
             .input(periodeAjarSchema)
             .mutation(async ({ input }) => this.service.add(input.tahunAjar, input.semester)),
