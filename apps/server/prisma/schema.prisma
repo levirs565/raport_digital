@@ -32,6 +32,7 @@ model Guru {
   akun Akun @relation(fields: [username], references: [username])
 
   Guru_Mata_Pelajaran Guru_Mata_Pelajaran[]
+  Ekstrakurikuler Ekstrakurikuler[]
 }
 
 model Kepala_Sekolah {
@@ -61,6 +62,7 @@ model Periode_Ajar {
   semester Semester
 
   Mata_Pelajaran Mata_Pelajaran[]
+  Ekstrakurikuler Ekstrakurikuler[]
 }
 
 model Mata_Pelajaran {
@@ -112,4 +114,14 @@ model Siswa {
   nama_wali String
   pekerjaan_wali String
   alamat_wali String
+}
+
+model Ekstrakurikuler {
+  id_esktrakurikuler String @id @db.VarChar(36) @default(uuid())
+  nama String
+  username_guru String
+  id_periode_ajar String
+
+  Guru Guru @relation(fields: [username_guru], references: [username])
+  Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
 }
