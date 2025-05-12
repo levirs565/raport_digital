@@ -1,11 +1,16 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Context } from "./trpc.context";
 import { Meta } from "../types";
 
 @Injectable()
 export class TrpcService {
-    trpc = initTRPC.context<Context>().meta<Meta>().create()
+    constructor(
+        @Inject("SUPERJSON") private readonly  superjson: any
+    ) {}
+    trpc = initTRPC.context<Context>().meta<Meta>().create({
+        transformer: this.superjson
+    })
     mergeRouters = this.trpc.mergeRouters
     procedure = this.trpc.procedure.use(async (opts) => {
         const { meta, next, ctx } = opts;

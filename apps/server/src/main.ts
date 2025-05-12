@@ -47,7 +47,8 @@ async function bootstrap() {
             meta: {
               title: "Raport Digital",
               description: "Documentation for Raport Digital tRPC API"
-            }
+            },
+            transformer: "superjson"
           }
         )
       )
