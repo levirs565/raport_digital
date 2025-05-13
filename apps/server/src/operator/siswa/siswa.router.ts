@@ -52,6 +52,11 @@ export class OperatorSiswaRouter {
             .mutation(async ({ input }) =>
                 await this.service.add(input)
             ),
+        importCsv: this.trpc.operatorProcedure
+            .input(this.trpc.octetInputParse)
+            .mutation(async ({ input }) =>
+                await this.service.importCsv(input)
+            ),
         update: this.trpc.operatorProcedure
             .input(siswaSchema.extend({
                 id_siswa: z.string()

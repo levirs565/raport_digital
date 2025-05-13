@@ -2,6 +2,20 @@ import { Inject, Injectable } from "@nestjs/common";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { Context } from "./trpc.context";
 import { Meta } from "../types";
+import { octetInputParser } from "@trpc/server/http";
+
+// TODO: This is copied from original octetInputParser type
+import { type ParserZodEsque } from "@trpc/server/unstable-core-do-not-import";
+import { type ReadableStream } from "node:stream/web";
+export type UtilityParser<TInput, TOutput> = ParserZodEsque<TInput, TOutput> & {
+  parse: (input: unknown) => TOutput;
+};
+
+export interface FileLike extends Blob {
+  readonly name: string;
+}
+
+export type OctetInput = Blob | Uint8Array | FileLike;
 
 @Injectable()
 export class TrpcService {
@@ -39,4 +53,6 @@ export class TrpcService {
         allowedRole: "OPERATOR"
     })
     router = this.trpc.router
+
+    octetInputParse = octetInputParser as unknown as UtilityParser<OctetInput, ReadableStream>
 }
