@@ -16,9 +16,6 @@ export class OperatorPeriodeAjarRouter {
   ) {}
 
   router = this.trpc.router({
-    getAll: this.trpc.operatorProcedure.query(async () =>
-      this.service.getAll()
-    ),
     get: this.trpc.operatorProcedure
       .input(z.object({ id: z.string() }))
       .query(async ({ input }) => this.service.get(input.id)),

@@ -8,19 +8,6 @@ import { PrismaHelper } from '../../utils';
 export class OperatorPeriodeAjarService {
   constructor(private readonly prismaClient: PrismaService) {}
 
-  async getAll() {
-    return this.prismaClient.periode_Ajar.findMany({
-      orderBy: [
-        {
-          tahunAjar: 'desc',
-        },
-        {
-          semester: 'desc',
-        },
-      ],
-    });
-  }
-
   private ensureFound(ajar: Periode_Ajar | null) {
     if (!ajar)
       throw new TRPCError({
