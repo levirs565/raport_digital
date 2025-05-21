@@ -33,6 +33,7 @@ export class OperatorMataPelajaranService {
           select: {
             Guru: {
               select: {
+                nama_lengkap: true,
                 NIP: true,
                 username: true,
               },

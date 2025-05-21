@@ -152,7 +152,8 @@ model Mata_Pelajaran_Kelas {
   id_mata_pelajaran String @db.VarChar(36)
   username_guru String
   id_kelas String @db.VarChar(36)
-  @@id([id_mata_pelajaran,username_guru,id_kelas])
+  @@id([id_mata_pelajaran,id_kelas])
+  // username_guru tidak masuk ID agar mata pelajaran per kelas unik
 
   Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
   Guru Guru @relation(fields: [username_guru], references: [username])
@@ -160,6 +161,7 @@ model Mata_Pelajaran_Kelas {
   Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
 }
 
+// ERD/RAT salah
 model Anggota_Kelas {
   id_kelas String @db.VarChar(36)
   id_siswa String @db.VarChar(36)

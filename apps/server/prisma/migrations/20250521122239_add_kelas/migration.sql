@@ -16,7 +16,7 @@ CREATE TABLE `Mata_Pelajaran_Kelas` (
     `username_guru` VARCHAR(191) NOT NULL,
     `id_kelas` VARCHAR(36) NOT NULL,
 
-    PRIMARY KEY (`id_mata_pelajaran`, `username_guru`, `id_kelas`)
+    PRIMARY KEY (`id_mata_pelajaran`, `id_kelas`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
