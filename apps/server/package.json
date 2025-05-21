@@ -11,7 +11,9 @@
           "args": [
             "node-env=production"
           ],
-          "runtimeArgs": ["--experimental-require-module"]
+          "runtimeArgs": [
+            "--experimental-require-module"
+          ]
         },
         "configurations": {
           "development": {
@@ -30,7 +32,9 @@
         "options": {
           "buildTarget": "@raport-digital/server:build",
           "runBuildTargetDependencies": false,
-          "runtimeArgs": ["--experimental-require-module"]
+          "runtimeArgs": [
+            "--experimental-require-module"
+          ]
         },
         "configurations": {
           "development": {

@@ -21,8 +21,8 @@ module.exports = {
     new ForkTsCheckerWebpackPlugin({
       typescript: {
         configFile: './tsconfig.app.json',
-        mode: "write-dts"
-      }
-    })
+        mode: 'write-dts',
+      },
+    }),
   ],
 };

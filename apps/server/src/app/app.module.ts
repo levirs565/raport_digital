@@ -17,26 +17,28 @@ import { OperatorModule } from '../operator/operator.module';
     PrismaModule,
     TrpcModule,
     AuthModule,
-    OperatorModule
+    OperatorModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppRouter],
 })
 export class AppModule {
   constructor(
-    private readonly prismaClient: PrismaService, 
+    private readonly prismaClient: PrismaService,
     private readonly configService: ConfigService
   ) {}
 
   configureApp(app: INestApplication) {
-    app.use(session({
-      store: new PrismaSessionStore(this.prismaClient, {
-        checkPeriod: 2 * 60 * 1000,  //ms
-        dbRecordIdIsSessionId: true,
-        dbRecordIdFunction: undefined,
-      }),
-      secret: this.configService.getOrThrow<string>("SESSION_SECRET"),
-      resave: true
-    }));
+    app.use(
+      session({
+        store: new PrismaSessionStore(this.prismaClient, {
+          checkPeriod: 2 * 60 * 1000, //ms
+          dbRecordIdIsSessionId: true,
+          dbRecordIdFunction: undefined,
+        }),
+        secret: this.configService.getOrThrow<string>('SESSION_SECRET'),
+        resave: true,
+      })
+    );
   }
 }
