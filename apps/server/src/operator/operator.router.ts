@@ -5,6 +5,7 @@ import { OperatorMataPelajaranRouter } from './mata-pelajaran/mata_pelajaran.rou
 import { OperatorGuruRouter } from './guru/guru.router.js';
 import { OperatorSiswaRouter } from './siswa/siswa.router.js';
 import { OperatorEkstrakurikulerRouter } from './ekstrakurikuler/ekstrakurikuler.router.js';
+import { OperatorKelasRouter } from './kelas/kelas.router.js';
 
 @Injectable()
 export class OperatorRouter {
@@ -14,7 +15,8 @@ export class OperatorRouter {
     private readonly mataPelajaran: OperatorMataPelajaranRouter,
     private readonly guru: OperatorGuruRouter,
     private readonly siswa: OperatorSiswaRouter,
-    private readonly ekstrakurikuler: OperatorEkstrakurikulerRouter
+    private readonly ekstrakurikuler: OperatorEkstrakurikulerRouter,
+    private readonly kelas: OperatorKelasRouter
   ) {}
 
   router = this.trpc.router({
@@ -23,5 +25,6 @@ export class OperatorRouter {
     guru: this.guru.router,
     siswa: this.siswa.router,
     ekstrakurikuler: this.ekstrakurikuler.router,
+    kelas: this.kelas.router
   });
 }

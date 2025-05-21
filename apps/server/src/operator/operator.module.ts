@@ -6,6 +6,7 @@ import { OperatorMataPelajaranModule } from './mata-pelajaran/mata-pelajaran.mod
 import { OperatorGuruModule } from './guru/guru.module.js';
 import { OperatorSiswaModule } from './siswa/siswa.module.js';
 import { OperatorEkstrakurikulerModule } from './ekstrakurikuler/ekstrakurikuler.module.js';
+import { OperatorKelasModule } from './kelas/kelas.module.js';
 
 @Module({
   exports: [OperatorRouter],
@@ -16,6 +17,7 @@ import { OperatorEkstrakurikulerModule } from './ekstrakurikuler/ekstrakurikuler
     OperatorGuruModule,
     OperatorSiswaModule,
     OperatorEkstrakurikulerModule,
+    OperatorKelasModule,
     TrpcModule,
   ],
 })
