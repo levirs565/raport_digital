@@ -11,6 +11,9 @@ export class OperatorMataPelajaranService {
 
     async getAll(periodeAjarId: string) {
         return await this.prismaClient.mata_Pelajaran.findMany({
+            where: {
+                id_periode_ajar: periodeAjarId
+            },
             orderBy: [
                 {
                     kelompok_mapel: "asc"
