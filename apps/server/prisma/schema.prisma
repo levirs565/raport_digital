@@ -121,6 +121,7 @@ model Siswa {
   alamat_wali String
 
   Kelas Anggota_Kelas[]
+  Anggota_Ekstrakurikuler Anggota_Ekstrakurikuler[]
 }
 
 model Ekstrakurikuler {
@@ -131,6 +132,7 @@ model Ekstrakurikuler {
 
   Guru Guru @relation(fields: [username_guru], references: [username])
   Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
+  Anggota_Ekstrakurikuler Anggota_Ekstrakurikuler[]
 }
 
 model Kelas {
@@ -168,5 +170,25 @@ model Anggota_Kelas {
   @@id([id_kelas, id_siswa])
 
   Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
+  Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
+}
+
+enum Nilai_Ekstrakurikuler {
+  SANGAT_BAIK
+  BAIK
+  CUKUP
+  KURANG
+}
+
+model Anggota_Ekstrakurikuler {
+  id_ekstrakurikuler String @db.VarChar(36)
+  id_siswa String @db.VarChar(36)
+  @@id([id_ekstrakurikuler, id_siswa])
+
+  nilai Nilai_Ekstrakurikuler?
+  keterangan String?
+
+  //TODO: fix typo id_esktrakurikuler
+  Ekstrakurikuler Ekstrakurikuler @relation(fields: [id_ekstrakurikuler], references: [id_esktrakurikuler])
   Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }

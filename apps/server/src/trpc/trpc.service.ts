@@ -53,6 +53,9 @@ export class TrpcService {
   operatorProcedure = this.procedure.meta({
     allowedRole: 'OPERATOR',
   });
+  guruProcedure = this.procedure.meta({
+    allowedRole: "GURU"
+  })
   router = this.trpc.router;
 
   octetInputParse = octetInputParser as unknown as UtilityParser<

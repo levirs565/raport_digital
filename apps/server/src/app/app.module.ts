@@ -10,6 +10,7 @@ import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { AuthModule } from '../auth/auth.module';
 import { OperatorModule } from '../operator/operator.module';
+import { GuruModule } from '../guru/guru.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OperatorModule } from '../operator/operator.module';
     TrpcModule,
     AuthModule,
     OperatorModule,
+    GuruModule
   ],
   controllers: [AppController],
   providers: [AppService, AppRouter],
