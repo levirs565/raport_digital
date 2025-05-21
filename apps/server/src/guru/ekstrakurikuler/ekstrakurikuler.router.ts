@@ -29,7 +29,10 @@ export class GuruEkstrakurikulerRouter {
       .input(idSchema.extend({
         id_siswa_list: z.array(z.string().uuid()),
       }))
-      .mutation(async ({ input, ctx }) => await this.service.updateAnggotaList(ctx.session!.account!.username, input.id, input.id_siswa_list)),
+      .mutation(async ({ input, ctx }) => {
+        await this.service.updateAnggotaList(ctx.session!.account!.username, input.id, input.id_siswa_list)
+        return true;
+      }),
     updateNilai: this.trpc.guruProcedure
       .input(idSchema.extend({
         nilai: z.array(z.object({
@@ -38,6 +41,9 @@ export class GuruEkstrakurikulerRouter {
           keterangan: z.string().optional()
         }))
       }))
-      .mutation(async ({ input, ctx }) => await this.service.updateNilai(ctx.session!.account!.username, input.id, input.nilai))
+      .mutation(async ({ input, ctx }) => {
+        await this.service.updateNilai(ctx.session!.account!.username, input.id, input.nilai)
+        return true;
+      })
   })
 }
