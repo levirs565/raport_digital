@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { TrpcService } from "../../trpc/trpc.service";
 import { OperatorKelasService } from "./kelas.service";
-import { periodeAjarIdSchema } from "../common";
+import { periodeAjarIdSchema } from "../../common";
 import z from "zod";
 
 const idSchema = z.object({
