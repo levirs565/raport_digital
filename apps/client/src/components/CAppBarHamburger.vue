@@ -2,12 +2,12 @@
 import { inject } from 'vue';
 import { APP_BAR_TOGGLE_KEY } from './CAppBarHarmbugerKey';
 
-const toggle = inject(APP_BAR_TOGGLE_KEY)
+const toggle = inject(APP_BAR_TOGGLE_KEY);
 
 function onToggle() {
-    if (typeof toggle == "function") toggle();
+  if (typeof toggle == 'function') toggle();
 }
 </script>
 <template>
-    <v-app-bar-nav-icon @click="onToggle"></v-app-bar-nav-icon>
+  <v-app-bar-nav-icon @click="onToggle"></v-app-bar-nav-icon>
 </template>
