@@ -15,7 +15,7 @@
     "@tanstack/vue-query": "^5.75.4",
     "@trpc/client": "^11.1.2",
     "@trpc/server": "^11.1.2",
-    "@trpc/tanstack-react-query": "^11.1.2",
+    "@trpc/tanstack-react-query": "https://pkg.pr.new/trpc/trpc/@trpc/tanstack-react-query@6776",
     "argon2": "^0.43.0",
     "axios": "^1.6.0",
     "csv-parse": "^5.6.0",
