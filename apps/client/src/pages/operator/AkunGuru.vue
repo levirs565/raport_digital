@@ -12,12 +12,12 @@ const key = trpc!.operator.guru.getUnverifiedAll.queryKey()
 function verify(userName: string, accepted: boolean) {
   mutateAsync({
     username: userName,
-    accept: accepted
+    accept: accepted,
   }).then(() => {
     queryClient.invalidateQueries({
-      queryKey: [key]
+      queryKey: key
     })
-  });
+  })
 }
 
 </script>

@@ -12,6 +12,8 @@ import Dashboard from './pages/dashboard/Dashboard.vue';
 import RegisterGuru from './pages/auth/RegisterGuru.vue';
 import WaitVerification from './pages/auth/WaitVerification.vue';
 import AkunGuru from './pages/operator/AkunGuru.vue';
+import SiswaList from './pages/operator/SiswaList.vue';
+import AddSiswa from './pages/operator/AddSiswa.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -54,8 +56,15 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/operator/akun-guru',
-        component: AkunGuru
-
+        component: AkunGuru,
+      },
+      {
+        path: '/operator/siswa',
+        component: SiswaList
+      },
+      {
+        path: '/operator/siswa/add',
+        component: AddSiswa
       }
     ],
   },
