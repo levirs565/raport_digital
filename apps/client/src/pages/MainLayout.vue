@@ -42,6 +42,7 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
   <v-navigation-drawer v-model="drawer">
     <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
     <v-divider />
+    <v-list-item title="Verifikasi Akun Guru" to="/operator/akun-guru"></v-list-item>
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />

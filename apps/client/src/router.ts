@@ -11,6 +11,7 @@ import { injectQueryClient, injectTrpc } from './api-vue';
 import Dashboard from './pages/dashboard/Dashboard.vue';
 import RegisterGuru from './pages/auth/RegisterGuru.vue';
 import WaitVerification from './pages/auth/WaitVerification.vue';
+import AkunGuru from './pages/operator/AkunGuru.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -51,8 +52,14 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         component: Dashboard,
       },
+      {
+        path: '/operator/akun-guru',
+        component: AkunGuru
+
+      }
     ],
   },
+
 ];
 
 export const router = createRouter({
