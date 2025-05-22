@@ -30,6 +30,12 @@ model Guru {
   is_verified Boolean
 
   akun Akun @relation(fields: [username], references: [username])
+
+  Guru_Mata_Pelajaran Guru_Mata_Pelajaran[]
+  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas[]
+  Ekstrakurikuler Ekstrakurikuler[]
+  Kelas_Wali Kelas[] @relation("Kelas_wali_kelas")
+  Kelas_Koor_P5 Kelas[] @relation("Kelas_koor_p5")
 }
 
 model Kepala_Sekolah {
@@ -46,4 +52,143 @@ model Session {
   sid       String   @unique
   data      String   @db.Text
   expiresAt DateTime
+}
+
+enum Semester {
+  GANJIL
+  GENAP
+}
+
+model Periode_Ajar {
+  id_periode_ajar String @id @db.VarChar(36) @default(uuid())
+  tahunAjar Int
+  semester Semester
+
+  Mata_Pelajaran Mata_Pelajaran[]
+  Ekstrakurikuler Ekstrakurikuler[]
+  Kelas Kelas[]
+}
+
+model Mata_Pelajaran {
+  id_mata_pelajaran String @id @db.VarChar(36) @default(uuid())
+  nama String
+  kelompok_mapel String?
+  id_periode_ajar String
+
+  Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
+  Guru_Mata_Pelajaran Guru_Mata_Pelajaran[]
+  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas[]
+}
+
+model Guru_Mata_Pelajaran {
+  id_mata_pelajaran String
+  username_guru String
+  @@id([id_mata_pelajaran,username_guru])
+
+  Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
+  Guru Guru @relation(fields: [username_guru], references: [username])
+  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas[]
+}
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+model Siswa {
+  id_siswa String @id @db.VarChar(36) @default(uuid())
+  NIS String @unique
+  NISN String @unique
+  nama String
+  jenis_kelamin JenisKelamin
+  tempat_lahir String
+  tgl_lahir DateTime @db.Date
+  alamat String
+  agama String
+  status_dlm_keluarga String
+  anak_ke Int
+  no_telp String
+  sekolah_asal String
+  tgl_diterima DateTime @db.Date
+  tingkat_diterima Int
+  nama_ayah String
+  nama_ibu String
+  pekerjaan_ayah String
+  pekerjaan_ibu String
+  alamat_ortu String
+  nama_wali String
+  pekerjaan_wali String
+  alamat_wali String
+
+  Kelas Anggota_Kelas[]
+  Anggota_Ekstrakurikuler Anggota_Ekstrakurikuler[]
+}
+
+model Ekstrakurikuler {
+  id_esktrakurikuler String @id @db.VarChar(36) @default(uuid())
+  nama String
+  username_guru String
+  id_periode_ajar String
+
+  Guru Guru @relation(fields: [username_guru], references: [username])
+  Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
+  Anggota_Ekstrakurikuler Anggota_Ekstrakurikuler[]
+}
+
+model Kelas {
+  id_kelas String @id @db.VarChar(36) @default(uuid())
+  kelas Int
+  kode_ruang_kelas String
+  username_wali_kelas String
+  username_koor_p5 String
+  id_periode_ajar String @db.VarChar(36)
+
+  Periode_Ajar Periode_Ajar @relation(fields: [id_periode_ajar], references: [id_periode_ajar])
+  Wali_Kelas Guru @relation("Kelas_wali_kelas", fields: [username_wali_kelas], references: [username])
+  Koor_P5 Guru @relation("Kelas_koor_p5", fields: [username_koor_p5], references: [username])
+  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas[]
+  Anggota_Kelas Anggota_Kelas[]
+}
+
+model Mata_Pelajaran_Kelas {
+  id_mata_pelajaran String @db.VarChar(36)
+  username_guru String
+  id_kelas String @db.VarChar(36)
+  @@id([id_mata_pelajaran,id_kelas])
+  // username_guru tidak masuk ID agar mata pelajaran per kelas unik
+
+  Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
+  Guru Guru @relation(fields: [username_guru], references: [username])
+  Guru_Mata_Pelajaran Guru_Mata_Pelajaran @relation(fields: [id_mata_pelajaran, username_guru], references: [id_mata_pelajaran, username_guru])
+  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
+}
+
+// ERD/RAT salah
+model Anggota_Kelas {
+  id_kelas String @db.VarChar(36)
+  id_siswa String @db.VarChar(36)
+  @@id([id_kelas, id_siswa])
+
+  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
+  Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
+}
+
+enum Nilai_Ekstrakurikuler {
+  SANGAT_BAIK
+  BAIK
+  CUKUP
+  KURANG
+}
+
+model Anggota_Ekstrakurikuler {
+  id_ekstrakurikuler String @db.VarChar(36)
+  id_siswa String @db.VarChar(36)
+  @@id([id_ekstrakurikuler, id_siswa])
+
+  nilai Nilai_Ekstrakurikuler?
+  keterangan String?
+
+  //TODO: fix typo id_esktrakurikuler
+  Ekstrakurikuler Ekstrakurikuler @relation(fields: [id_ekstrakurikuler], references: [id_esktrakurikuler])
+  Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }

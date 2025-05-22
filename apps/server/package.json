@@ -10,6 +10,9 @@
           "command": "webpack-cli build",
           "args": [
             "node-env=production"
+          ],
+          "runtimeArgs": [
+            "--experimental-require-module"
           ]
         },
         "configurations": {
@@ -28,7 +31,10 @@
         ],
         "options": {
           "buildTarget": "@raport-digital/server:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--experimental-require-module"
+          ]
         },
         "configurations": {
           "development": {
