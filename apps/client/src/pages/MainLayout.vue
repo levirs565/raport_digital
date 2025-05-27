@@ -9,36 +9,40 @@ const trpc = injectTrpc();
 const queryClient = useQueryClient();
 const { data } = useTrcpQuery(trpc!.auth.state.queryOptions());
 const authKey = trpc!.auth.state.queryKey();
-const { mutateAsync: logout } = useMutation(trpc!.auth.logout.mutationOptions());
+const { mutateAsync: logout } = useMutation(
+  trpc!.auth.logout.mutationOptions()
+);
 
 const drawer = ref<boolean | null>(null);
 
 provide(APP_BAR_TOGGLE_KEY, () => {
-    drawer.value = !drawer.value;
-})
+  drawer.value = !drawer.value;
+});
 
 function onLogout() {
-    logout().then(() => {
-        queryClient.invalidateQueries({
-            queryKey: authKey
-        })
-    })
+  logout().then(() => {
+    queryClient.invalidateQueries({
+      queryKey: authKey,
+    });
+  });
 }
 
 const userRoleMap: Record<UserType, string> = {
-    GURU: "Guru",
-    KEPALA_SEKOLAH: "Kepala Sekolah",
-    OPERATOR: "Operator"
-}
+  GURU: 'Guru',
+  KEPALA_SEKOLAH: 'Kepala Sekolah',
+  OPERATOR: 'Operator',
+};
 
-const accountTitle = computed(() => data.value?.type == "OPERATOR" ? "Operator" : data.value?.namaLengkap)
-const accountSubtitle = computed(() => userRoleMap[data.value!.type])
+const accountTitle = computed(() =>
+  data.value?.type == 'OPERATOR' ? 'Operator' : data.value?.namaLengkap
+);
+const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
 </script>
 <template>
-    <v-navigation-drawer v-model="drawer">
-        <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
-        <v-divider />
-        <v-list-item title="Logout" @click="onLogout" />
-    </v-navigation-drawer>
-    <router-view />
+  <v-navigation-drawer v-model="drawer">
+    <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
+    <v-divider />
+    <v-list-item title="Logout" @click="onLogout" />
+  </v-navigation-drawer>
+  <router-view />
 </template>
