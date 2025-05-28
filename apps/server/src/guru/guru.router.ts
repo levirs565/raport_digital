@@ -3,6 +3,7 @@ import { TrpcService } from "../trpc/trpc.service";
 import { GuruEkstrakurikulerRouter } from "./ekstrakurikuler/ekstrakurikuler.router";
 import { GuruMataPelajaranRouter } from "./mata-pelajaran/mata-pelajaran.router";
 import { GuruP5Router } from "./p5/p5.router";
+import { GuruWaliKelasRouter } from "./wali-kelas/wali-kelas.router";
 
 @Injectable()
 export class GuruRouter {
@@ -10,12 +11,14 @@ export class GuruRouter {
     private readonly trpc: TrpcService,
     private readonly ekstrakurikuler: GuruEkstrakurikulerRouter,
     private readonly mataPelajaran: GuruMataPelajaranRouter,
-    private readonly p5: GuruP5Router
+    private readonly p5: GuruP5Router,
+    private readonly waliKelas: GuruWaliKelasRouter
   ) {}
 
   router = this.trpc.router({
     ekstrakurikuler: this.ekstrakurikuler.router,
     mataPelajaran: this.mataPelajaran.router,
-    p5: this.p5.router
+    p5: this.p5.router,
+    waliKelas: this.waliKelas.router
   })
 }

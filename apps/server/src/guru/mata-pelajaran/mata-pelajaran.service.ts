@@ -377,9 +377,9 @@ export class GuruMataPelajaranService {
       },
       _sum: {
         nilai: true,
-      },
+      }
     });
-    console.log(result);
+
     const anggotaKelas = await this.prismaClient.anggota_Kelas.findMany({
       where: {
         id_kelas: id.id_kelas,

@@ -4,13 +4,15 @@ import { GuruEkstrakurikulerModule } from "./ekstrakurikuler/ekstrakurikuler.mod
 import { GuruRouter } from "./guru.router";
 import { GuruMataPelajaranModule } from "./mata-pelajaran/mata-pelajaran.module";
 import { GuruP5Module } from "./p5/p5.module";
+import { GuruWaliKelasModule } from "./wali-kelas/wali-kelas.module";
 
 @Module({
   imports: [
     TrpcModule,
     GuruEkstrakurikulerModule,
     GuruMataPelajaranModule,
-    GuruP5Module
+    GuruP5Module,
+    GuruWaliKelasModule
   ],
   providers: [GuruRouter],
   exports: [GuruRouter]
