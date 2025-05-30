@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, ref, watch, watchEffect } from 'vue';
+import { computed, provide, ref, watchEffect } from 'vue';
 import { APP_BAR_TOGGLE_KEY } from '../components/CAppBarHarmbugerKey';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';

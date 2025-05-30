@@ -12,8 +12,8 @@ import Dashboard from './pages/dashboard/Dashboard.vue';
 import RegisterGuru from './pages/auth/RegisterGuru.vue';
 import WaitVerification from './pages/auth/WaitVerification.vue';
 import AkunGuru from './pages/operator/AkunGuru.vue';
-import SiswaList from './pages/operator/SiswaList.vue';
-import AddSiswa from './pages/operator/AddSiswa.vue';
+import SiswaList from './pages/operator/siswa/SiswaList.vue';
+import AddSiswa from './pages/operator/siswa/AddSiswa.vue';
 import PeriodeList from './pages/operator/periode/PeriodeList.vue';
 import AddPeriode from './pages/operator/periode/AddPeriode.vue';
 import PeriodeDetail from './pages/operator/periode/PeriodeDetail.vue';
@@ -58,41 +58,51 @@ const routes: RouteRecordRaw[] = [
         component: Dashboard,
       },
       {
-        path: '/operator/akun-guru',
-        component: AkunGuru,
-      },
-      {
-        path: '/operator/siswa',
-        component: SiswaList,
-      },
-      {
-        path: '/operator/siswa/add',
-        component: AddSiswa,
-      },
-      {
-        path: '/operator/periode',
+        path: '/operator',
         children: [
           {
-            path: '',
-            component: PeriodeList,
+            path: 'akun-guru',
+            component: AkunGuru,
           },
           {
-            path: 'add',
-            component: AddPeriode,
-          },
-          {
-            path: ':id',
+            path: 'siswa',
             children: [
               {
                 path: '',
-                component: PeriodeDetail,
-                props: true,
+                component: SiswaList,
               },
               {
-                path: 'edit',
+                path: 'add',
+                component: AddSiswa,
+              },
+            ],
+          },
+          {
+            path: 'periode',
+            children: [
+              {
+                path: '',
+                component: PeriodeList,
+              },
+              {
+                path: 'add',
                 component: AddPeriode,
-                props: true
-              }
+              },
+              {
+                path: ':id',
+                children: [
+                  {
+                    path: '',
+                    component: PeriodeDetail,
+                    props: true,
+                  },
+                  {
+                    path: 'edit',
+                    component: AddPeriode,
+                    props: true,
+                  },
+                ],
+              },
             ],
           },
         ],
