@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue';
+import { computed, provide, ref, watch, watchEffect } from 'vue';
 import { APP_BAR_TOGGLE_KEY } from '../components/CAppBarHarmbugerKey';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
@@ -26,6 +26,12 @@ const periodeSelectItems = computed(() => {
   return []
 })
 const periodeStore = usePeriodeStore();
+
+watchEffect(() => {
+  if (!periodeStore.selectedPeriode && (periodeData.value?.length ?? 0 > 0)) {
+    periodeStore.selectedPeriode = periodeData.value?.at(0)?.id_periode_ajar
+  }
+})
 
 const drawer = ref<boolean | null>(null);
 

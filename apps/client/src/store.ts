@@ -1,11 +1,10 @@
 
 import { defineStore } from "pinia";
+import { useLocalStorage } from '@vueuse/core'
 
 export const usePeriodeStore = defineStore('periode', {
   state: () => ({
-    selectedPeriode: undefined
-  } satisfies {
-    selectedPeriode?: string
+    selectedPeriode: useLocalStorage<string | undefined>('periode', undefined)
   }),
 
 })
