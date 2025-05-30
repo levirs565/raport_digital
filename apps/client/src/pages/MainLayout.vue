@@ -70,6 +70,7 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
       item-title="title" />
     <v-list-item title="Mata Pelajaran" to="/operator/mata-pelajaran" />
     <v-list-item title="Ekstrakurikuler" to="/operator/ekstrakurikuler" />
+    <v-list-item title="Kelas" to="/operator/kelas"/>
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />

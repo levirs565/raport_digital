@@ -50,7 +50,7 @@ export class OperatorKelasRouter {
       .mutation(async ({ input }) => {
         await this.service.update(
           input.id, input.kelas, input.kode_ruang_kelas,
-          input.username_wali_kelas, input.username_wali_kelas
+          input.username_wali_kelas, input.username_koor_p5
         )
         return true;
       }),

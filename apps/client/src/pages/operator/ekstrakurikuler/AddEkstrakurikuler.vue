@@ -75,10 +75,10 @@ function onSubmit() {
     <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Ekstrakurikuler</v-app-bar-title>
   </v-app-bar>
   <v-main>
-    <div class="px-4 py-2">
+    <v-form class="px-4 py-2">
       <v-text-field v-model="nama" label="Nama" />
       <c-guru-combobox v-model="guru" label="Guru Pengampu" />
       <v-btn @click="onSubmit">{{ id ? "Ubah" : "Tambah" }}</v-btn>
-    </div>
+    </v-form>
   </v-main>
 </template>

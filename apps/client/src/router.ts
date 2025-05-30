@@ -23,7 +23,11 @@ import MataPelajaranDetail from './pages/operator/mata-pelajaran/MataPelajaranDe
 import EkstrakurikulerList from './pages/operator/ekstrakurikuler/EkstrakurikulerList.vue';
 import AddEkstrakurikuler from './pages/operator/ekstrakurikuler/AddEkstrakurikuler.vue';
 import EkstrakurikulerDetail from './pages/operator/ekstrakurikuler/EkstrakurikulerDetail.vue';
-import { tryOnUnmounted } from '@vueuse/core';
+import KelasList from './pages/operator/kelas/KelasList.vue';
+import AddKelas from './pages/operator/kelas/AddKelas.vue';
+import KelasDetail from './pages/operator/kelas/KelasDetail.vue';
+import AddMataPelajaranKelas from './pages/operator/kelas/AddMataPelajaranKelas.vue';
+import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -162,8 +166,51 @@ const routes: RouteRecordRaw[] = [
                   {
                     path: 'edit',
                     component: AddEkstrakurikuler,
-                    props: true
+                    props: true,
                   },
+                ],
+              },
+            ],
+          },
+          {
+            path: 'kelas',
+            children: [
+              {
+                path: '',
+                component: KelasList,
+              },
+              {
+                path: 'add',
+                component: AddKelas,
+              },
+              {
+                path: ':id',
+                children: [
+                  {
+                    path: '',
+                    component: KelasDetail,
+                    props: true,
+                  },
+                  {
+                    path: 'edit',
+                    component: AddKelas,
+                    props: true,
+                  },
+                  {
+                    path: 'mata-pelajaran',
+                    children: [
+                      {
+                        path: 'add',
+                        component: AddMataPelajaranKelas,
+                        props: true
+                      },
+                    ],
+                  },
+                  {
+                    path: 'anggota',
+                    component: EditAnggotaKelas,
+                    props: true
+                  }
                 ],
               },
             ],
