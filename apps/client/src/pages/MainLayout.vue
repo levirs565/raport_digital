@@ -57,13 +57,37 @@ const accountTitle = computed(() =>
   data.value?.type == 'OPERATOR' ? 'Operator' : data.value?.namaLengkap
 );
 const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
+
+const periodeIdComputed = computed(() => periodeStore.selectedPeriode!);
+const enabledGuru = computed(() => data.value?.type == "GURU" && !!periodeStore.selectedPeriode)
+const { data: waliKelasData } = useTrcpQuery(trpc!.guru.waliKelas.getAll.queryOptions({
+  periode_ajar_id: periodeIdComputed
+}, {
+  enabled: enabledGuru as unknown as boolean
+}))
+const { data: ekstrakurikulerData } = useTrcpQuery(trpc!.guru.ekstrakurikuler.getAll.queryOptions({
+  periode_ajar_id: periodeIdComputed
+}, {
+  enabled: enabledGuru as unknown as boolean
+}))
+const { data: mataPelajaranData } = useTrcpQuery(trpc!.guru.mataPelajaran.getAll.queryOptions({
+  periode_ajar_id: periodeIdComputed
+}, {
+  enabled: enabledGuru as unknown as boolean
+}))
+const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
+  periode_ajar_id: periodeIdComputed
+}, {
+  enabled: enabledGuru as unknown as boolean
+}))
+
 </script>
 <template>
   <v-navigation-drawer v-model="drawer">
     <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
-    <v-divider />
-    <v-list-item title="Dashboard" to="/" exact></v-list-item>
     <template v-if="data?.type == 'OPERATOR'">
+      <v-divider />
+      <v-list-item title="Dashboard" to="/" exact></v-list-item>
       <v-list-item title="Verifikasi Akun Guru" to="/operator/akun-guru"></v-list-item>
       <v-list-item title="Siswa" to="/operator/siswa"></v-list-item>
       <v-list-item title="Periode Ajar" to="/operator/periode" />
@@ -76,7 +100,35 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
       <v-list-item title="Ekstrakurikuler" to="/operator/ekstrakurikuler" />
       <v-list-item title="Kelas" to="/operator/kelas" />
     </template>
-    <v-divider/>
+    <template v-if="data?.type == 'GURU'">
+      <v-divider />
+      <template v-if="waliKelasData?.length">
+        <v-list-subheader class="px-4">Wali Kelas</v-list-subheader>
+        <v-list-item v-for="item in waliKelasData">
+          <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
+        </v-list-item>
+      </template>
+      <template v-if="ekstrakurikulerData?.length">
+        <v-list-subheader class="px-4">Ekstrakurikuler</v-list-subheader>
+        <v-list-item v-for="item in ekstrakurikulerData">
+          <v-list-item-title>{{ item.nama }}</v-list-item-title>
+        </v-list-item>
+      </template>
+      <template v-if="mataPelajaranData?.length">
+        <v-list-subheader class="px-4">Mata Pelajaran</v-list-subheader>
+        <v-list-item v-for="item in mataPelajaranData">
+          <v-list-item-title>Kelas {{ item.kelas.kelas }}-{{ item.kelas.kode_ruang_kelas }} - {{
+            item.mata_pelajaran.nama }}</v-list-item-title>
+        </v-list-item>
+      </template>
+      <template v-if="p5Data?.length">
+        <v-list-subheader class="px-4">Koordinator P5</v-list-subheader>
+        <v-list-item v-for="item in p5Data">
+          <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
+        </v-list-item>
+      </template>
+    </template>
+    <v-divider />
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />
