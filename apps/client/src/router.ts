@@ -14,6 +14,9 @@ import WaitVerification from './pages/auth/WaitVerification.vue';
 import AkunGuru from './pages/operator/AkunGuru.vue';
 import SiswaList from './pages/operator/SiswaList.vue';
 import AddSiswa from './pages/operator/AddSiswa.vue';
+import PeriodeList from './pages/operator/periode/PeriodeList.vue';
+import AddPeriode from './pages/operator/periode/AddPeriode.vue';
+import PeriodeDetail from './pages/operator/periode/PeriodeDetail.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -60,15 +63,42 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/operator/siswa',
-        component: SiswaList
+        component: SiswaList,
       },
       {
         path: '/operator/siswa/add',
-        component: AddSiswa
-      }
+        component: AddSiswa,
+      },
+      {
+        path: '/operator/periode',
+        children: [
+          {
+            path: '',
+            component: PeriodeList,
+          },
+          {
+            path: 'add',
+            component: AddPeriode,
+          },
+          {
+            path: ':id',
+            children: [
+              {
+                path: '',
+                component: PeriodeDetail,
+                props: true,
+              },
+              {
+                path: 'edit',
+                component: AddPeriode,
+                props: true
+              }
+            ],
+          },
+        ],
+      },
     ],
   },
-
 ];
 
 export const router = createRouter({

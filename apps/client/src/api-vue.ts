@@ -9,6 +9,7 @@ import {
   UseQueryOptions,
   UseQueryReturnType,
 } from '@tanstack/vue-query';
+import { TRPCQueryOptions } from '@trpc/tanstack-react-query';
 
 type MaybeRefDeep<T> = Extract<
   Extract<
@@ -17,17 +18,16 @@ type MaybeRefDeep<T> = Extract<
   >['queryKey'],
   any[]
 >[0];
-type MapQueryOptions<F> = F extends (
-  input: infer A,
-  ...rest: infer B
-) => infer R
-  ? (input: MaybeRefDeep<A>, ...rest: B) => R
-  : never;
+type MapQueryOptionsDef<Def> = {
+  [K in keyof Def]: K extends 'input' ? MaybeRefDeep<Def[K]> : Def[K];
+};
 type MapToVue<T> = {
-  [K in keyof T]: K extends 'queryOptions'
-    ? MapQueryOptions<T[K]>
+  [K in keyof T]: T[K] extends TRPCQueryOptions<infer K>
+    ? TRPCQueryOptions<MapQueryOptionsDef<K>>
     : T[K] extends object
-    ? MapToVue<T[K]>
+    ? T[K] extends (...args: any[]) => any
+      ? T[K]
+      : MapToVue<T[K]>
     : T[K];
 };
 type TRPCVue = MapToVue<typeof trpc>;

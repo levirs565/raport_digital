@@ -35,7 +35,7 @@ const selectedOrderItem = computed(() => orders[selectedOrder.value])
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.operator.siswa.getAll.queryOptions({
-  page_index: pageIndex.value,
+  page_index: pageIndex,
   asc: selectedOrderItem.value.asc,
   order_by: selectedOrderItem.value.orderBy
 }));

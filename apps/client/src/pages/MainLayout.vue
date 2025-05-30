@@ -4,6 +4,7 @@ import { APP_BAR_TOGGLE_KEY } from '../components/CAppBarHarmbugerKey';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { UserType } from '@raport-digital/client-api-types';
+import { usePeriodeStore } from '../store';
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
@@ -12,6 +13,19 @@ const authKey = trpc!.auth.state.queryKey();
 const { mutateAsync: logout } = useMutation(
   trpc!.auth.logout.mutationOptions()
 );
+
+const { data: periodeData } = useTrcpQuery(trpc!.common.getAllPeriodeAjar.queryOptions());
+const periodeSelectItems = computed(() => {
+  if (periodeData.value) {
+    return periodeData.value.map((periode) => ({
+      ...periode,
+      title: `${periode.tahunAjar}/${periode.tahunAjar + 1} ${periode.semester == "GANJIL" ? "Ganjil" : "Genap"}`
+    }))
+  }
+
+  return []
+})
+const periodeStore = usePeriodeStore();
 
 const drawer = ref<boolean | null>(null);
 
@@ -45,6 +59,9 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
     <v-list-item title="Dashboard" to="/" exact></v-list-item>
     <v-list-item title="Verifikasi Akun Guru" to="/operator/akun-guru"></v-list-item>
     <v-list-item title="Siswa" to="/operator/siswa"></v-list-item>
+    <v-list-item title="Periode Ajar" to="/operator/periode"/>
+    <v-select v-model="periodeStore.selectedPeriode" :items="periodeSelectItems" item-value="id_periode_ajar"
+      item-title="title" />
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />
