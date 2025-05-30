@@ -63,14 +63,20 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
     <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
     <v-divider />
     <v-list-item title="Dashboard" to="/" exact></v-list-item>
-    <v-list-item title="Verifikasi Akun Guru" to="/operator/akun-guru"></v-list-item>
-    <v-list-item title="Siswa" to="/operator/siswa"></v-list-item>
-    <v-list-item title="Periode Ajar" to="/operator/periode" />
+    <template v-if="data?.type == 'OPERATOR'">
+      <v-list-item title="Verifikasi Akun Guru" to="/operator/akun-guru"></v-list-item>
+      <v-list-item title="Siswa" to="/operator/siswa"></v-list-item>
+      <v-list-item title="Periode Ajar" to="/operator/periode" />
+      <v-divider />
+    </template>
     <v-select v-model="periodeStore.selectedPeriode" :items="periodeSelectItems" item-value="id_periode_ajar"
-      item-title="title" />
-    <v-list-item title="Mata Pelajaran" to="/operator/mata-pelajaran" />
-    <v-list-item title="Ekstrakurikuler" to="/operator/ekstrakurikuler" />
-    <v-list-item title="Kelas" to="/operator/kelas"/>
+      item-title="title" variant="underlined" class="mx-4" />
+    <template v-if="data?.type == 'OPERATOR'">
+      <v-list-item title="Mata Pelajaran" to="/operator/mata-pelajaran" />
+      <v-list-item title="Ekstrakurikuler" to="/operator/ekstrakurikuler" />
+      <v-list-item title="Kelas" to="/operator/kelas" />
+    </template>
+    <v-divider/>
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />
