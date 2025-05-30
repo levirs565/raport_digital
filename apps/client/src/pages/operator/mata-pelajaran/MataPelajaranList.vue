@@ -18,7 +18,7 @@ const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.getAll.queryOptions({
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Mata Pelajaran</v-app-bar-title>
   </v-app-bar>
 

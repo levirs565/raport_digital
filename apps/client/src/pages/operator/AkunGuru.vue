@@ -23,7 +23,7 @@ function verify(userName: string, accepted: boolean) {
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Verifikasi Akun Guru</v-app-bar-title>
 
   </v-app-bar>

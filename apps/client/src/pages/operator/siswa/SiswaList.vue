@@ -45,7 +45,7 @@ const filterSiswa = ref('');
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Siswa</v-app-bar-title>
   </v-app-bar>
   <v-main>

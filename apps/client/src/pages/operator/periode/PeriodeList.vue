@@ -8,7 +8,7 @@ const { data } = useTrcpQuery(trpc!.common.getAllPeriodeAjar.queryOptions());
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Periode Ajar</v-app-bar-title>
   </v-app-bar>
 

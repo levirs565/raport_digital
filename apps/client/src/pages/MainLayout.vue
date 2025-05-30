@@ -69,6 +69,7 @@ const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
     <v-select v-model="periodeStore.selectedPeriode" :items="periodeSelectItems" item-value="id_periode_ajar"
       item-title="title" />
     <v-list-item title="Mata Pelajaran" to="/operator/mata-pelajaran" />
+    <v-list-item title="Ekstrakurikuler" to="/operator/ekstrakurikuler" />
     <v-list-item title="Logout" @click="onLogout" />
   </v-navigation-drawer>
   <router-view />

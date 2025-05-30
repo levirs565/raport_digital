@@ -3,7 +3,7 @@ import CAppBarHamburger from '../../components/CAppBarHamburger.vue';
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Dashboard</v-app-bar-title>
   </v-app-bar>
 

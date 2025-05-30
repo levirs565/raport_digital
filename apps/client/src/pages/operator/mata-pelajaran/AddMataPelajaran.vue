@@ -77,7 +77,7 @@ function onSubmit() {
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Mata Pelajaran</v-app-bar-title>
   </v-app-bar>
 

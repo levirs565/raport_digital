@@ -15,7 +15,7 @@ const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.get.queryOptions({
 </script>
 <template>
   <v-app-bar>
-    <CAppBarHamburger />
+    <c-app-bar-hamburger />
     <v-app-bar-title>Detail Mata Pelajaran</v-app-bar-title>
     <v-btn icon :to="`/operator/mata-pelajaran/${data?.id_mata_pelajaran}/edit`">
       <v-icon>mdi-pencil</v-icon>

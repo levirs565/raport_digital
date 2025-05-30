@@ -20,6 +20,10 @@ import PeriodeDetail from './pages/operator/periode/PeriodeDetail.vue';
 import MataPelajaranList from './pages/operator/mata-pelajaran/MataPelajaranList.vue';
 import AddMataPelajaran from './pages/operator/mata-pelajaran/AddMataPelajaran.vue';
 import MataPelajaranDetail from './pages/operator/mata-pelajaran/MataPelajaranDetail.vue';
+import EkstrakurikulerList from './pages/operator/ekstrakurikuler/EkstrakurikulerList.vue';
+import AddEkstrakurikuler from './pages/operator/ekstrakurikuler/AddEkstrakurikuler.vue';
+import EkstrakurikulerDetail from './pages/operator/ekstrakurikuler/EkstrakurikulerDetail.vue';
+import { tryOnUnmounted } from '@vueuse/core';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -113,11 +117,11 @@ const routes: RouteRecordRaw[] = [
             children: [
               {
                 path: '',
-                component: MataPelajaranList
+                component: MataPelajaranList,
               },
               {
                 path: 'add',
-                component: AddMataPelajaran
+                component: AddMataPelajaran,
               },
               {
                 path: ':id',
@@ -125,17 +129,45 @@ const routes: RouteRecordRaw[] = [
                   {
                     path: '',
                     component: MataPelajaranDetail,
-                    props: true
+                    props: true,
                   },
                   {
                     path: 'edit',
                     component: AddMataPelajaran,
+                    props: true,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            path: 'ekstrakurikuler',
+            children: [
+              {
+                path: '',
+                component: EkstrakurikulerList,
+              },
+              {
+                path: 'add',
+                component: AddEkstrakurikuler,
+              },
+              {
+                path: ':id',
+                children: [
+                  {
+                    path: '',
+                    component: EkstrakurikulerDetail,
+                    props: true,
+                  },
+                  {
+                    path: 'edit',
+                    component: AddEkstrakurikuler,
                     props: true
-                  }
-                ]
-              }
-            ]
-          }
+                  },
+                ],
+              },
+            ],
+          },
         ],
       },
     ],
