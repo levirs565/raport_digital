@@ -36,8 +36,8 @@ const selectedOrderItem = computed(() => orders[selectedOrder.value])
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.operator.siswa.getAll.queryOptions({
   page_index: pageIndex,
-  asc: selectedOrderItem.value.asc,
-  order_by: selectedOrderItem.value.orderBy
+  asc: computed(() => selectedOrderItem.value.asc),
+  order_by: computed(() => selectedOrderItem.value.orderBy)
 }));
 
 const filterSiswa = ref('');

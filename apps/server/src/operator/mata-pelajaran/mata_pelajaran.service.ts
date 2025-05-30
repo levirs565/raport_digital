@@ -91,9 +91,22 @@ export class OperatorMataPelajaranService {
           nama: name,
           kelompok_mapel: kelompok,
           Guru_Mata_Pelajaran: {
-            deleteMany: {},
-            create: usernameGuruPengampu.map((item) => ({
-              username_guru: item,
+            deleteMany: {
+              username_guru: {
+                notIn: usernameGuruPengampu
+              }
+            },
+            upsert: usernameGuruPengampu.map((item) => ({
+              where: {
+                id_mata_pelajaran_username_guru: {
+                  id_mata_pelajaran: mapelId,
+                  username_guru: item
+                }
+              },
+              create: {
+                username_guru: item,
+              },
+              update: {}
             })),
           },
         },

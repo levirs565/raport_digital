@@ -17,6 +17,9 @@ import AddSiswa from './pages/operator/siswa/AddSiswa.vue';
 import PeriodeList from './pages/operator/periode/PeriodeList.vue';
 import AddPeriode from './pages/operator/periode/AddPeriode.vue';
 import PeriodeDetail from './pages/operator/periode/PeriodeDetail.vue';
+import MataPelajaranList from './pages/operator/mata-pelajaran/MataPelajaranList.vue';
+import AddMataPelajaran from './pages/operator/mata-pelajaran/AddMataPelajaran.vue';
+import MataPelajaranDetail from './pages/operator/mata-pelajaran/MataPelajaranDetail.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -105,6 +108,34 @@ const routes: RouteRecordRaw[] = [
               },
             ],
           },
+          {
+            path: 'mata-pelajaran',
+            children: [
+              {
+                path: '',
+                component: MataPelajaranList
+              },
+              {
+                path: 'add',
+                component: AddMataPelajaran
+              },
+              {
+                path: ':id',
+                children: [
+                  {
+                    path: '',
+                    component: MataPelajaranDetail,
+                    props: true
+                  },
+                  {
+                    path: 'edit',
+                    component: AddMataPelajaran,
+                    props: true
+                  }
+                ]
+              }
+            ]
+          }
         ],
       },
     ],
