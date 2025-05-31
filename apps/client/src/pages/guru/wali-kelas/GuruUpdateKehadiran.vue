@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
   idSiswa: String
 })
+const emit = defineEmits(['close'])
 
 const sakit = ref(0);
 const izin = ref(0);
@@ -30,7 +29,6 @@ watchEffect(() => {
 })
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSave() {
   if (!idKelas || !idSiswa) return;
 
@@ -47,21 +45,21 @@ function onSave() {
         siswa_id: idSiswa
       })
     })
-    router.back();
+    emit('close')
   })
 }
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Ubah Kehadiran</v-app-bar-title>
-  </v-app-bar>
-  <v-main>
-    <v-form class="px-4 py-2">
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Kehadiran</v-toolbar-title>
+    </v-toolbar>
+    <v-form class="pa-4">
       <v-number-input v-model="sakit" label="Sakit" />
       <v-number-input v-model="izin" label="Izin" />
       <v-number-input v-model="alpha" label="Alpa" />
       <v-btn @click="onSave">Simpan</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

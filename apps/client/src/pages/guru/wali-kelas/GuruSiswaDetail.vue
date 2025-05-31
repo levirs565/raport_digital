@@ -4,6 +4,9 @@ import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { nilaiEsktrakurikulerMap } from '../../../mapping';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import GuruUpdateCatatan from './GuruUpdateCatatan.vue';
+import GuruUpdateKehadiran from './GuruUpdateKehadiran.vue';
+import GuruAddPrestasi from './GuruAddPrestasi.vue';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
@@ -91,8 +94,16 @@ const activeTab = ref(0);
                     <v-icon>mdi-dots-vertical</v-icon>
                     <v-menu activator="parent">
                       <v-list>
-                        <v-list-item title="Ubah"
-                          :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/prestasi/${item.id_prestasi}`" />
+                        <v-dialog persistent>
+                          <template v-slot:activator="{ props }">
+                            <v-list-item title="Ubah" v-bind="props" />
+                          </template>
+                          <template v-slot:default="{ isActive }">
+                            <guru-add-prestasi :id-kelas="idKelas" :id-siswa="idSiswa" :id-prestasi="item.id_prestasi"
+                              @close="isActive.value = !isActive.value" />
+                          </template>
+                        </v-dialog>
+
                         <v-list-item title="Hapus" @click="() => onDeletePrestasi(item.id_prestasi)" />
                       </v-list>
                     </v-menu>
@@ -103,7 +114,14 @@ const activeTab = ref(0);
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/prestasi/add`">Tambah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Tambah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <guru-add-prestasi :id-kelas="idKelas" :id-siswa="idSiswa" @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
         <v-card v-if="kehadiranData" class="my-4">
@@ -123,14 +141,30 @@ const activeTab = ref(0);
             </div>
           </div>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/kehadiran`">Ubah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Ubah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <guru-update-kehadiran :id-kelas="idKelas" :id-siswa="idSiswa"
+                  @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
         <v-card>
           <v-card-title>Catatan</v-card-title>
           <v-card-text>{{ catatanData ?? "-" }}</v-card-text>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/catatan`">Ubah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Ubah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <guru-update-catatan :id-kelas="idKelas" :id-siswa="idSiswa"
+                  @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
       </v-tabs-window-item>

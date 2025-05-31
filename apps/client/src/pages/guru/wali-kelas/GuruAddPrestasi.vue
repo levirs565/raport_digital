@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idKelas, idSiswa, idPrestasi } = defineProps({
   idKelas: String,
   idSiswa: String,
   idPrestasi: String
 })
+const emit = defineEmits(['close'])
 
 const nama = ref("");
 const keterangan = ref("");
@@ -32,7 +31,6 @@ watchEffect(() => {
 })
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSubmit() {
   if (!idKelas || !idSiswa) return;
   const update = () => {
@@ -59,7 +57,7 @@ function onSubmit() {
       siswa_id: idSiswa
     }).then(() => {
       update();
-      router.back();
+      emit('close');
     });
   else updateAsync({
     jenis: nama.value,
@@ -68,22 +66,22 @@ function onSubmit() {
     prestasi_id: idPrestasi
   }).then(() => {
     update();
-    router.back();
+    emit('close');
   });
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>{{ idPrestasi ? "Ubah" : "Tambah" }} Prestasi</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>{{ idPrestasi ? "Ubah" : "Tambah" }} Prestasi</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <v-form class="px-4 py-2">
       <v-text-field v-model="nama" label="Nama Prestasi" />
       <v-textarea v-model="keterangan" label="Keterangan" />
       <v-btn @click="onSubmit">{{ idPrestasi ? "Ubah" : "Tambah" }}</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

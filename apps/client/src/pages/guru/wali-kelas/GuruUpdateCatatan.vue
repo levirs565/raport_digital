@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
   idSiswa: String
 })
+const emit = defineEmits(['close'])
 
 const catatan = ref("");
 
@@ -26,7 +25,6 @@ watchEffect(() => {
 })
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSave() {
   if (!idKelas || !idSiswa) return;
 
@@ -41,20 +39,20 @@ function onSave() {
         siswa_id: idSiswa
       })
     })
-    router.back();
+    emit('close')
   })
 }
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Ubah Catatan</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Catatan</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
-    <v-form class="px-4 py-2">
+    <v-form class="pa-4">
       <v-textarea v-model="catatan" label="Catatan Wali Kelas" />
       <v-btn @click="onSave">Simpan</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

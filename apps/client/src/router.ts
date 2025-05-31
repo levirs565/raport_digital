@@ -44,9 +44,6 @@ import GuruUpdateP5NilaiTarget from './pages/guru/p5/GuruUpdateP5NilaiTarget.vue
 import GuruUpdateP5CatatanProyek from './pages/guru/p5/GuruUpdateP5CatatanProyek.vue';
 import GuruKelasDetail from './pages/guru/wali-kelas/GuruKelasDetail.vue';
 import GuruSiswaDetail from './pages/guru/wali-kelas/GuruSiswaDetail.vue';
-import GuruAddPrestasi from './pages/guru/wali-kelas/GuruAddPrestasi.vue';
-import GuruUpdateKehadiran from './pages/guru/wali-kelas/GuruUpdateKehadiran.vue';
-import GuruUpdateCatatan from './pages/guru/wali-kelas/GuruUpdateCatatan.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -389,31 +386,6 @@ const routes: RouteRecordRaw[] = [
                     path: '',
                     component: GuruSiswaDetail,
                     props: true,
-                  },
-                  {
-                    path: 'kehadiran',
-                    component: GuruUpdateKehadiran,
-                    props: true,
-                  },
-                  {
-                    path: 'catatan',
-                    component: GuruUpdateCatatan,
-                    props: true,
-                  },
-                  {
-                    path: 'prestasi',
-                    children: [
-                      {
-                        path: 'add',
-                        component: GuruAddPrestasi,
-                        props: true,
-                      },
-                      {
-                        path: ':idPrestasi',
-                        component: GuruAddPrestasi,
-                        props: true,
-                      },
-                    ],
                   },
                 ],
               },
