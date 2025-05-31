@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import CNilaiMataPelajaranList from '../../../components/CNilaiMataPelajaranList.vue';
+import GuruAddMateri from './GuruAddMateri.vue';
 
 const { idKelas, idMataPelajaran } = defineProps({
   idKelas: String,
@@ -47,7 +48,15 @@ const activeTab = ref(0);
             <v-divider />
           </template>
         </v-list>
-        <v-fab icon="mdi-plus" app :to="`/guru/mata-pelajaran/${idKelas}/${idMataPelajaran}/materi/add`" />
+        <v-dialog persistent>
+          <template v-slot:activator="{ props }">
+            <v-fab icon="mdi-plus" app v-bind="props" />
+          </template>
+          <template v-slot:default="{ isActive }">
+            <guru-add-materi :id-kelas="idKelas" :id-mata-pelajaran="idMataPelajaran"
+              @close="isActive.value = !isActive.value" />
+          </template>
+        </v-dialog>
       </v-tabs-window-item>
       <v-tabs-window-item>
         <c-nilai-mata-pelajaran-list :data="nilaiData" />

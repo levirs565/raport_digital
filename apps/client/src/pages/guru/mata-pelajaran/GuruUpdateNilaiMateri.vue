@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { reactive } from 'vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idKelas, idMataPelajaran, idMateri } = defineProps({
   idKelas: String,
   idMataPelajaran: String,
   idMateri: String
 })
+const emit = defineEmits(['close']);
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri.queryOptions({
@@ -43,7 +42,6 @@ const filteredList = computed(() => {
 })
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSave() {
   if (!idMateri) return;
 
@@ -65,18 +63,17 @@ function onSave() {
         id_mata_pelajaran: idMataPelajaran!
       })
     })
-    router.back();
+    emit('close');
   })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Ubah Nilai</v-app-bar-title>
-  </v-app-bar>
-
-  <v-main>
+  <v-card>
+    <v-toolbar>
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Nilai</v-toolbar-title>
+    </v-toolbar>
     <div class="px-4 pt-2">
       <v-text-field label="Filter" v-model="filter" />
     </div>
@@ -93,5 +90,5 @@ function onSave() {
       </template>
     </v-list>
     <v-btn @click="onSave" class="mx-4 my-2">Simpan</v-btn>
-  </v-main>
+  </v-card>
 </template>

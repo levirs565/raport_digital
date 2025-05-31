@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CNilaiMataPelajaranList from '../../../components/CNilaiMataPelajaranList.vue';
+import GuruAddMateri from './GuruAddMateri.vue';
+import GuruUpdateNilaiMateri from './GuruUpdateNilaiMateri.vue';
 
 const { idMateri } = defineProps({
   idKelas: String,
@@ -34,13 +36,29 @@ const { data: nilaiData } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri
       <p>Materi</p>
       <p>{{ data.detail }}</p>
       <div class="d-flex justify-end ma-4">
-        <v-btn :to="`/guru/mata-pelajaran/${idKelas}/${idMataPelajaran}/materi/${idMateri}/edit`">Ubah</v-btn>
+        <v-dialog persistent>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props">Ubah</v-btn>
+          </template>
+          <template v-slot:default="{ isActive }">
+            <guru-add-materi :id-kelas="idKelas" :id-mata-pelajaran="idMataPelajaran" :id-materi="idMateri"
+              @close="isActive.value = !isActive.value" />
+          </template>
+        </v-dialog>
       </div>
     </v-card>
 
     <p class="mx-4 pt-2">Nilai</p>
     <c-nilai-mata-pelajaran-list :data="nilaiData" />
 
-    <v-fab icon="mdi-playlist-edit" app :to="`/guru/mata-pelajaran/${idKelas}/${idMataPelajaran}/materi/${idMateri}/nilai`" />
+    <v-dialog persistent fullscreen>
+      <template v-slot:activator="{ props }">
+        <v-fab icon="mdi-playlist-edit" app v-bind="props" />
+      </template>
+      <template v-slot:default="{ isActive }">
+        <guru-update-nilai-materi :id-kelas="idKelas" :id-mata-pelajaran="idMataPelajaran" :id-materi="idMateri"
+          @close="isActive.value = !isActive.value" />
+      </template>
+    </v-dialog>
   </v-main>
 </template>

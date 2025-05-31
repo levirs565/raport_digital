@@ -31,8 +31,6 @@ import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
 import GuruEkstrakurikulerDetail from './pages/guru/ekstrakurikuler/GuruEkstrakurikulerDetail.vue';
 import GuruMataPelajaranDetail from './pages/guru/mata-pelajaran/GuruMataPelajaranDetail.vue';
 import GuruMateriDetail from './pages/guru/mata-pelajaran/GuruMateriDetail.vue';
-import GuruAddMateri from './pages/guru/mata-pelajaran/GuruAddMateri.vue';
-import GuruUpdateNilaiMateri from './pages/guru/mata-pelajaran/GuruUpdateNilaiMateri.vue';
 import GuruP5Detail from './pages/guru/p5/GuruP5Detail.vue';
 import GuruAddP5Proyek from './pages/guru/p5/GuruAddP5Proyek.vue';
 import GuruP5ProyekDetail from './pages/guru/p5/GuruP5ProyekDetail.vue';
@@ -261,26 +259,11 @@ const routes: RouteRecordRaw[] = [
                 path: 'materi',
                 children: [
                   {
-                    path: 'add',
-                    component: GuruAddMateri,
-                    props: true,
-                  },
-                  {
                     path: ':idMateri',
                     children: [
                       {
                         path: '',
                         component: GuruMateriDetail,
-                        props: true,
-                      },
-                      {
-                        path: 'edit',
-                        component: GuruAddMateri,
-                        props: true,
-                      },
-                      {
-                        path: 'nilai',
-                        component: GuruUpdateNilaiMateri,
                         props: true,
                       },
                     ],
