@@ -6,4 +6,5 @@ export type Router = AppRouterType;
 export type UserType = $Enums.AkunType;
 export type SemesterType = $Enums.Semester;
 export type NilaiEkstrakurikulerType = $Enums.Nilai_Ekstrakurikuler;
+export type NilaiP5Type = $Enums.Nilai_P5_Enum;
 export type UserRole = OUserRole

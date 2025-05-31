@@ -35,6 +35,13 @@ import GuruMataPelajaranDetail from './pages/guru/mata-pelajaran/GuruMataPelajar
 import GuruMateriDetail from './pages/guru/mata-pelajaran/GuruMateriDetail.vue';
 import GuruAddMateri from './pages/guru/mata-pelajaran/GuruAddMateri.vue';
 import GuruUpdateNilaiMateri from './pages/guru/mata-pelajaran/GuruUpdateNilaiMateri.vue';
+import GuruP5Detail from './pages/guru/p5/GuruP5Detail.vue';
+import GuruAddP5Proyek from './pages/guru/p5/GuruAddP5Proyek.vue';
+import GuruP5ProyekDetail from './pages/guru/p5/GuruP5ProyekDetail.vue';
+import GuruAddP5Target from './pages/guru/p5/GuruAddP5Target.vue';
+import GuruP5TargetDetail from './pages/guru/p5/GuruP5TargetDetail.vue';
+import GuruUpdateP5NilaiTarget from './pages/guru/p5/GuruUpdateP5NilaiTarget.vue';
+import GuruUpdateP5CatatanProyek from './pages/guru/p5/GuruUpdateP5CatatanProyek.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -285,6 +292,76 @@ const routes: RouteRecordRaw[] = [
                         path: 'nilai',
                         component: GuruUpdateNilaiMateri,
                         props: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            path: 'p5/:idKelas',
+            children: [
+              {
+                path: '',
+                component: GuruP5Detail,
+                props: true,
+              },
+              {
+                path: 'proyek',
+                children: [
+                  {
+                    path: 'add',
+                    component: GuruAddP5Proyek,
+                    props: true,
+                  },
+                  {
+                    path: ':idProyek',
+                    children: [
+                      {
+                        path: '',
+                        component: GuruP5ProyekDetail,
+                        props: true,
+                      },
+                      {
+                        path: 'edit',
+                        component: GuruAddP5Proyek,
+                        props: true,
+                      },
+                      {
+                        path: 'catatan',
+                        component: GuruUpdateP5CatatanProyek,
+                        props: true
+                      },
+                      {
+                        path: 'target',
+                        children: [
+                          {
+                            path: 'add',
+                            component: GuruAddP5Target,
+                            props: true,
+                          },
+                          {
+                            path: ':idTarget',
+                            children: [
+                              {
+                                path: '',
+                                component: GuruP5TargetDetail,
+                                props: true,
+                              },
+                              {
+                                path: 'edit',
+                                component: GuruAddP5Target,
+                                props: true,
+                              },
+                              {
+                                path: 'nilai',
+                                component: GuruUpdateP5NilaiTarget,
+                                props: true,
+                              },
+                            ],
+                          },
+                        ],
                       },
                     ],
                   },

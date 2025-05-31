@@ -195,7 +195,7 @@ export class GuruP5Router {
                 'SEDANG_BERKEMBANG',
                 'BERKEMBANG_SESUAI_HARAPAN',
                 'SANGAT_BERKEMBANG',
-              ]),
+              ]).optional(),
             })
           ),
         })

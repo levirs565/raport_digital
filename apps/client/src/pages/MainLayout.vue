@@ -126,7 +126,7 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
       </template>
       <template v-if="p5Data?.length">
         <v-list-subheader class="px-4">Koordinator P5</v-list-subheader>
-        <v-list-item v-for="item in p5Data">
+        <v-list-item v-for="item in p5Data" :key="item.id_kelas" :to="`/guru/p5/${item.id_kelas}`">
           <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
         </v-list-item>
       </template>

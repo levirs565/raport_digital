@@ -280,7 +280,7 @@ model Nilai_P5 {
   id_siswa String @db.VarChar(36)
   @@id([id_target_p5, id_siswa])
 
-  nilai String?
+  nilai Nilai_P5_Enum?
 }
 
 enum Status_Raport {

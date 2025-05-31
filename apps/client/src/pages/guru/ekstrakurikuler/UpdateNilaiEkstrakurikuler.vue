@@ -90,7 +90,7 @@ function onSave() {
         <v-list-item>
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
           <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
-          <v-select class="py-2" label="Nilai" :items="nilaiItems" :model-value="nilaiList[item.index].nilai"
+          <v-select class="mt-2" label="Nilai" :items="nilaiItems" :model-value="nilaiList[item.index].nilai"
             @update:model-value="(value) => {
               nilaiList[item.index].nilai = value;
             }" />
