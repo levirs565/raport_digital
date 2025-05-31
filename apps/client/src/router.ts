@@ -28,6 +28,9 @@ import AddKelas from './pages/operator/kelas/AddKelas.vue';
 import KelasDetail from './pages/operator/kelas/KelasDetail.vue';
 import AddMataPelajaranKelas from './pages/operator/kelas/AddMataPelajaranKelas.vue';
 import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
+import GuruEkstrakurikulerDetail from './pages/guru/ekstrakurikuler/GuruEkstrakurikulerDetail.vue';
+import UpdateAnggotaEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateAnggotaEkstrakurikuler.vue';
+import UpdateNilaiEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateNilaiEkstrakurikuler.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -202,15 +205,45 @@ const routes: RouteRecordRaw[] = [
                       {
                         path: 'add',
                         component: AddMataPelajaranKelas,
-                        props: true
+                        props: true,
                       },
                     ],
                   },
                   {
                     path: 'anggota',
                     component: EditAnggotaKelas,
-                    props: true
-                  }
+                    props: true,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: 'guru',
+        children: [
+          {
+            path: 'ekstrakurikuler',
+            children: [
+              {
+                path: ':id',
+                children: [
+                  {
+                    path: '',
+                    component: GuruEkstrakurikulerDetail,
+                    props: true,
+                  },
+                  {
+                    path: 'anggota',
+                    component: UpdateAnggotaEkstrakurikuler,
+                    props: true,
+                  },
+                  {
+                    path: 'nilai',
+                    component: UpdateNilaiEkstrakurikuler,
+                    props: true,
+                  },
                 ],
               },
             ],

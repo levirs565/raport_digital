@@ -110,7 +110,8 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
       </template>
       <template v-if="ekstrakurikulerData?.length">
         <v-list-subheader class="px-4">Ekstrakurikuler</v-list-subheader>
-        <v-list-item v-for="item in ekstrakurikulerData">
+        <v-list-item v-for="item in ekstrakurikulerData" :key="item.id_esktrakurikuler"
+          :to="`/guru/ekstrakurikuler/${item.id_esktrakurikuler}`">
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
         </v-list-item>
       </template>
