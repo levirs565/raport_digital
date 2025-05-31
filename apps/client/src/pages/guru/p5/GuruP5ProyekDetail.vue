@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import GuruAddP5Proyek from './GuruAddP5Proyek.vue';
+import GuruAddP5Target from './GuruAddP5Target.vue';
+import GuruUpdateP5CatatanProyek from './GuruUpdateP5CatatanProyek.vue';
 
 const { idProyek } = defineProps({
   idKelas: String,
@@ -46,7 +49,16 @@ const activeTab = ref(0);
           <p>Deskripsi</p>
           <p>{{ data.deskripsi }}</p>
           <div class="d-flex justify-end">
-            <v-btn :to="`/guru/p5/${idKelas}/proyek/${idProyek}/edit`">Ubah</v-btn>
+
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Ubah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <guru-add-p5-proyek :id-kelas="idKelas" :id-proyek="idProyek"
+                  @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
         <v-card class="mt-4" v-if="targetData">
@@ -61,7 +73,15 @@ const activeTab = ref(0);
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-btn :to="`/guru/p5/${idKelas}/proyek/${idProyek}/target/add`">Tambah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Tambah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <guru-add-p5-target :id-kelas="idKelas" :id-proyek="idProyek"
+                  @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
       </v-tabs-window-item>
@@ -75,7 +95,15 @@ const activeTab = ref(0);
             </v-list-item>
           </template>
         </v-list>
-        <v-fab icon="mdi-playlist-edit" app :to="`/guru/p5/${idKelas}/proyek/${idProyek}/catatan`" />
+        <v-dialog persistent fullscreen>
+          <template v-slot:activator="{ props }">
+            <v-fab icon="mdi-playlist-edit" app v-bind="props" />
+          </template>
+          <template v-slot:default="{ isActive }">
+            <guru-update-p5-catatan-proyek :id-kelas="idKelas" :id-proyek="idProyek"
+              @close="isActive.value = !isActive.value" />
+          </template>
+        </v-dialog>
       </v-tabs-window-item>
     </v-tabs-window>
   </v-main>

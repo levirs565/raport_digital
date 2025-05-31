@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idProyek } = defineProps({
   idKelas: String,
   idProyek: String
 })
+const emit = defineEmits(['close'])
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.guru.p5.getCatatanProsesProyek.queryOptions({
@@ -40,7 +39,6 @@ const filterdList = computed(() => {
 })
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSave() {
   if (!idProyek) return
 
@@ -56,18 +54,17 @@ function onSave() {
         id_proyek: idProyek
       })
     })
-    router.back();
+    emit('close')
   })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Ubah Catatan Proses</v-app-bar-title>
-  </v-app-bar>
-
-  <v-main>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Catatan Proses</v-toolbar-title>
+    </v-toolbar>
     <div class="px-4 pt-2">
       <v-text-field v-model="filter" label="Filter" />
     </div>
@@ -84,5 +81,5 @@ function onSave() {
       </template>
     </v-list>
     <v-btn @click="onSave" class="mx-4 my-2">Simpan</v-btn>
-  </v-main>
+  </v-card>
 </template>

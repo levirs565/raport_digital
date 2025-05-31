@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { NilaiP5Type } from '@raport-digital/client-api-types';
+import GuruAddP5Target from './GuruAddP5Target.vue';
+import GuruUpdateP5NilaiTarget from './GuruUpdateP5NilaiTarget.vue';
 
 const { idTarget } = defineProps({
   idKelas: String,
@@ -46,7 +48,15 @@ const nilaiMap: Record<NilaiP5Type, string> = {
       <p>Target</p>
       <p>{{ data.target }}</p>
       <div class="d-flex justify-end">
-        <v-btn :to="`/guru/p5/${idKelas}/proyek/${idProyek}/target/${idTarget}/edit`">Ubah</v-btn>
+        <v-dialog persistent>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props">Ubah</v-btn>
+          </template>
+          <template v-slot:default="{ isActive }">
+            <guru-add-p5-target :id-kelas="idKelas" :id-proyek="idProyek" :id-target="idTarget"
+              @close="isActive.value = !isActive.value" />
+          </template>
+        </v-dialog>
       </div>
     </v-card>
 
@@ -65,5 +75,13 @@ const nilaiMap: Record<NilaiP5Type, string> = {
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-playlist-edit" app :to="`/guru/p5/${idKelas}/proyek/${idProyek}/target/${idTarget}/nilai`" />
+  <v-dialog persistent fullscreen>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-playlist-edit" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <guru-update-p5-nilai-target :id-kelas="idKelas" :id-proyek="idProyek" :id-target="idTarget"
+        @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
@@ -9,6 +8,7 @@ const { idKelas, idProyek } = defineProps({
   idKelas: String,
   idProyek: String
 })
+const emit = defineEmits(['close'])
 
 const tema = ref("");
 const judul = ref("");
@@ -60,7 +60,7 @@ function onSubmit() {
       deskripsi: deskripsi.value
     }).then((id) => {
       update();
-      router.replace(`/guru/p5/${idKelas}/proyek/${id}`)
+      router.push(`/guru/p5/${idKelas}/proyek/${id}`)
     })
   else
     updateAsync({
@@ -70,22 +70,22 @@ function onSubmit() {
       deskripsi: deskripsi.value
     }).then(() => {
       update();
-      router.back();
+      emit('close');
     })
 }
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>{{ idProyek ? "Ubah" : "Tambah" }} Proyek</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>{{ idProyek ? "Ubah" : "Tambah" }} Proyek</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <v-form class="px-4 py-2">
       <v-text-field v-model="tema" label="Tema" />
       <v-text-field v-model="judul" label="Judul" />
       <v-textarea v-model="deskripsi" label="Deskripsi" />
       <v-btn @click="onSubmit">{{ idProyek ? "Ubah" : "Tambah" }}</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

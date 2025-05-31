@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
@@ -11,6 +10,7 @@ const { idProyek, idKelas, idTarget } = defineProps({
   idProyek: String,
   idTarget: String
 })
+const emit = defineEmits(['close']);
 
 const dimensi = ref("");
 const elemen = ref("");
@@ -64,7 +64,7 @@ function onSubmit() {
       id_proyek: idProyek
     }).then((id) => {
       update();
-      router.replace(`/guru/p5/${idKelas}/proyek/${idProyek}/target/${id}`)
+      router.push(`/guru/p5/${idKelas}/proyek/${idProyek}/target/${id}`)
     })
   else
     updateAsync({
@@ -75,18 +75,18 @@ function onSubmit() {
       id_target: idTarget
     }).then(() => {
       update();
-      router.back();
+      emit('close');
     })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>{{ idTarget ? 'Ubah' : 'Tambah' }} Target</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>{{ idTarget ? 'Ubah' : 'Tambah' }} Target</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <v-form class="px-4 py-2">
       <v-text-field v-model="dimensi" label="Dimensi" />
       <v-text-field v-model="elemen" label="Elemen" />
@@ -94,5 +94,5 @@ function onSubmit() {
       <v-text-field v-model="target" label="Target" />
       <v-btn @click="onSubmit">{{ idTarget ? 'Ubah' : 'Tambah' }}</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

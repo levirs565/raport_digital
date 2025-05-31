@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { NilaiP5Type } from '@raport-digital/client-api-types';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { idTarget } = defineProps({
   idKelas: String,
   idProyek: String,
   idTarget: String
 })
+const emit = defineEmits(['close'])
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.guru.p5.getNilaiTarget.queryOptions({
@@ -49,7 +48,6 @@ const nilaiItems = [
 ]
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSave() {
   if (!idTarget) return;
 
@@ -65,18 +63,18 @@ function onSave() {
         id_target: idTarget
       })
     })
-    router.back();
+    emit('close')
   })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Ubah Nilai Target</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Nilai Target</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <div class="px-4 pt-2">
       <v-text-field v-model="filter" label="Filter" />
     </div>
@@ -94,5 +92,5 @@ function onSave() {
       </template>
     </v-list>
     <v-btn @click="onSave" class="mx-4 my-2">Simpan</v-btn>
-  </v-main>
+  </v-card>
 </template>

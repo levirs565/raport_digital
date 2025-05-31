@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import GuruAddP5Proyek from './GuruAddP5Proyek.vue';
 
 const { idKelas } = defineProps({
   idKelas: String
@@ -33,5 +34,12 @@ const { data: proyekData } = useTrcpQuery(trpc!.guru.p5.getProyekList.queryOptio
       </template>
     </v-list>
   </v-main>
-  <v-fab icon="mdi-plus" app :to="`/guru/p5/${idKelas}/proyek/add`" />
+  <v-dialog persistent>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-plus" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <guru-add-p5-proyek :id-kelas="idKelas" @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>
