@@ -104,7 +104,7 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
       <v-divider />
       <template v-if="waliKelasData?.length">
         <v-list-subheader class="px-4">Wali Kelas</v-list-subheader>
-        <v-list-item v-for="item in waliKelasData">
+        <v-list-item v-for="item in waliKelasData" :key="item.id_kelas" :to="`/guru/wali-kelas/${item.id_kelas}`">
           <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
         </v-list-item>
       </template>

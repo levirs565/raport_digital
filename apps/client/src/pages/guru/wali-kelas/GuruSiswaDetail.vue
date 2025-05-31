@@ -1,0 +1,142 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import { injectTrpc, useTrcpQuery } from '../../../api-vue';
+import { nilaiEsktrakurikulerMap } from '../../../mapping';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+
+const { idKelas, idSiswa } = defineProps({
+  idKelas: String,
+  idSiswa: String
+})
+const idComputed = computed(() => ({
+  kelas_id: idKelas!,
+  siswa_id: idSiswa!
+}))
+
+const trpc = injectTrpc();
+const { data } = useTrcpQuery(trpc!.guru.waliKelas.getAnggota.queryOptions(idComputed));
+const { data: rekapData } = useTrcpQuery(trpc!.guru.waliKelas.getRekapNilai.queryOptions(idComputed));
+const { data: prestasiData } = useTrcpQuery(trpc!.guru.waliKelas.getAllPrestasi.queryOptions(idComputed));
+const { data: kehadiranData } = useTrcpQuery(trpc!.guru.waliKelas.getKehadiran.queryOptions(idComputed));
+const { data: catatanData } = useTrcpQuery(trpc!.guru.waliKelas.getCatatanWaliKelas.queryOptions(idComputed));
+const { mutateAsync: deletePrestasiAsync } = useMutation(trpc!.guru.waliKelas.deletePrestasi.mutationOptions());
+const queryClient = useQueryClient();
+
+function onDeletePrestasi(idPrestasi: string) {
+  deletePrestasiAsync({
+    kelas_id: idKelas!,
+    prestasi_id: idPrestasi
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc!.guru.waliKelas.getAllPrestasi.queryKey({
+        kelas_id: idKelas!,
+        siswa_id: idSiswa!
+      })
+    })
+  })
+}
+
+const activeTab = ref(0);
+</script>
+<template>
+  <v-app-bar>
+    <c-app-bar-hamburger />
+    <v-app-bar-title>{{ data?.nama }}</v-app-bar-title>
+    <template v-slot:extension>
+      <v-tabs grow v-model="activeTab">
+        <v-tab>Rekap Nilai</v-tab>
+        <v-tab>Evaluasi Wali Kelas</v-tab>
+        <v-tab>Raport</v-tab>
+      </v-tabs>
+    </template>
+  </v-app-bar>
+
+  <v-main>
+    <v-tabs-window v-model="activeTab">
+      <v-tabs-window-item>
+        <v-list v-if="rekapData">
+          <v-list-subheader v-if="rekapData.mata_pelajaran.length > 0">Mata Pelajaran</v-list-subheader>
+          <template v-for="item in rekapData.mata_pelajaran" :key="item.id_mata_pelajaran">
+            <v-list-item>
+              <v-list-item-title>{{ item.nama }}</v-list-item-title>
+              <template v-slot:append>
+                <p>{{ item.nilai }}</p>
+              </template>
+            </v-list-item>
+            <v-divider />
+          </template>
+          <v-list-subheader v-if="rekapData.ekstrakurikuler.length > 0">Ekstrakurikuler</v-list-subheader>
+          <template v-for="item in rekapData.ekstrakurikuler" :key="item.id_esktrakurikuler">
+            <v-list-item>
+              <v-list-item-title>{{ item.nama }}</v-list-item-title>
+              <template v-slot:append>
+                <p>{{ item.nilai ? nilaiEsktrakurikulerMap[item.nilai] : "-" }}</p>
+              </template>
+            </v-list-item>
+            <v-divider />
+          </template>
+        </v-list>
+      </v-tabs-window-item>
+      <v-tabs-window-item class="pa-4">
+        <v-card v-if="prestasiData">
+          <v-card-title>Prestasi</v-card-title>
+          <v-list>
+            <template v-for="item in prestasiData" :key="item.id_prestasi">
+              <v-list-item>
+                <v-list-item-title>{{ item.jenis }}</v-list-item-title>
+                <v-list-item-subtitle>{{ item.keterangan }}</v-list-item-subtitle>
+                <template v-slot:append>
+                  <v-btn variant="text" icon color="text">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                    <v-menu activator="parent">
+                      <v-list>
+                        <v-list-item title="Ubah"
+                          :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/prestasi/${item.id_prestasi}`" />
+                        <v-list-item title="Hapus" @click="() => onDeletePrestasi(item.id_prestasi)" />
+                      </v-list>
+                    </v-menu>
+                  </v-btn>
+                </template>
+              </v-list-item>
+              <v-divider />
+            </template>
+          </v-list>
+          <div class="d-flex justify-end ma-4 mt-0">
+            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/prestasi/add`">Tambah</v-btn>
+          </div>
+        </v-card>
+        <v-card v-if="kehadiranData" class="my-4">
+          <v-card-title>Kehadiran</v-card-title>
+          <div class="px-4">
+            <div class="d-flex">
+              <p class="flex-grow-1">Sakit</p>
+              <p>{{ kehadiranData.sakit_hari }}</p>
+            </div>
+            <div class="d-flex">
+              <p class="flex-grow-1">Izin</p>
+              <p>{{ kehadiranData.izin_hari }}</p>
+            </div>
+            <div class="d-flex">
+              <p class="flex-grow-1">Alpha</p>
+              <p>{{ kehadiranData.alpa_hari }}</p>
+            </div>
+          </div>
+          <div class="d-flex justify-end ma-4 mt-0">
+            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/kehadiran`">Ubah</v-btn>
+          </div>
+        </v-card>
+        <v-card>
+          <v-card-title>Catatan</v-card-title>
+          <v-card-text>{{ catatanData ?? "-" }}</v-card-text>
+          <div class="d-flex justify-end ma-4 mt-0">
+            <v-btn :to="`/guru/wali-kelas/${idKelas}/${idSiswa}/catatan`">Ubah</v-btn>
+          </div>
+        </v-card>
+      </v-tabs-window-item>
+      <v-tabs-window-item>
+
+      </v-tabs-window-item>
+    </v-tabs-window>
+  </v-main>
+</template>

@@ -3,7 +3,7 @@ import CExpandable from '../../../components/CExpandable.vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { computed, ref } from 'vue';
-import { NilaiEkstrakurikulerType } from '@raport-digital/client-api-types';
+import { nilaiEsktrakurikulerMap } from '../../../mapping';
 
 const { id } = defineProps({
   id: String
@@ -24,13 +24,6 @@ const anggotaList = computed(() => {
   const namaFilter = filter.value.toLocaleLowerCase();
   return anggotaData.value?.filter((siswa) => siswa.nama.toLocaleLowerCase().includes(namaFilter))
 })
-
-const nilaiMap: Record<NilaiEkstrakurikulerType, string> = {
-  SANGAT_BAIK: 'Sangat Baik',
-  BAIK: 'Baik',
-  CUKUP: 'Cukup',
-  KURANG: 'Kurang'
-}
 
 </script>
 <template>
@@ -66,7 +59,7 @@ const nilaiMap: Record<NilaiEkstrakurikulerType, string> = {
             <template v-slot:content>
               <div class="px-4 pb-2">
                 <p>Nilai</p>
-                <p>{{ item.nilai ? nilaiMap[item.nilai] : "-" }}</p>
+                <p>{{ item.nilai ? nilaiEsktrakurikulerMap[item.nilai] : "-" }}</p>
                 <p>Catatan</p>
                 <p>{{ item.keterangan ?? "-" }}</p>
                 <div class="d-flex justify-end">

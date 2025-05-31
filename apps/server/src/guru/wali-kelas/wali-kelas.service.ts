@@ -8,9 +8,9 @@ interface Prestasi {
 }
 
 interface Kehadiran {
-  sakit_hari: number
-  izin_hari: number
-  alpa_hari: number
+  sakit_hari: number;
+  izin_hari: number;
+  alpa_hari: number;
 }
 
 @Injectable()
@@ -76,7 +76,7 @@ export class GuruWaliKelasService {
     return result;
   }
 
-  async getAnggota(sessionUsername: string, kelasId: string) {
+  async getAllAnggota(sessionUsername: string, kelasId: string) {
     await this.ensureAccess(sessionUsername, kelasId);
 
     const result = await this.prismaClient.anggota_Kelas.findMany({
@@ -201,6 +201,26 @@ export class GuruWaliKelasService {
       });
   }
 
+  async getAnggota(sessionUsername: string, kelasId: string, siswaId: string) {
+    await this.ensureAccess(sessionUsername, kelasId);
+    await this.ensureSiswaInKelas(kelasId, siswaId);
+
+    const result = await this.prismaClient.siswa.findUnique({
+      where: {
+        id_siswa: siswaId,
+      },
+      select: {
+        id_siswa: true,
+        NIS: true,
+        NISN: true,
+        nama: true,
+      },
+    });
+    if (!result) this.throwNotFound();
+
+    return result;
+  }
+
   private async getPeriodeFromKelas(kelasId: string) {
     const result = await this.prismaClient.kelas.findUnique({
       where: {
@@ -214,7 +234,11 @@ export class GuruWaliKelasService {
     return result.id_periode_ajar;
   }
 
-  async getKehadiran(sessionUsername: string, kelasId: string, siswaId: string) {
+  async getKehadiran(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
     await this.ensureAccess(sessionUsername, kelasId);
     await this.ensureSiswaInKelas(kelasId, siswaId);
 
@@ -222,24 +246,31 @@ export class GuruWaliKelasService {
       where: {
         id_periode_ajar_id_siswa: {
           id_periode_ajar: await this.getPeriodeFromKelas(kelasId),
-          id_siswa: siswaId
-        }
+          id_siswa: siswaId,
+        },
       },
       select: {
         alpa_hari: true,
         izin_hari: true,
-        sakit_hari: true
-      }
-    })
+        sakit_hari: true,
+      },
+    });
 
-    return result ?? {
-      sakit_hari: 0,
-      izin_hari: 0,
-      alpa_hari: 0
-    };
+    return (
+      result ?? {
+        sakit_hari: 0,
+        izin_hari: 0,
+        alpa_hari: 0,
+      }
+    );
   }
 
-  async updateKehadiran(sessionUsername: string, kelasId: string, siswaId: string, kehadiran: Kehadiran) {
+  async updateKehadiran(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string,
+    kehadiran: Kehadiran
+  ) {
     await this.ensureAccess(sessionUsername, kelasId);
     await this.ensureSiswaInKelas(kelasId, siswaId);
 
@@ -248,19 +279,23 @@ export class GuruWaliKelasService {
       where: {
         id_periode_ajar_id_siswa: {
           id_periode_ajar: periodeId,
-          id_siswa: siswaId
-        }
+          id_siswa: siswaId,
+        },
       },
       update: kehadiran,
       create: {
         id_periode_ajar: periodeId,
         id_siswa: siswaId,
-        ...kehadiran
-      }
-    })
+        ...kehadiran,
+      },
+    });
   }
 
-  async getCatatanWaliKelas(sessionUsername: string, kelasId: string, siswaId: string) {
+  async getCatatanWaliKelas(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
     await this.ensureAccess(sessionUsername, kelasId);
     await this.ensureSiswaInKelas(kelasId, siswaId);
 
@@ -268,18 +303,23 @@ export class GuruWaliKelasService {
       where: {
         id_periode_ajar_id_siswa: {
           id_periode_ajar: await this.getPeriodeFromKelas(kelasId),
-          id_siswa: siswaId
-        }
+          id_siswa: siswaId,
+        },
       },
       select: {
-        catatan_wali_kelas: true
-      }
-    })
+        catatan_wali_kelas: true,
+      },
+    });
 
-    return result?.catatan_wali_kelas ?? "";
+    return result?.catatan_wali_kelas ?? '';
   }
 
-  async updateCatatanWaliKelas(sessionUsername: string, kelasId: string, siswaId: string, catatan: string) {
+  async updateCatatanWaliKelas(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string,
+    catatan: string
+  ) {
     await this.ensureAccess(sessionUsername, kelasId);
     await this.ensureSiswaInKelas(kelasId, siswaId);
 
@@ -288,18 +328,18 @@ export class GuruWaliKelasService {
       where: {
         id_periode_ajar_id_siswa: {
           id_periode_ajar: periodeId,
-          id_siswa: siswaId
-        }
+          id_siswa: siswaId,
+        },
       },
       update: {
-        catatan_wali_kelas: catatan
+        catatan_wali_kelas: catatan,
       },
       create: {
         id_periode_ajar: periodeId,
         id_siswa: siswaId,
-        catatan_wali_kelas: catatan
-      }
-    })
+        catatan_wali_kelas: catatan,
+      },
+    });
   }
 
   async getAllPrestasi(
@@ -413,8 +453,8 @@ export class GuruWaliKelasService {
 
     await this.prismaClient.prestasi.delete({
       where: {
-        id_prestasi: prestasiId
-      }
-    })
+        id_prestasi: prestasiId,
+      },
+    });
   }
 }

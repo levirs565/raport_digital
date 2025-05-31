@@ -51,13 +51,23 @@ export class GuruWaliKelasRouter {
         async ({ input, ctx }) =>
           await this.service.get(ctx.session.account!.username, input.kelas_id)
       ),
-    getAnggota: this.trpc.guruProcedure
+    getAllAnggota: this.trpc.guruProcedure
       .input(idSchema)
+      .query(
+        async ({ input, ctx }) =>
+          await this.service.getAllAnggota(
+            ctx.session.account!.username,
+            input.kelas_id
+          )
+      ),
+    getAnggota: this.trpc.guruProcedure
+      .input(siswaIdSchema)
       .query(
         async ({ input, ctx }) =>
           await this.service.getAnggota(
             ctx.session.account!.username,
-            input.kelas_id
+            input.kelas_id,
+            input.siswa_id
           )
       ),
     getRekapNilai: this.trpc.guruProcedure
