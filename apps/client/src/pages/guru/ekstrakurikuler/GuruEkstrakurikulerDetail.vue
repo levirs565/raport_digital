@@ -4,6 +4,8 @@ import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { computed, ref } from 'vue';
 import { nilaiEsktrakurikulerMap } from '../../../mapping';
+import UpdateAnggotaEkstrakurikuler from './UpdateAnggotaEkstrakurikuler.vue';
+import UpdateNilaiEkstrakurikuler from './UpdateNilaiEkstrakurikuler.vue';
 
 const { id } = defineProps({
   id: String
@@ -34,8 +36,22 @@ const anggotaList = computed(() => {
 
   <v-main>
     <div class="px-4 py-2">
-      <v-btn :to="`/guru/ekstrakurikuler/${id}/anggota`">Ubah Anggota</v-btn>
-      <v-btn :to="`/guru/ekstrakurikuler/${id}/nilai`" class="ml-2">Ubah Nilai</v-btn>
+      <v-dialog persistent fullscreen>
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props">Ubah Anggota</v-btn>
+        </template>
+        <template v-slot:default="{ isActive }">
+          <update-anggota-ekstrakurikuler :id="id" @close="isActive.value = !isActive.value" />
+        </template>
+      </v-dialog>
+      <v-dialog persistent fullscreen>
+        <template v-slot:activator="{ props }">
+          <v-btn class="ml-2" v-bind="props">Ubah Nilai</v-btn>
+        </template>
+        <template v-slot:default="{ isActive }">
+          <update-nilai-ekstrakurikuler :id="id" @close="isActive.value = !isActive.value" />
+        </template>
+      </v-dialog>
     </div>
     <div class="px-4 pt-2">
       <v-text-field v-model="filter" label="Filter" />

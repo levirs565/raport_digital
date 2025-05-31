@@ -29,8 +29,6 @@ import KelasDetail from './pages/operator/kelas/KelasDetail.vue';
 import AddMataPelajaranKelas from './pages/operator/kelas/AddMataPelajaranKelas.vue';
 import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
 import GuruEkstrakurikulerDetail from './pages/guru/ekstrakurikuler/GuruEkstrakurikulerDetail.vue';
-import UpdateAnggotaEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateAnggotaEkstrakurikuler.vue';
-import UpdateNilaiEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateNilaiEkstrakurikuler.vue';
 import GuruMataPelajaranDetail from './pages/guru/mata-pelajaran/GuruMataPelajaranDetail.vue';
 import GuruMateriDetail from './pages/guru/mata-pelajaran/GuruMateriDetail.vue';
 import GuruAddMateri from './pages/guru/mata-pelajaran/GuruAddMateri.vue';
@@ -245,16 +243,6 @@ const routes: RouteRecordRaw[] = [
                   {
                     path: '',
                     component: GuruEkstrakurikulerDetail,
-                    props: true,
-                  },
-                  {
-                    path: 'anggota',
-                    component: UpdateAnggotaEkstrakurikuler,
-                    props: true,
-                  },
-                  {
-                    path: 'nilai',
-                    component: UpdateNilaiEkstrakurikuler,
                     props: true,
                   },
                 ],
