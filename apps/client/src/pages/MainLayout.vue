@@ -117,7 +117,9 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
       </template>
       <template v-if="mataPelajaranData?.length">
         <v-list-subheader class="px-4">Mata Pelajaran</v-list-subheader>
-        <v-list-item v-for="item in mataPelajaranData">
+        <v-list-item v-for="item in mataPelajaranData"
+          :key="`${item.kelas.id_kelas}-${item.mata_pelajaran.id_mata_pelajaran}`"
+          :to="`/guru/mata-pelajaran/${item.kelas.id_kelas}/${item.mata_pelajaran.id_mata_pelajaran}`">
           <v-list-item-title>Kelas {{ item.kelas.kelas }}-{{ item.kelas.kode_ruang_kelas }} - {{
             item.mata_pelajaran.nama }}</v-list-item-title>
         </v-list-item>

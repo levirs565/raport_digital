@@ -31,6 +31,10 @@ import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
 import GuruEkstrakurikulerDetail from './pages/guru/ekstrakurikuler/GuruEkstrakurikulerDetail.vue';
 import UpdateAnggotaEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateAnggotaEkstrakurikuler.vue';
 import UpdateNilaiEkstrakurikuler from './pages/guru/ekstrakurikuler/UpdateNilaiEkstrakurikuler.vue';
+import GuruMataPelajaranDetail from './pages/guru/mata-pelajaran/GuruMataPelajaranDetail.vue';
+import GuruMateriDetail from './pages/guru/mata-pelajaran/GuruMateriDetail.vue';
+import GuruAddMateri from './pages/guru/mata-pelajaran/GuruAddMateri.vue';
+import GuruUpdateNilaiMateri from './pages/guru/mata-pelajaran/GuruUpdateNilaiMateri.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -243,6 +247,46 @@ const routes: RouteRecordRaw[] = [
                     path: 'nilai',
                     component: UpdateNilaiEkstrakurikuler,
                     props: true,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            path: 'mata-pelajaran/:idKelas/:idMataPelajaran',
+            children: [
+              {
+                path: '',
+                component: GuruMataPelajaranDetail,
+                props: true,
+              },
+              {
+                path: 'materi',
+                children: [
+                  {
+                    path: 'add',
+                    component: GuruAddMateri,
+                    props: true,
+                  },
+                  {
+                    path: ':idMateri',
+                    children: [
+                      {
+                        path: '',
+                        component: GuruMateriDetail,
+                        props: true,
+                      },
+                      {
+                        path: 'edit',
+                        component: GuruAddMateri,
+                        props: true,
+                      },
+                      {
+                        path: 'nilai',
+                        component: GuruUpdateNilaiMateri,
+                        props: true,
+                      },
+                    ],
                   },
                 ],
               },
