@@ -17,7 +17,7 @@ const { data } = defineProps(['data']) as {
         <v-list-item-title>{{ item.nama }}</v-list-item-title>
         <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
         <template v-slot:append>
-          <p>{{ item.nilai }}</p>
+          <p>{{ Number(item.nilai).toFixed(1) }}</p>
         </template>
       </v-list-item>
       <v-divider />

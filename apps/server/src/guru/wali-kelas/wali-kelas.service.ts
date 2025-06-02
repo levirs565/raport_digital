@@ -98,6 +98,12 @@ export class GuruWaliKelasService {
     return result.map((Anggota) => Anggota.Siswa);
   }
 
+  private createMataPelajaranDescription(materi: string, nilai: number) {
+    if (nilai >= 90) return `Menunjukkan penguasaan yang sangat baik dalam ${materi}`;
+    if (nilai >= 75) return `Menunjukkan penguasan yang baik dalam ${materi}`
+    return `Perlu pendampingan dalam ${materi}`
+  }
+
   async getRekapNilai(
     sessionUsername: string,
     kelasId: string,
@@ -150,8 +156,6 @@ export class GuruWaliKelasService {
         },
       });
 
-    console.log(kelas);
-
     // FIX: Perbaiki rumus
     const nilaiMataPelajaran =
       await this.prismaClient.nilai_Materi_View.groupBy({
@@ -165,9 +169,23 @@ export class GuruWaliKelasService {
         },
       });
 
+    const deskripsiMataPelajaran = await this.prismaClient.nilai_Materi_Ranked_View.findMany({
+      where: {
+        id_kelas: kelasId,
+        id_siswa: siswaId,
+        rank: 1
+      },
+      select: {
+        id_mata_pelajaran: true,
+        nilai: true,
+        detail: true
+      }
+    })
+
     return {
       mata_pelajaran: kelas.Mata_Pelajaran_Kelas.map(
         ({ Mata_Pelajaran, _count }) => {
+          const deskripsi = deskripsiMataPelajaran.find((deskripsi) => deskripsi.id_mata_pelajaran == Mata_Pelajaran.id_mata_pelajaran)
           return {
             ...Mata_Pelajaran,
             nilai:
@@ -175,6 +193,7 @@ export class GuruWaliKelasService {
                 (nilai) =>
                   nilai.id_mata_pelajaran == Mata_Pelajaran.id_mata_pelajaran
               )?._sum.nilai ?? 0) / (_count.Materi == 0 ? 1 : _count.Materi),
+            deskripsi: deskripsi ? this.createMataPelajaranDescription(deskripsi.detail, deskripsi.nilai) : undefined,
           };
         }
       ),

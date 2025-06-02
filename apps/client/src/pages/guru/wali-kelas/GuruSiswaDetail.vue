@@ -63,8 +63,9 @@ const activeTab = ref(0);
           <template v-for="item in rekapData.mata_pelajaran" :key="item.id_mata_pelajaran">
             <v-list-item>
               <v-list-item-title>{{ item.nama }}</v-list-item-title>
+              <v-list-item-subtitle>{{ item.deskripsi ?? "-" }}</v-list-item-subtitle>
               <template v-slot:append>
-                <p>{{ item.nilai }}</p>
+                <p>{{ Number(item.nilai).toFixed(1) }}</p>
               </template>
             </v-list-item>
             <v-divider />

@@ -234,6 +234,19 @@ view Nilai_Materi_View {
   id_kelas String @db.VarChar(36)
 }
 
+view Nilai_Materi_Ranked_View {
+  id_materi         String @db.VarChar(36)
+  id_siswa          String @db.VarChar(36)
+  @@id([id_materi, id_siswa])
+
+  nilai             Int
+  id_mata_pelajaran String @db.VarChar(36)
+  id_kelas          String @db.VarChar(36)
+  nama              String
+  detail            String
+  rank              BigInt  @default(0)
+}
+
 model Proyek_P5 {
   id_proyek_p5 String @id @db.VarChar(36) @default(uuid())
   tema String
