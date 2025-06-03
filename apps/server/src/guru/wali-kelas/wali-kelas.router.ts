@@ -100,6 +100,16 @@ export class GuruWaliKelasRouter {
             input.siswa_id
           )
       ),
+    confirmRaport: this.trpc.guruProcedure
+      .input(siswaIdSchema)
+      .mutation(async ({ input, ctx }) => {
+        await this.service.confirmRaport(
+          ctx.session.account!.username,
+          input.kelas_id,
+          input.siswa_id
+        );
+        return true;
+      }),
     getKehadiran: this.trpc.guruProcedure
       .input(siswaIdSchema)
       .query(

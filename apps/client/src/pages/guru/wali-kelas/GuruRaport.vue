@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
-import { useQueryClient } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useLayout } from 'vuetify';
 import { StatusRaportType } from '@raport-digital/client-api-types';
 
@@ -12,8 +12,6 @@ const { idKelas, idSiswa } = defineProps({
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
-
-
 
 const { data: statusData } = useTrcpQuery(trpc!.guru.waliKelas.getRaportStatus.queryOptions(computed(() => ({
   kelas_id: idKelas!,
@@ -35,14 +33,22 @@ const { data } = useTrcpQuery(trpc!.guru.waliKelas.getRaportPDF.queryOptions({
   enabled: computed(() => selectedRaport.value == 1) as unknown as boolean
 }))
 
-// function showPdf() {
-//   queryClient.fetchQuery(trpc!.guru.waliKelas.getRaportPDF.queryOptions({
-//     kelas_id: idKelas!,
-//     siswa_id: idSiswa!
-//   })).then((value) => {
-//     data.value = value;
-//   })
-// }
+const { mutateAsync: confirmAsync } = useMutation(trpc!.guru.waliKelas.confirmRaport.mutationOptions())
+
+function onConfirm() {
+  if (!idKelas || !idSiswa) return;
+  confirmAsync({
+    kelas_id: idKelas,
+    siswa_id: idSiswa
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc!.guru.waliKelas.getRaportStatus.queryKey()
+    })
+    queryClient.invalidateQueries({
+      queryKey: trpc!.guru.waliKelas.getRaportPDF.queryKey()
+    })
+  })
+}
 
 const layout = useLayout();
 </script>
@@ -70,6 +76,6 @@ const layout = useLayout();
     :style="{
       left: layout.mainRect.value.left + 'px'
     }">
-    <v-btn>Konfirmasi</v-btn>
+    <v-btn @click="onConfirm">Konfirmasi</v-btn>
   </v-sheet>
 </template>

@@ -393,6 +393,41 @@ export class GuruWaliKelasService {
     return raport.status;
   }
 
+  async confirmRaport(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
+    const periode = await this.getPeriodeFromKelas(kelasId);
+    const status = await this.getRaportStatus(
+      sessionUsername,
+      kelasId,
+      siswaId
+    );
+    if (status != 'MENUNGGU_KONFIRMASI')
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Sudah dikonfirmasi',
+      });
+
+    await this.prismaClient.raport.upsert({
+      where: {
+        id_periode_ajar_id_siswa: {
+          id_periode_ajar: periode,
+          id_siswa: siswaId,
+        },
+      },
+      create: {
+        id_periode_ajar: periode,
+        id_siswa: siswaId,
+        status: 'DIKONFIRMASI',
+      },
+      update: {
+        status: 'DIKONFIRMASI',
+      },
+    });
+  }
+
   private async ensureSiswaInKelas(kelasId: string, siswaId: string) {
     const result = await this.prismaClient.anggota_Kelas.findUnique({
       where: {
