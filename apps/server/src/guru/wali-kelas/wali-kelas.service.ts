@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
+import pdfmake from 'pdfmake';
+import { Status_Raport } from '@prisma/client';
 
 interface Prestasi {
   jenis: string;
@@ -12,6 +14,33 @@ interface Kehadiran {
   izin_hari: number;
   alpa_hari: number;
 }
+
+const pdfPrinter = new pdfmake({
+  Courier: {
+    normal: 'Courier',
+    bold: 'Courier-Bold',
+    italics: 'Courier-Oblique',
+    bolditalics: 'Courier-BoldOblique',
+  },
+  Helvetica: {
+    normal: 'Helvetica',
+    bold: 'Helvetica-Bold',
+    italics: 'Helvetica-Oblique',
+    bolditalics: 'Helvetica-BoldOblique',
+  },
+  Times: {
+    normal: 'Times-Roman',
+    bold: 'Times-Bold',
+    italics: 'Times-Italic',
+    bolditalics: 'Times-BoldItalic',
+  },
+  Symbol: {
+    normal: 'Symbol',
+  },
+  ZapfDingbats: {
+    normal: 'ZapfDingbats',
+  },
+});
 
 @Injectable()
 export class GuruWaliKelasService {
@@ -99,18 +128,13 @@ export class GuruWaliKelasService {
   }
 
   private createMataPelajaranDescription(materi: string, nilai: number) {
-    if (nilai >= 90) return `Menunjukkan penguasaan yang sangat baik dalam ${materi}`;
-    if (nilai >= 75) return `Menunjukkan penguasan yang baik dalam ${materi}`
-    return `Perlu pendampingan dalam ${materi}`
+    if (nilai >= 90)
+      return `Menunjukkan penguasaan yang sangat baik dalam ${materi}`;
+    if (nilai >= 75) return `Menunjukkan penguasan yang baik dalam ${materi}`;
+    return `Perlu pendampingan dalam ${materi}`;
   }
 
-  async getRekapNilai(
-    sessionUsername: string,
-    kelasId: string,
-    siswaId: string
-  ) {
-    await this.ensureAccess(sessionUsername, kelasId);
-
+  private async getInternalRekap(kelasId: string, siswaId: string) {
     const kelas = await this.prismaClient.kelas.findUnique({
       where: {
         id_kelas: kelasId,
@@ -134,7 +158,7 @@ export class GuruWaliKelasService {
         },
       },
     });
-    if (!kelas) this.throwNotFound();
+    if (!kelas) return null;
 
     const ekstrakurikuler =
       await this.prismaClient.anggota_Ekstrakurikuler.findMany({
@@ -169,23 +193,27 @@ export class GuruWaliKelasService {
         },
       });
 
-    const deskripsiMataPelajaran = await this.prismaClient.nilai_Materi_Ranked_View.findMany({
-      where: {
-        id_kelas: kelasId,
-        id_siswa: siswaId,
-        rank: 1
-      },
-      select: {
-        id_mata_pelajaran: true,
-        nilai: true,
-        detail: true
-      }
-    })
+    const deskripsiMataPelajaran =
+      await this.prismaClient.nilai_Materi_Ranked_View.findMany({
+        where: {
+          id_kelas: kelasId,
+          id_siswa: siswaId,
+          rank: 1,
+        },
+        select: {
+          id_mata_pelajaran: true,
+          nilai: true,
+          detail: true,
+        },
+      });
 
     return {
       mata_pelajaran: kelas.Mata_Pelajaran_Kelas.map(
         ({ Mata_Pelajaran, _count }) => {
-          const deskripsi = deskripsiMataPelajaran.find((deskripsi) => deskripsi.id_mata_pelajaran == Mata_Pelajaran.id_mata_pelajaran)
+          const deskripsi = deskripsiMataPelajaran.find(
+            (deskripsi) =>
+              deskripsi.id_mata_pelajaran == Mata_Pelajaran.id_mata_pelajaran
+          );
           return {
             ...Mata_Pelajaran,
             nilai:
@@ -193,7 +221,12 @@ export class GuruWaliKelasService {
                 (nilai) =>
                   nilai.id_mata_pelajaran == Mata_Pelajaran.id_mata_pelajaran
               )?._sum.nilai ?? 0) / (_count.Materi == 0 ? 1 : _count.Materi),
-            deskripsi: deskripsi ? this.createMataPelajaranDescription(deskripsi.detail, deskripsi.nilai) : undefined,
+            deskripsi: deskripsi
+              ? this.createMataPelajaranDescription(
+                  deskripsi.detail,
+                  deskripsi.nilai
+                )
+              : undefined,
           };
         }
       ),
@@ -202,6 +235,162 @@ export class GuruWaliKelasService {
         ...rest,
       })),
     };
+  }
+
+  async getRekapNilai(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
+    await this.ensureAccess(sessionUsername, kelasId);
+    await this.ensureSiswaInKelas(kelasId, siswaId);
+    const result = await this.getInternalRekap(kelasId, siswaId);
+    if (result == null) this.throwNotFound();
+    return result;
+  }
+
+  async internalGetRaportPDF(
+    kelasId: string,
+    siswaId: string
+  ): Promise<string | null> {
+    const rekap = await this.getInternalRekap(kelasId, siswaId);
+    if (rekap == null) return null;
+
+    const doc = pdfPrinter.createPdfKitDocument({
+      defaultStyle: {
+        font: 'Helvetica',
+      },
+      pageSize: 'A4',
+      content: [
+        {
+          layout: 'noBorders',
+          table: {
+            headerRows: 0,
+            widths: ['15%', '35%', '18%', '32%'],
+            body: [
+              ['NAMA', ': Nama', 'Kelas', ': Kelas'],
+              ['NIS/NISN', ': NIS/NISN', 'Fase', ': D'],
+              ['Madrasah', ': -', 'Semester', ': Semester'],
+              ['Alamat', ': -', 'Tahun Ajaran', ':'],
+            ],
+          },
+        },
+        {
+          text: '\n',
+        },
+        {
+          text: 'CAPAIAN HASIL BELAJAR',
+          alignment: 'center',
+          lineHeight: 1.5,
+          bold: true,
+          fontSize: 16,
+        },
+        {
+          table: {
+            headerRows: 1,
+            widths: [20, 150, 50, '*'],
+            body: [
+              [
+                { text: 'Mata Pelajaran', alignment: 'center', colSpan: 2 },
+                {},
+                { text: 'Nilai Akhir', alignment: 'center' },
+                { text: 'Capaian Kompetensi', alignment: 'center' },
+              ],
+              ...rekap.mata_pelajaran.map((mataPelajaran, index) => [
+                { text: (index + 1).toString(), alignment: 'center' },
+                { text: mataPelajaran.nama },
+                { text: mataPelajaran.nilai.toFixed(0), alignment: 'center' },
+                { text: mataPelajaran.deskripsi ?? '-' },
+              ]),
+              [
+                { text: 'Jumlah', colSpan: 2 },
+                {},
+                {
+                  text: rekap.mata_pelajaran
+                    .reduce((prev, curr) => prev + curr.nilai, 0)
+                    .toFixed(0),
+                },
+                {},
+              ],
+            ],
+          },
+        },
+        { text: '\n' },
+        { text: 'Ekstrakurikuler', lineHeight: 1.5 },
+        {
+          table: {
+            headerRows: 1,
+            widths: [20, 150, 50, '*'],
+            body: [
+              [
+                { text: 'No', alignment: 'center' },
+                { text: 'Kegiatan Ekstrakurikuler', alignment: 'center' },
+                { text: 'Nilai', alignment: 'center' },
+                { text: 'Keterangan', alignment: 'center' },
+              ],
+              ...rekap.ekstrakurikuler.map((ekstrakurikuler, index) => [
+                { text: (index + 1).toString() },
+                { text: ekstrakurikuler.nama },
+                { text: ekstrakurikuler.nilai },
+                { text: ekstrakurikuler.keterangan },
+              ]),
+            ],
+          },
+        },
+      ],
+    });
+    const bufferSize = 1073741824;
+
+    return new Promise((resolve) => {
+      let chunks: any[] = [];
+      doc.on('readable', () => {
+        let chunk;
+        while ((chunk = doc.read(bufferSize)) !== null) {
+          chunks.push(chunk);
+        }
+      });
+      doc.on('end', () => {
+        resolve(Buffer.concat(chunks).toString('base64'));
+      });
+      doc.end();
+    });
+  }
+
+  async getRaportPDF(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
+    await this.ensureAccess(sessionUsername, kelasId);
+    await this.ensureSiswaInKelas(kelasId, siswaId);
+    const result = await this.internalGetRaportPDF(kelasId, siswaId);
+    if (result == null) this.throwNotFound();
+    return result;
+  }
+
+  async getRaportStatus(
+    sessionUsername: string,
+    kelasId: string,
+    siswaId: string
+  ) {
+    await this.ensureAccess(sessionUsername, kelasId);
+    await this.ensureSiswaInKelas(kelasId, siswaId);
+
+    const periodeId = await this.getPeriodeFromKelas(kelasId);
+    const raport = await this.prismaClient.raport.findUnique({
+      where: {
+        id_periode_ajar_id_siswa: {
+          id_periode_ajar: periodeId,
+          id_siswa: siswaId,
+        },
+      },
+      select: {
+        status: true,
+      },
+    });
+    if (!raport) return Status_Raport.MENUNGGU_KONFIRMASI;
+
+    return raport.status;
   }
 
   private async ensureSiswaInKelas(kelasId: string, siswaId: string) {

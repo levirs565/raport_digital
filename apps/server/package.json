@@ -54,8 +54,5 @@
   },
   "scripts": {
     "add-account": "ts-node --project tsconfig.app.json ./src/add-account.ts"
-  },
-  "dependencies": {
-    "pdfmake": "^0.2.20"
   }
 }

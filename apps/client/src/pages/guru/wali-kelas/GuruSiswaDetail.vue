@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import GuruUpdateCatatan from './GuruUpdateCatatan.vue';
 import GuruUpdateKehadiran from './GuruUpdateKehadiran.vue';
 import GuruAddPrestasi from './GuruAddPrestasi.vue';
+import GuruRaport from './GuruRaport.vue';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
@@ -170,7 +171,7 @@ const activeTab = ref(0);
         </v-card>
       </v-tabs-window-item>
       <v-tabs-window-item>
-
+        <guru-raport class="ma-4" :id-kelas="idKelas" :id-siswa="idSiswa" />
       </v-tabs-window-item>
     </v-tabs-window>
   </v-main>
