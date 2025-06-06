@@ -36,6 +36,8 @@ import GuruP5ProyekDetail from './pages/guru/p5/GuruP5ProyekDetail.vue';
 import GuruP5TargetDetail from './pages/guru/p5/GuruP5TargetDetail.vue';
 import GuruKelasDetail from './pages/guru/wali-kelas/GuruKelasDetail.vue';
 import GuruSiswaDetail from './pages/guru/wali-kelas/GuruSiswaDetail.vue';
+import KepalaSekolahKelasDetail from './pages/kepala-sekolah/KepalaSekolahKelasDetail.vue';
+import KepalaSekolahSiswa from './pages/kepala-sekolah/KepalaSekolahSiswa.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -328,6 +330,21 @@ const routes: RouteRecordRaw[] = [
               },
             ],
           },
+        ],
+      },
+      {
+        path: 'kepala-sekolah/kelas/:idKelas',
+        children: [
+          {
+            path: '',
+            component: KepalaSekolahKelasDetail,
+            props: true,
+          },
+          {
+            path: ':idSiswa',
+            component: KepalaSekolahSiswa,
+            props: true
+          }
         ],
       },
     ],

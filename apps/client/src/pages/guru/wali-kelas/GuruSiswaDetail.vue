@@ -171,7 +171,8 @@ const activeTab = ref(0);
         </v-card>
       </v-tabs-window-item>
       <v-tabs-window-item>
-        <guru-raport class="ma-4" :id-kelas="idKelas" :id-siswa="idSiswa" />
+        <guru-raport :id-kelas="idKelas" :id-siswa="idSiswa" :status-raport="data?.status"
+          :alasan-tolak="data?.alasan_tolak ?? undefined" />
       </v-tabs-window-item>
     </v-tabs-window>
   </v-main>

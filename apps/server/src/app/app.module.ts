@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
 import { OperatorModule } from '../operator/operator.module';
 import { GuruModule } from '../guru/guru.module';
 import { CommonModule } from '../common/common.module';
+import { KepalaSekolahModule } from '../kepala-sekolah/kepala-sekolah.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { CommonModule } from '../common/common.module';
     AuthModule,
     CommonModule,
     OperatorModule,
-    GuruModule
+    GuruModule,
+    KepalaSekolahModule
   ],
   controllers: [AppController],
   providers: [AppService, AppRouter],

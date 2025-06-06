@@ -90,16 +90,6 @@ export class GuruWaliKelasRouter {
             input.siswa_id
           )
       ),
-    getRaportStatus: this.trpc.guruProcedure
-      .input(siswaIdSchema)
-      .query(
-        async ({ input, ctx }) =>
-          await this.service.getRaportStatus(
-            ctx.session.account!.username,
-            input.kelas_id,
-            input.siswa_id
-          )
-      ),
     confirmRaport: this.trpc.guruProcedure
       .input(siswaIdSchema)
       .mutation(async ({ input, ctx }) => {

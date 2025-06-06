@@ -80,6 +80,11 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
 }, {
   enabled: enabledGuru as unknown as boolean
 }))
+const { data: kepalaSekolahKelasData } = useTrcpQuery(trpc!.kepalaSekolah.getAllKelas.queryOptions({
+  periode_ajar_id: periodeIdComputed
+}, {
+  enabled: computed(() => data.value?.type == "KEPALA_SEKOLAH") as unknown as boolean
+}))
 
 </script>
 <template>
@@ -130,6 +135,14 @@ const { data: p5Data } = useTrcpQuery(trpc!.guru.p5.getAll.queryOptions({
           <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
         </v-list-item>
       </template>
+    </template>
+    <template v-if="data?.type == 'KEPALA_SEKOLAH'">
+      <v-divider />
+      <v-list-subheader class="px-4">Verifikasi Raport Siswa</v-list-subheader>
+      <v-list-item v-for="item in kepalaSekolahKelasData" :key="item.id_kelas"
+        :to="`/kepala-sekolah/kelas/${item.id_kelas}`">
+        <v-list-item-title>Kelas {{ item.kelas }}-{{ item.kode_ruang_kelas }}</v-list-item-title>
+      </v-list-item>
     </template>
     <v-divider />
     <v-list-item title="Logout" @click="onLogout" />

@@ -44,7 +44,10 @@ export class TrpcService {
 
     if (
       meta.allowedRole != 'LOGGED' &&
-      meta.allowedRole != ctx.session.account!.type
+      ((typeof meta.allowedRole == 'string' &&
+        meta.allowedRole != ctx.session.account!.type) ||
+        (typeof meta.allowedRole != 'string' &&
+          meta.allowedRole.includes(ctx.session.account!.type)))
     )
       throwForbidden();
 
@@ -54,8 +57,11 @@ export class TrpcService {
     allowedRole: 'OPERATOR',
   });
   guruProcedure = this.procedure.meta({
-    allowedRole: "GURU"
-  })
+    allowedRole: 'GURU',
+  });
+  kepalaSekolahProcedure = this.procedure.meta({
+    allowedRole: 'KEPALA_SEKOLAH',
+  });
   router = this.trpc.router;
 
   octetInputParse = octetInputParser as unknown as UtilityParser<

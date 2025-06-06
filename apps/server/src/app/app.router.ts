@@ -5,6 +5,7 @@ import { AuthRouter } from '../auth/auth.router';
 import { OperatorRouter } from '../operator/operator.router';
 import { GuruRouter } from '../guru/guru.router';
 import { CommonRouter } from '../common/common.router';
+import { KepalaSekolahRouter } from '../kepala-sekolah/kepala-sekolah.router';
 
 @Injectable()
 export class AppRouter {
@@ -14,7 +15,8 @@ export class AppRouter {
     private readonly authRouter: AuthRouter,
     private readonly commonRouter: CommonRouter,
     private readonly operatorRouter: OperatorRouter,
-    private readonly guruRouter: GuruRouter
+    private readonly guruRouter: GuruRouter,
+    private readonly kepalaSekolah: KepalaSekolahRouter,
   ) {}
 
   router = this.trpc.mergeRouters(
@@ -23,7 +25,8 @@ export class AppRouter {
       auth: this.authRouter.router,
       common: this.commonRouter.router,
       operator: this.operatorRouter.router,
-      guru: this.guruRouter.router
+      guru: this.guruRouter.router,
+      kepalaSekolah: this.kepalaSekolah.router
     })
   );
 }

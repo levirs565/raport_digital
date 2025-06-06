@@ -15,5 +15,5 @@ declare module 'express-session' {
 export type UserRole = $Enums.AkunType | 'NOT-LOGGED' | 'LOGGED' | null;
 
 export interface Meta {
-  allowedRole: UserRole;
+  allowedRole: UserRole | $Enums.AkunType[];
 }
