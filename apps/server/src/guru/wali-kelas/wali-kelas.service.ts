@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { RaportService } from '../../raport/raport.service';
 import { CommonUtilsService } from '../../common/common.utils.service';
+import { RaportType } from '../../types';
 
 interface Prestasi {
   jenis: string;
@@ -90,10 +91,11 @@ export class GuruWaliKelasService {
   async getRaportPDF(
     sessionUsername: string,
     kelasId: string,
-    siswaId: string
+    siswaId: string,
+    type: RaportType
   ) {
     await this.ensureAccess(sessionUsername, kelasId);
-    const result = await this.raportService.getRaportPDF(kelasId, siswaId);
+    const result = await this.raportService.getRaportPDF(kelasId, siswaId, type);
     if (result == null) this.throwNotFound();
     return result;
   }

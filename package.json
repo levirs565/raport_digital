@@ -5,6 +5,7 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@fontsource/noto-sans-symbols-2": "^5.2.5",
     "@mdi/font": "^7.4.47",
     "@nestjs/common": "^10.0.2",
     "@nestjs/config": "^4.0.2",

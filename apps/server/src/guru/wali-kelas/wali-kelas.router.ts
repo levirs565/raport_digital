@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GuruWaliKelasService } from './wali-kelas.service';
 import { TrpcService } from '../../trpc/trpc.service';
-import { periodeAjarIdSchema } from '../../common';
+import { periodeAjarIdSchema, raportType } from '../../common';
 import z from 'zod';
 import { extractFields } from '../../utils';
 
@@ -81,13 +81,16 @@ export class GuruWaliKelasRouter {
           )
       ),
     getRaportPDF: this.trpc.guruProcedure
-      .input(siswaIdSchema)
+      .input(siswaIdSchema.extend({
+        type: raportType
+      }))
       .query(
         async ({ input, ctx }) =>
           await this.service.getRaportPDF(
             ctx.session.account!.username,
             input.kelas_id,
-            input.siswa_id
+            input.siswa_id,
+            input.type
           )
       ),
     confirmRaport: this.trpc.guruProcedure

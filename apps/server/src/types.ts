@@ -17,3 +17,5 @@ export type UserRole = $Enums.AkunType | 'NOT-LOGGED' | 'LOGGED' | null;
 export interface Meta {
   allowedRole: UserRole | $Enums.AkunType[];
 }
+
+export type RaportType = 'IDENTITAS' | 'AKADEMIK' | 'P5';

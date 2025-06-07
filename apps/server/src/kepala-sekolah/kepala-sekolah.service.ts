@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RaportService } from '../raport/raport.service';
 import { CommonUtilsService } from '../common/common.utils.service';
 import { TRPCError } from '@trpc/server';
+import { RaportType } from '../types';
 
 export type RaportVerifyState =
   | {
@@ -70,8 +71,8 @@ export class KepalaSekolahService {
     return this.raportService.getAnggotaKelasAndStatusRaport(kelasId, siswaId)
   }
 
-  async getRaportPDF(kelasId: string, siswaId: string) {
-    return this.raportService.getRaportPDF(kelasId, siswaId);
+  async getRaportPDF(kelasId: string, siswaId: string, type: RaportType) {
+    return this.raportService.getRaportPDF(kelasId, siswaId, type);
   }
 
   async verifyRaport(

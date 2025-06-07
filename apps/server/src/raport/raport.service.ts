@@ -2,8 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import pdfmake from 'pdfmake';
 import { CommonUtilsService } from '../common/common.utils.service';
-import { Status_Raport } from '@prisma/client';
+import { $Enums, Status_Raport } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { formatDate } from 'date-fns';
+import { RaportType } from '../types';
+import { Content } from 'pdfmake/interfaces';
 
 const pdfPrinter = new pdfmake({
   Courier: {
@@ -29,6 +32,11 @@ const pdfPrinter = new pdfmake({
   },
   ZapfDingbats: {
     normal: 'ZapfDingbats',
+  },
+  'Noto Sans Symbols 2': {
+    normal: eval(
+      "require.resolve('@fontsource/noto-sans-symbols-2/files/noto-sans-symbols-2-symbols-400-normal.woff')"
+    ),
   },
 });
 
@@ -259,32 +267,215 @@ export class RaportService {
 
   async changeRaportStatus(kelasId: string, siswaId: string) {}
 
-  async getRaportPDF(kelasId: string, siswaId: string): Promise<string | null> {
-    const rekap = await this.getRekapNilai(kelasId, siswaId);
-    if (rekap == null) return null;
-
-    const doc = pdfPrinter.createPdfKitDocument({
+  private async getIdentitasRaportPDF(siswaId: string) {
+    const siswa = await this.prismaClient.siswa.findUnique({
+      where: {
+        id_siswa: siswaId,
+      },
+    });
+    if (siswa == null) return null;
+    return await pdfPrinter.createPdfKitDocument({
       defaultStyle: {
         font: 'Helvetica',
+        fontSize: 12,
       },
       pageSize: 'A4',
       content: [
         {
+          text: 'IDENTITAS PESERTA DIDIK',
+          alignment: 'center',
+          lineHeight: 1.5,
+          bold: true,
+          fontSize: 16,
+        },
+        {
           layout: 'noBorders',
           table: {
             headerRows: 0,
-            widths: ['15%', '35%', '18%', '32%'],
+            widths: ['4%', '25%', '2%', '*'],
             body: [
-              ['NAMA', ': Nama', 'Kelas', ': Kelas'],
-              ['NIS/NISN', ': NIS/NISN', 'Fase', ': D'],
-              ['Madrasah', ': -', 'Semester', ': Semester'],
-              ['Alamat', ': -', 'Tahun Ajaran', ':'],
+              ['1. ', 'Nama Peserta Didik', ':', siswa.nama],
+              ['2. ', 'NIS', ':', siswa.NIS],
+              ['3. ', 'NISN', ':', siswa.NISN],
+              [
+                '4. ',
+                'Tempat Tanggal Lahir',
+                ':',
+                `${siswa.tempat_lahir}, ${formatDate(
+                  siswa.tgl_lahir,
+                  'dd-MM-yyyy'
+                )}`,
+              ],
+              ['5. ', 'Jenis Kelamin', ':', siswa.jenis_kelamin],
+              ['6. ', 'Agama', ':', siswa.agama],
+              ['7. ', 'Status dalam Keluarga', ':', siswa.status_dlm_keluarga],
+              ['8. ', 'Anak Ke', ':', siswa.anak_ke.toString()],
+              ['9. ', 'Alamat Peserta Didik', ':', siswa.alamat],
+              ['10. ', 'Nomor Telepon Rumah/HP', ':', siswa.no_telp],
+              ['11. ', 'Sekolah Asal', ':', siswa.sekolah_asal],
+              ['12. ', 'Diterima di sekolah ini', ':', ''],
+              ['', 'a. Di kelas', ':', siswa.tingkat_diterima.toString()],
+              [
+                '',
+                'b. Pada tanggal',
+                ':',
+                formatDate(siswa.tgl_diterima, 'dd-MM-yyyy'),
+              ],
+              ['13. ', 'Nama Orang Tua', ':', ''],
+              ['', 'a. Ayah', ':', siswa.nama_ayah],
+              ['', 'b. Ibu', ':', siswa.nama_ibu],
+              ['14. ', 'Alamat Orang Tua', ':', siswa.alamat_ortu],
+              ['15. ', 'Pekerjaan Orang Tua', ':', siswa.nama],
+              ['', 'a. Ayah', ':', siswa.pekerjaan_ayah],
+              ['', 'b. Ibu', ':', siswa.pekerjaan_ibu],
+              ['16. ', 'Nama Wali Siswa', ':', siswa.nama_wali],
+              ['', 'a. Pekerjaan Wali', ':', siswa.pekerjaan_wali],
+              ['', 'b. Alamat Wali Siswa', ':', siswa.alamat_wali],
             ],
           },
         },
-        {
-          text: '\n',
+      ],
+    });
+  }
+
+  private generateIdentitasHeader({
+    nama,
+    NIS,
+    NISN,
+    kelas,
+    kodeRuangKelas,
+    semester,
+    tahunAjar,
+  }: {
+    nama: string;
+    NIS: string;
+    NISN: string;
+    kelas: number;
+    kodeRuangKelas: string;
+    semester: $Enums.Semester;
+    tahunAjar: number;
+  }): Content[] {
+    const marginHorizontal = 40;
+    const pageWidth = 595.28;
+    return [
+      {
+        layout: 'noBorders',
+        table: {
+          headerRows: 0,
+          widths: ['14%', '2%', '*', '18%', '2%', '*'],
+          body: [
+            ['NAMA', ':', nama, 'Kelas', ':', `${kelas}-${kodeRuangKelas}`],
+            ['NIS/NISN', ':', `${NIS}/${NISN}`, 'Fase', ':', 'D'],
+            [
+              'Madrasah',
+              ':',
+              '-',
+              'Semester',
+              ':',
+              semester == 'GANJIL' ? 'Genjil' : 'Genap',
+            ],
+            [
+              'Alamat',
+              ':',
+              '-',
+              'Tahun Ajaran',
+              ':',
+              `${tahunAjar}/${tahunAjar + 1}`,
+            ],
+          ],
         },
+      },
+      {
+        canvas: [
+          {
+            type: 'line',
+            x1: 0,
+            y1: 5,
+            x2: pageWidth - 2 * marginHorizontal,
+            y2: 5,
+            lineWidth: 1,
+          },
+        ],
+      },
+      {
+        text: '\n',
+      },
+    ];
+  }
+
+  private async getAkademikRaportPDF(kelasId: string, siswaId: string) {
+    const rekap = await this.getRekapNilai(kelasId, siswaId);
+    if (rekap == null) return null;
+
+    const data = await this.prismaClient.siswa.findUnique({
+      where: {
+        id_siswa: siswaId,
+      },
+      select: {
+        nama: true,
+        NIS: true,
+        NISN: true,
+        Prestasi: {
+          where: {
+            id_periode_ajar: rekap.id_periode_ajar,
+          },
+          select: {
+            jenis: true,
+            keterangan: true,
+          },
+        },
+        Raport: {
+          where: {
+            id_periode_ajar: rekap.id_periode_ajar,
+          },
+          select: {
+            sakit_hari: true,
+            izin_hari: true,
+            alpa_hari: true,
+            catatan_wali_kelas: true,
+          },
+        },
+        Kelas: {
+          where: {
+            id_kelas: kelasId,
+          },
+          select: {
+            Kelas: {
+              select: {
+                kelas: true,
+                kode_ruang_kelas: true,
+                Periode_Ajar: {
+                  select: {
+                    tahunAjar: true,
+                    semester: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!data) return null;
+    const kelas = data.Kelas.at(0)?.Kelas;
+    if (!kelas) return null;
+
+    return await pdfPrinter.createPdfKitDocument({
+      defaultStyle: {
+        font: 'Helvetica',
+        fontSize: 12,
+      },
+      pageSize: 'A4',
+      content: [
+        ...this.generateIdentitasHeader({
+          nama: data.nama,
+          NIS: data.NIS,
+          NISN: data.NISN,
+          kelas: kelas.kelas,
+          kodeRuangKelas: kelas.kode_ruang_kelas,
+          tahunAjar: kelas.Periode_Ajar.tahunAjar,
+          semester: kelas.Periode_Ajar.semester,
+        }),
         {
           text: 'CAPAIAN HASIL BELAJAR',
           alignment: 'center',
@@ -316,6 +507,7 @@ export class RaportService {
                   text: rekap.mata_pelajaran
                     .reduce((prev, curr) => prev + curr.nilai, 0)
                     .toFixed(0),
+                  alignment: 'center',
                 },
                 {},
               ],
@@ -335,17 +527,292 @@ export class RaportService {
                 { text: 'Nilai', alignment: 'center' },
                 { text: 'Keterangan', alignment: 'center' },
               ],
-              ...rekap.ekstrakurikuler.map((ekstrakurikuler, index) => [
-                { text: (index + 1).toString() },
-                { text: ekstrakurikuler.nama },
-                { text: ekstrakurikuler.nilai },
-                { text: ekstrakurikuler.keterangan },
-              ]),
+              ...(rekap.ekstrakurikuler.length == 0
+                ? [[{ text: '1' }, {}, {}, {}]]
+                : rekap.ekstrakurikuler.map((ekstrakurikuler, index) => [
+                    { text: (index + 1).toString(), alignment: 'center' },
+                    { text: ekstrakurikuler.nama },
+                    { text: ekstrakurikuler.nilai },
+                    { text: ekstrakurikuler.keterangan },
+                  ])),
+            ],
+          },
+        },
+        { text: '\n' },
+        { text: 'Ekstrakurikuler', lineHeight: 1.5 },
+        {
+          table: {
+            headerRows: 1,
+            widths: [20, 150, '*'],
+            body: [
+              [
+                { text: 'No', alignment: 'center' },
+                { text: 'Jenis Prestasi', alignment: 'center' },
+                { text: 'Keterangan', alignment: 'center' },
+              ],
+              ...(data.Prestasi.length == 0
+                ? [[{ text: '1' }, {}, {}]]
+                : data.Prestasi.map((prestasi, index) => [
+                    { text: (index + 1).toString(), alignment: 'center' },
+                    { text: prestasi.jenis },
+                    { text: prestasi.keterangan },
+                  ])),
+            ],
+          },
+        },
+        { text: '\n' },
+        { text: 'Ketidakhadiran', lineHeight: 1.5 },
+        {
+          table: {
+            widths: [170, 50, '*'],
+            body: [
+              [
+                { text: 'Sakit' },
+                {
+                  text: (data.Raport.at(0)?.sakit_hari ?? 0).toString(),
+                  alignment: 'center',
+                },
+                { text: 'Hari' },
+              ],
+              [
+                { text: 'Izin' },
+                {
+                  text: (data.Raport.at(0)?.izin_hari ?? 0).toString(),
+                  alignment: 'center',
+                },
+                { text: 'Hari' },
+              ],
+              [
+                { text: 'Alpa' },
+                {
+                  text: (data.Raport.at(0)?.alpa_hari ?? 0).toString(),
+                  alignment: 'center',
+                },
+                { text: 'Hari' },
+              ],
+            ],
+          },
+        },
+        { text: '\n' },
+        { text: 'Catatan Wali Kelas', lineHeight: 1.5 },
+        {
+          table: {
+            widths: ['100%'],
+            body: [[data.Raport.at(0)?.catatan_wali_kelas ?? '']],
+          },
+        },
+      ],
+    });
+  }
+
+  private async getP5RaportPDF(kelasId: string, siswaId: string) {
+    await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
+    const [siswa, kelas] = await Promise.all([
+      this.prismaClient.siswa.findUnique({
+        where: {
+          id_siswa: siswaId,
+        },
+        select: {
+          nama: true,
+          NIS: true,
+          NISN: true,
+        },
+      }),
+      this.prismaClient.kelas.findUnique({
+        where: {
+          id_kelas: kelasId,
+        },
+        select: {
+          kelas: true,
+          kode_ruang_kelas: true,
+          Periode_Ajar: {
+            select: {
+              tahunAjar: true,
+              semester: true,
+            },
+          },
+          Proyek_P5: {
+            select: {
+              judul: true,
+              deskripsi: true,
+              Catatan_Proses_P5: {
+                where: {
+                  id_siswa: siswaId,
+                },
+                select: {
+                  catatan: true,
+                },
+              },
+              Target_P5: {
+                include: {
+                  Nilai_P5: {
+                    where: {
+                      id_siswa: siswaId,
+                    },
+                    select: {
+                      nilai: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+    if (!siswa) return null;
+    if (!kelas) return null;
+    const p5NilaiJenis: {
+      title: string;
+      body: string;
+      value: $Enums.Nilai_P5_Enum;
+    }[] = [
+      {
+        value: 'MULAI_BERKEMBANG',
+        title: 'Mulai Berkembang',
+        body: 'Peserta didik mulai mengembangkan kemampuan namun belum konsisten',
+      },
+      {
+        value: 'SEDANG_BERKEMBANG',
+        title: 'Sedang Berkembang',
+        body: 'Peserta didik mulai megembangkan kemampuan',
+      },
+      {
+        value: 'BERKEMBANG_SESUAI_HARAPAN',
+        title: 'Berkembang Sesuai Harapan',
+        body: 'Peserta didik telah mengembangkan kemampuan hingga berada dalam tahap konsisten',
+      },
+      {
+        value: 'SANGAT_BERKEMBANG',
+        title: 'Sangat Berkembang',
+        body: 'Peserta didik mengembangkan kemampuan melampaui harapan',
+      },
+    ];
+    const checkmark = '✓';
+    return pdfPrinter.createPdfKitDocument({
+      defaultStyle: {
+        font: 'Helvetica',
+        fontSize: 12,
+      },
+      pageSize: 'A4',
+      content: [
+        ...this.generateIdentitasHeader({
+          nama: siswa.nama,
+          NIS: siswa.NIS,
+          NISN: siswa.NISN,
+          kelas: kelas.kelas,
+          kodeRuangKelas: kelas.kode_ruang_kelas,
+          tahunAjar: kelas.Periode_Ajar.tahunAjar,
+          semester: kelas.Periode_Ajar.semester,
+        }),
+        {
+          text: 'RAPORT PROYEK PENGUATAN PROFIL\nPELAJAR PANCASILA RAHMATAN LIL ALAMIN',
+          alignment: 'center',
+          lineHeight: 1.5,
+          bold: true,
+          fontSize: 16,
+        },
+        ...kelas.Proyek_P5.map((proyek, index) => [
+          {
+            text: `Projek ${index + 1} | ${proyek.judul}`,
+            bold: true,
+          },
+          {
+            text: proyek.deskripsi,
+          },
+          {
+            text: '\n',
+          },
+        ]),
+        {
+          layout: 'noBorders',
+          table: {
+            body: [
+              p5NilaiJenis.map((jenis) => ({ text: jenis.title, bold: true })),
+              p5NilaiJenis.map((jenis) => ({ text: jenis.body })),
+            ],
+          },
+        },
+        {
+          text: '\n',
+        },
+        ...kelas.Proyek_P5.flatMap((proyek, index) => [
+          {
+            table: {
+              widths: ['35%', '*', '*', '*', '*'],
+              headerRows: 1,
+              body: [
+                [
+                  { text: `Proyek ${index} ${proyek.judul}`, bold: true },
+                  ...p5NilaiJenis.map((nilai) => ({
+                    text: nilai.title,
+                    bold: true,
+                  })),
+                ],
+                ...proyek.Target_P5.flatMap((target) => {
+                  const nilai = target.Nilai_P5.at(0)?.nilai;
+                  return [
+                    [
+                      { text: target.dimensi, bold: true, colSpan: 3 },
+                      {},
+                      {},
+                      {},
+                      {},
+                    ],
+                    [
+                      {
+                        text: [
+                          { text: `${target.subelemen}. `, bold: true },
+                          { text: target.target },
+                        ],
+                      },
+                      ...p5NilaiJenis.map((jenis) => ({
+                        text: nilai == jenis.value ? checkmark : '',
+                        font: 'Noto Sans Symbols 2',
+                      })),
+                    ],
+                  ];
+                }),
+              ],
+            },
+          },
+          {
+            text: '\n',
+          },
+        ]),
+        {
+          table: {
+            widths: ['100%'],
+            body: [
+              [
+                {
+                  text: [
+                    { text: 'Catatan Proses: \n\n', bold: true },
+                    kelas.Proyek_P5.map(
+                      (proyek) => proyek.Catatan_Proses_P5.at(0)?.catatan ?? ''
+                    ).join('\n'),
+                  ],
+                },
+              ],
             ],
           },
         },
       ],
     });
+  }
+
+  async getRaportPDF(
+    kelasId: string,
+    siswaId: string,
+    type: RaportType
+  ): Promise<string | null> {
+    const doc =
+      type == 'IDENTITAS'
+        ? await this.getIdentitasRaportPDF(siswaId)
+        : type == 'AKADEMIK'
+        ? await this.getAkademikRaportPDF(kelasId, siswaId)
+        : await this.getP5RaportPDF(kelasId, siswaId);
+    if (doc == null) return null;
     const bufferSize = 1073741824;
 
     return new Promise((resolve) => {

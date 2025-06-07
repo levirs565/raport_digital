@@ -129,6 +129,7 @@ model Siswa {
   Catatan_Proses_P5 Catatan_Proses_P5[]
   Raport Raport[]
   Prestasi Prestasi[]
+  Nilai_P5 Nilai_P5[]
 }
 
 model Ekstrakurikuler {
@@ -279,6 +280,7 @@ model Target_P5 {
   id_proyek_p5 String @db.VarChar(36)
 
   Proyek_P5 Proyek_P5 @relation(fields: [id_proyek_p5], references: [id_proyek_p5])
+  Nilai_P5 Nilai_P5[]
 }
 
 enum Nilai_P5_Enum {
@@ -294,6 +296,8 @@ model Nilai_P5 {
   @@id([id_target_p5, id_siswa])
 
   nilai Nilai_P5_Enum?
+  Target_P5 Target_P5 @relation(fields: [id_target_p5], references: [id_target_p5])
+  Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }
 
 enum Status_Raport {

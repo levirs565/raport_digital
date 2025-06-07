@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TrpcService } from '../trpc/trpc.service';
 import { KepalaSekolahService } from './kepala-sekolah.service';
 import z from 'zod';
-import { periodeAjarIdSchema } from '../common';
+import { periodeAjarIdSchema, raportType } from '../common';
 
 const kelasIdSchema = z.object({
   kelas_id: z.string().uuid(),
@@ -52,10 +52,12 @@ export class KepalaSekolahRouter {
           await this.service.getAnggotaKelas(input.kelas_id, input.siswa_id)
       ),
     getRaportPDF: this.trpc.kepalaSekolahProcedure
-      .input(siswaKelasIdSchema)
+      .input(siswaKelasIdSchema.extend({
+        type: raportType
+      }))
       .query(
         async ({ input }) =>
-          await this.service.getRaportPDF(input.kelas_id, input.siswa_id)
+          await this.service.getRaportPDF(input.kelas_id, input.siswa_id, input.type)
       ),
     verifyRaport: this.trpc.kepalaSekolahProcedure
       .input(
