@@ -50,11 +50,6 @@ export class TandaTanganService {
       this.tandaTanganPassword,
       salt
     );
-    console.log(
-      `Encode: ${salt.toString('base64')} ${key.toString(
-        'base64'
-      )} ${iv.toString('base64')}`
-    );
 
     const cipher = crypto.createCipheriv(algorithm, key, iv);
 

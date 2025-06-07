@@ -7,6 +7,8 @@ import { TRPCError } from '@trpc/server';
 import { formatDate } from 'date-fns';
 import { RaportType } from '../types';
 import { Content } from 'pdfmake/interfaces';
+import { TandaTanganService } from '../tanda-tangan/tanda-tangan.service';
+import { imageSize } from 'image-size';
 
 const pdfPrinter = new pdfmake({
   Courier: {
@@ -44,7 +46,8 @@ const pdfPrinter = new pdfmake({
 export class RaportService {
   constructor(
     private readonly prismaClient: PrismaService,
-    private readonly commonUtilsService: CommonUtilsService
+    private readonly commonUtilsService: CommonUtilsService,
+    private readonly tandaTanganService: TandaTanganService
   ) {}
 
   async getAllAnggotaKelasAndStatusRaport(kelasId: string) {
@@ -268,12 +271,21 @@ export class RaportService {
   async changeRaportStatus(kelasId: string, siswaId: string) {}
 
   private async getIdentitasRaportPDF(siswaId: string) {
-    const siswa = await this.prismaClient.siswa.findUnique({
-      where: {
-        id_siswa: siswaId,
-      },
-    });
+    const [siswa, kepalaSekolah] = await Promise.all([
+      this.prismaClient.siswa.findUnique({
+        where: {
+          id_siswa: siswaId,
+        },
+      }),
+      this.prismaClient.kepala_Sekolah.findFirst(),
+    ]);
     if (siswa == null) return null;
+    if (!kepalaSekolah) return null;
+
+    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+      kepalaSekolah.username
+    );
+
     return await pdfPrinter.createPdfKitDocument({
       defaultStyle: {
         font: 'Helvetica',
@@ -331,6 +343,19 @@ export class RaportService {
               ['16. ', 'Nama Wali Siswa', ':', siswa.nama_wali],
               ['', 'a. Pekerjaan Wali', ':', siswa.pekerjaan_wali],
               ['', 'b. Alamat Wali Siswa', ':', siswa.alamat_wali],
+            ],
+          },
+        },
+        { text: '\n' },
+        {
+          layout: 'noBorders',
+          table: {
+            widths: ['*', '25%', '*'],
+            body: [
+              [{}, 'Mengetahui\nKepala Madrasah', {}],
+              [{}, this.renderTandaTangan(tandaTanganKepalaSekolah), {}],
+              [{}, kepalaSekolah.nama_lengkap, {}],
+              [{}, `NIP. ${kepalaSekolah.NIP ?? '-'}`, {}],
             ],
           },
         },
@@ -403,62 +428,98 @@ export class RaportService {
     ];
   }
 
+  private renderTandaTangan(image: Buffer | null): Content {
+    const height = 60;
+    if (!image)
+      return {
+        text: '',
+        fontSize: 0,
+        marginBottom: height,
+      };
+    const size = imageSize(image);
+    const width = (size.width / size.height) * height;
+
+    return {
+      image: `data:image/png;base64,${image.toString('base64')}`,
+      width: width,
+      height: height,
+    };
+  }
+
   private async getAkademikRaportPDF(kelasId: string, siswaId: string) {
     const rekap = await this.getRekapNilai(kelasId, siswaId);
     if (rekap == null) return null;
 
-    const data = await this.prismaClient.siswa.findUnique({
-      where: {
-        id_siswa: siswaId,
-      },
-      select: {
-        nama: true,
-        NIS: true,
-        NISN: true,
-        Prestasi: {
-          where: {
-            id_periode_ajar: rekap.id_periode_ajar,
-          },
-          select: {
-            jenis: true,
-            keterangan: true,
-          },
+    const [data, kepalaSekolah] = await Promise.all([
+      this.prismaClient.siswa.findUnique({
+        where: {
+          id_siswa: siswaId,
         },
-        Raport: {
-          where: {
-            id_periode_ajar: rekap.id_periode_ajar,
+        select: {
+          nama: true,
+          NIS: true,
+          NISN: true,
+          Prestasi: {
+            where: {
+              id_periode_ajar: rekap.id_periode_ajar,
+            },
+            select: {
+              jenis: true,
+              keterangan: true,
+            },
           },
-          select: {
-            sakit_hari: true,
-            izin_hari: true,
-            alpa_hari: true,
-            catatan_wali_kelas: true,
+          Raport: {
+            where: {
+              id_periode_ajar: rekap.id_periode_ajar,
+            },
+            select: {
+              sakit_hari: true,
+              izin_hari: true,
+              alpa_hari: true,
+              catatan_wali_kelas: true,
+            },
           },
-        },
-        Kelas: {
-          where: {
-            id_kelas: kelasId,
-          },
-          select: {
-            Kelas: {
-              select: {
-                kelas: true,
-                kode_ruang_kelas: true,
-                Periode_Ajar: {
-                  select: {
-                    tahunAjar: true,
-                    semester: true,
+          Kelas: {
+            where: {
+              id_kelas: kelasId,
+            },
+            select: {
+              Kelas: {
+                select: {
+                  Wali_Kelas: {
+                    select: {
+                      username: true,
+                      NIP: true,
+                      nama_lengkap: true,
+                    },
+                  },
+                  kelas: true,
+                  kode_ruang_kelas: true,
+                  Periode_Ajar: {
+                    select: {
+                      tahunAjar: true,
+                      semester: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      }),
+      this.prismaClient.kepala_Sekolah.findFirst(),
+    ]);
     if (!data) return null;
     const kelas = data.Kelas.at(0)?.Kelas;
     if (!kelas) return null;
+    if (!kepalaSekolah) return null;
+
+    const tandaTanganWaliKelas = await this.tandaTanganService.get(
+      kelas.Wali_Kelas.username
+    );
+    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+      kepalaSekolah.username
+    );
 
     return await pdfPrinter.createPdfKitDocument({
       defaultStyle: {
@@ -601,13 +662,47 @@ export class RaportService {
             body: [[data.Raport.at(0)?.catatan_wali_kelas ?? '']],
           },
         },
+        {
+          text: '\n',
+        },
+        {
+          layout: 'noBorders',
+          table: {
+            widths: ['5%', '25%', '*', '25%', '5%'],
+            body: [
+              [{}, {}, {}, { text: formatDate(new Date(), 'dd-MM-yyyy') }, {}],
+              [{}, 'Orang Tua/Wali', {}, 'Wali Kelas', {}],
+              [
+                {},
+                this.renderTandaTangan(null),
+                {},
+                this.renderTandaTangan(tandaTanganWaliKelas),
+                {},
+              ],
+              [{}, { text: '...' }, {}, kelas.Wali_Kelas.nama_lengkap, {}],
+              [{}, {}, {}, `NIP. ${kelas.Wali_Kelas.NIP ?? '-'}`, {}],
+            ],
+          },
+        },
+        {
+          layout: 'noBorders',
+          table: {
+            widths: ['*', '25%', '*'],
+            body: [
+              [{}, 'Mengetahui\nKepala Madrasah', {}],
+              [{}, this.renderTandaTangan(tandaTanganKepalaSekolah), {}],
+              [{}, kepalaSekolah.nama_lengkap, {}],
+              [{}, `NIP. ${kepalaSekolah.NIP ?? '-'}`, {}],
+            ],
+          },
+        },
       ],
     });
   }
 
   private async getP5RaportPDF(kelasId: string, siswaId: string) {
     await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
-    const [siswa, kelas] = await Promise.all([
+    const [siswa, kelas, kepalaSekolah] = await Promise.all([
       this.prismaClient.siswa.findUnique({
         where: {
           id_siswa: siswaId,
@@ -625,6 +720,13 @@ export class RaportService {
         select: {
           kelas: true,
           kode_ruang_kelas: true,
+          Wali_Kelas: {
+            select: {
+              NIP: true,
+              username: true,
+              nama_lengkap: true,
+            },
+          },
           Periode_Ajar: {
             select: {
               tahunAjar: true,
@@ -659,9 +761,12 @@ export class RaportService {
           },
         },
       }),
+      this.prismaClient.kepala_Sekolah.findFirst(),
     ]);
     if (!siswa) return null;
     if (!kelas) return null;
+    if (!kepalaSekolah) return null;
+
     const p5NilaiJenis: {
       title: string;
       body: string;
@@ -689,6 +794,13 @@ export class RaportService {
       },
     ];
     const checkmark = '✓';
+    const tandaTanganWaliKelas = await this.tandaTanganService.get(
+      kelas.Wali_Kelas.username
+    );
+    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+      kepalaSekolah.username
+    );
+
     return pdfPrinter.createPdfKitDocument({
       defaultStyle: {
         font: 'Helvetica',
@@ -794,6 +906,40 @@ export class RaportService {
                   ],
                 },
               ],
+            ],
+          },
+        },
+        {
+          text: '\n',
+        },
+        {
+          layout: 'noBorders',
+          table: {
+            widths: ['5%', '25%', '*', '25%', '5%'],
+            body: [
+              [
+                {},
+                'Mengetahui',
+                {},
+                { text: formatDate(new Date(), 'dd-MM-yyyy') },
+                {},
+              ],
+              [{}, 'Kepala Madrasah', {}, 'Wali Kelas', {}],
+              [
+                {},
+                this.renderTandaTangan(tandaTanganKepalaSekolah),
+                {},
+                this.renderTandaTangan(tandaTanganWaliKelas),
+                {},
+              ],
+              [
+                {},
+                kepalaSekolah.nama_lengkap,
+                {},
+                kelas.Wali_Kelas.nama_lengkap,
+                {},
+              ],
+              [{}, {}, {}, `NIP. ${kelas.Wali_Kelas.NIP ?? '-'}`, {}],
             ],
           },
         },
