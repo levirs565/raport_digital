@@ -89,5 +89,25 @@ export class AuthRouter {
         );
         return true;
       }),
+    getTandaTangan: this.trpc.procedure
+      .meta({
+        allowedRole: ['KEPALA_SEKOLAH', 'GURU'],
+      })
+      .query(
+        async ({ ctx }) =>
+          await this.service.getTandaTangan(ctx.session.account!.username)
+      ),
+    updateTandaTangan: this.trpc.procedure
+      .meta({
+        allowedRole: ['KEPALA_SEKOLAH', 'GURU'],
+      })
+      .input(this.trpc.octetInputParse)
+      .mutation(async ({ ctx, input }) => {
+        await this.service.updateTandaTangan(
+          ctx.session.account!.username,
+          input
+        );
+        return true;
+      }),
   });
 }

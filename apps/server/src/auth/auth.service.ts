@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import * as argon2 from 'argon2';
 import { AccountData } from '../types';
+import { TandaTanganService } from '../tanda-tangan/tanda-tangan.service';
+import { ReadableStream } from 'node:stream/web';
+import { Readable } from 'node:stream';
 
 type LoginResult =
   | {
@@ -14,7 +17,10 @@ type LoginResult =
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly tandaTanganService: TandaTanganService
+  ) {}
 
   private async verifyPassword(hash: string, password: string) {
     return argon2.verify(hash, password);
@@ -170,5 +176,13 @@ export class AuthService {
         password_hash: await this.hashPassword(newPassword),
       },
     });
+  }
+
+  async getTandaTangan(username: string) {
+    return (await this.tandaTanganService.get(username))?.toString('base64');
+  }
+
+  async updateTandaTangan(username: string, stream: ReadableStream) {
+    await this.tandaTanganService.set(username, Readable.fromWeb(stream));
   }
 }

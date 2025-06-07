@@ -47,7 +47,7 @@ export class TrpcService {
       ((typeof meta.allowedRole == 'string' &&
         meta.allowedRole != ctx.session.account!.type) ||
         (typeof meta.allowedRole != 'string' &&
-          meta.allowedRole.includes(ctx.session.account!.type)))
+          !meta.allowedRole.includes(ctx.session.account!.type)))
     )
       throwForbidden();
 
