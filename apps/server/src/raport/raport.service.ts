@@ -349,6 +349,7 @@ export class RaportService {
         { text: '\n' },
         {
           layout: 'noBorders',
+          unbreakable: true,
           table: {
             widths: ['*', '25%', '*'],
             body: [
@@ -666,35 +667,48 @@ export class RaportService {
           text: '\n',
         },
         {
-          layout: 'noBorders',
-          table: {
-            widths: ['5%', '25%', '*', '25%', '5%'],
-            body: [
-              [{}, {}, {}, { text: formatDate(new Date(), 'dd-MM-yyyy') }, {}],
-              [{}, 'Orang Tua/Wali', {}, 'Wali Kelas', {}],
-              [
-                {},
-                this.renderTandaTangan(null),
-                {},
-                this.renderTandaTangan(tandaTanganWaliKelas),
-                {},
-              ],
-              [{}, { text: '...' }, {}, kelas.Wali_Kelas.nama_lengkap, {}],
-              [{}, {}, {}, `NIP. ${kelas.Wali_Kelas.NIP ?? '-'}`, {}],
-            ],
-          },
-        },
-        {
-          layout: 'noBorders',
-          table: {
-            widths: ['*', '25%', '*'],
-            body: [
-              [{}, 'Mengetahui\nKepala Madrasah', {}],
-              [{}, this.renderTandaTangan(tandaTanganKepalaSekolah), {}],
-              [{}, kepalaSekolah.nama_lengkap, {}],
-              [{}, `NIP. ${kepalaSekolah.NIP ?? '-'}`, {}],
-            ],
-          },
+          unbreakable: true,
+          stack: [
+            {
+              layout: 'noBorders',
+              unbreakable: true,
+              table: {
+                widths: ['5%', '25%', '*', '25%', '5%'],
+                body: [
+                  [
+                    {},
+                    {},
+                    {},
+                    { text: formatDate(new Date(), 'dd-MM-yyyy') },
+                    {},
+                  ],
+                  [{}, 'Orang Tua/Wali', {}, 'Wali Kelas', {}],
+                  [
+                    {},
+                    this.renderTandaTangan(null),
+                    {},
+                    this.renderTandaTangan(tandaTanganWaliKelas),
+                    {},
+                  ],
+                  [{}, { text: '...' }, {}, kelas.Wali_Kelas.nama_lengkap, {}],
+                  [{}, {}, {}, `NIP. ${kelas.Wali_Kelas.NIP ?? '-'}`, {}],
+                ],
+              },
+            },
+            {
+              layout: 'noBorders',
+              unbreakable: true,
+              table: {
+                widths: ['*', '25%', '*'],
+                body: [
+                  [{}, 'Mengetahui\nKepala Madrasah', {}],
+                  [{}, this.renderTandaTangan(tandaTanganKepalaSekolah), {}],
+                  [{}, kepalaSekolah.nama_lengkap, {}],
+                  [{}, `NIP. ${kepalaSekolah.NIP ?? '-'}`, {}],
+                ],
+              },
+            },
+          ],
         },
       ],
     });
@@ -914,6 +928,7 @@ export class RaportService {
         },
         {
           layout: 'noBorders',
+          unbreakable: true,
           table: {
             widths: ['5%', '25%', '*', '25%', '5%'],
             body: [
