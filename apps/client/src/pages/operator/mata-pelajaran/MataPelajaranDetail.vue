@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddMataPelajaran from './AddMataPelajaran.vue';
 
 const { id } = defineProps({
   id: String
@@ -17,9 +18,16 @@ const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.get.queryOptions({
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>Detail Mata Pelajaran</v-app-bar-title>
-    <v-btn icon :to="`/operator/mata-pelajaran/${data?.id_mata_pelajaran}/edit`">
-      <v-icon>mdi-pencil</v-icon>
-    </v-btn>
+    <v-dialog persistent fullscreen>
+      <template v-slot:activator="{ props }">
+        <v-btn icon v-bind="props">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <add-mata-pelajaran :id="id" @close="isActive.value = !isActive.value" />
+      </template>
+    </v-dialog>
   </v-app-bar>
 
   <v-main v-if="data">
@@ -36,7 +44,7 @@ const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.get.queryOptions({
           <v-list-item-title>{{ item.nama_lengkap }}</v-list-item-title>
           <v-list-item-subtitle>NIP. {{ item.NIP }}</v-list-item-subtitle>
         </v-list-item>
-        <v-divider/>
+        <v-divider />
       </template>
     </v-list>
   </v-main>

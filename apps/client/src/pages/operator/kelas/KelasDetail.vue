@@ -3,6 +3,9 @@ import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import AddKelas from './AddKelas.vue';
+import EditAnggotaKelas from './EditAnggotaKelas.vue';
+import AddMataPelajaranKelas from './AddMataPelajaranKelas.vue';
 
 const { id } = defineProps({
   id: String
@@ -40,7 +43,7 @@ function onDeleteMataPelajaran(idMapel: string) {
 <template>
   <v-app-bar>
     <c-app-bar-hamburger />
-    <v-app-bar-title>Keleas </v-app-bar-title>
+    <v-app-bar-title>Kelas {{ data?.kelas }}-{{ data?.kode_ruang_kelas }}</v-app-bar-title>
 
     <template v-slot:extension>
       <v-tabs grow v-model="activeTab">
@@ -69,7 +72,14 @@ function onDeleteMataPelajaran(idMapel: string) {
           <p>Koordinator P5</p>
           <p>{{ data.koor_p5.nama_lengkap }}</p>
           <div class="d-flex justify-end">
-            <v-btn :to="`/operator/kelas/${id}/edit`">Ubah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Ubah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <add-kelas :id="id" @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
         <v-card v-if="mataPelajaranData" class="mt-4">
@@ -96,7 +106,14 @@ function onDeleteMataPelajaran(idMapel: string) {
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4">
-            <v-btn :to="`/operator/kelas/${id}/mata-pelajaran/add`">Tambah</v-btn>
+            <v-dialog persistent>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props">Tambah</v-btn>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <add-mata-pelajaran-kelas :id="id" @close="isActive.value = !isActive.value" />
+              </template>
+            </v-dialog>
           </div>
         </v-card>
       </v-tabs-window-item>
@@ -110,7 +127,15 @@ function onDeleteMataPelajaran(idMapel: string) {
             <v-divider />
           </template>
         </v-list>
-        <v-fab icon="mdi-pencil" app :to="`/operator/kelas/${id}/anggota`" />
+
+        <v-dialog persistent fullscreen>
+          <template v-slot:activator="{ props }">
+            <v-fab icon="mdi-pencil" app v-bind="props" />
+          </template>
+          <template v-slot:default="{ isActive }">
+            <edit-anggota-kelas :id="id" @close="isActive.value = !isActive.value" />
+          </template>
+        </v-dialog>
       </v-tabs-window-item>
     </v-tabs-window>
   </v-main>

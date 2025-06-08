@@ -15,19 +15,13 @@ import AkunGuru from './pages/operator/AkunGuru.vue';
 import SiswaList from './pages/operator/siswa/SiswaList.vue';
 import AddSiswa from './pages/operator/siswa/AddSiswa.vue';
 import PeriodeList from './pages/operator/periode/PeriodeList.vue';
-import AddPeriode from './pages/operator/periode/AddPeriode.vue';
 import PeriodeDetail from './pages/operator/periode/PeriodeDetail.vue';
 import MataPelajaranList from './pages/operator/mata-pelajaran/MataPelajaranList.vue';
-import AddMataPelajaran from './pages/operator/mata-pelajaran/AddMataPelajaran.vue';
 import MataPelajaranDetail from './pages/operator/mata-pelajaran/MataPelajaranDetail.vue';
 import EkstrakurikulerList from './pages/operator/ekstrakurikuler/EkstrakurikulerList.vue';
-import AddEkstrakurikuler from './pages/operator/ekstrakurikuler/AddEkstrakurikuler.vue';
 import EkstrakurikulerDetail from './pages/operator/ekstrakurikuler/EkstrakurikulerDetail.vue';
 import KelasList from './pages/operator/kelas/KelasList.vue';
-import AddKelas from './pages/operator/kelas/AddKelas.vue';
 import KelasDetail from './pages/operator/kelas/KelasDetail.vue';
-import AddMataPelajaranKelas from './pages/operator/kelas/AddMataPelajaranKelas.vue';
-import EditAnggotaKelas from './pages/operator/kelas/EditAnggotaKelas.vue';
 import GuruEkstrakurikulerDetail from './pages/guru/ekstrakurikuler/GuruEkstrakurikulerDetail.vue';
 import GuruMataPelajaranDetail from './pages/guru/mata-pelajaran/GuruMataPelajaranDetail.vue';
 import GuruMateriDetail from './pages/guru/mata-pelajaran/GuruMateriDetail.vue';
@@ -106,20 +100,11 @@ const routes: RouteRecordRaw[] = [
                 component: PeriodeList,
               },
               {
-                path: 'add',
-                component: AddPeriode,
-              },
-              {
                 path: ':id',
                 children: [
                   {
                     path: '',
                     component: PeriodeDetail,
-                    props: true,
-                  },
-                  {
-                    path: 'edit',
-                    component: AddPeriode,
                     props: true,
                   },
                 ],
@@ -134,20 +119,11 @@ const routes: RouteRecordRaw[] = [
                 component: MataPelajaranList,
               },
               {
-                path: 'add',
-                component: AddMataPelajaran,
-              },
-              {
                 path: ':id',
                 children: [
                   {
                     path: '',
                     component: MataPelajaranDetail,
-                    props: true,
-                  },
-                  {
-                    path: 'edit',
-                    component: AddMataPelajaran,
                     props: true,
                   },
                 ],
@@ -162,20 +138,11 @@ const routes: RouteRecordRaw[] = [
                 component: EkstrakurikulerList,
               },
               {
-                path: 'add',
-                component: AddEkstrakurikuler,
-              },
-              {
                 path: ':id',
                 children: [
                   {
                     path: '',
                     component: EkstrakurikulerDetail,
-                    props: true,
-                  },
-                  {
-                    path: 'edit',
-                    component: AddEkstrakurikuler,
                     props: true,
                   },
                 ],
@@ -190,35 +157,11 @@ const routes: RouteRecordRaw[] = [
                 component: KelasList,
               },
               {
-                path: 'add',
-                component: AddKelas,
-              },
-              {
                 path: ':id',
                 children: [
                   {
                     path: '',
                     component: KelasDetail,
-                    props: true,
-                  },
-                  {
-                    path: 'edit',
-                    component: AddKelas,
-                    props: true,
-                  },
-                  {
-                    path: 'mata-pelajaran',
-                    children: [
-                      {
-                        path: 'add',
-                        component: AddMataPelajaranKelas,
-                        props: true,
-                      },
-                    ],
-                  },
-                  {
-                    path: 'anggota',
-                    component: EditAnggotaKelas,
                     props: true,
                   },
                 ],
@@ -343,8 +286,8 @@ const routes: RouteRecordRaw[] = [
           {
             path: ':idSiswa',
             component: KepalaSekolahSiswa,
-            props: true
-          }
+            props: true,
+          },
         ],
       },
     ],

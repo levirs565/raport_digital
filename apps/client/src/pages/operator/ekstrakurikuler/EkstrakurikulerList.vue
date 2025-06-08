@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { usePeriodeStore } from '../../../store';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddEkstrakurikuler from './AddEkstrakurikuler.vue';
 
 const periodeStore = usePeriodeStore();
 
@@ -31,5 +32,12 @@ const { data } = useTrcpQuery(trpc!.operator.ekstrakurikuler.getAll.queryOptions
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-plus" app to="/operator/ekstrakurikuler/add" />
+  <v-dialog persistent>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-plus" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <add-ekstrakurikuler @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useRouter } from 'vue-router';
 
 const { id } = defineProps({
   id: String
 })
+const emit = defineEmits(["close"])
 
 const trpc = injectTrpc();
 const { data: dataKelas } = useTrcpQuery(trpc!.operator.kelas.get.queryOptions({
@@ -34,7 +33,6 @@ const selectedGuru = ref<string>();
 const { mutateAsync: addAsync } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
 
 const queryClient = useQueryClient();
-const router = useRouter();
 function onSubmit() {
   if (!dataKelas.value || !selectedMataPelajaran.value || !selectedGuru.value) return;
   const update = () => {
@@ -48,18 +46,18 @@ function onSubmit() {
     username_guru: selectedGuru.value
   }).then(() => {
     update();
-    router.back();
+    emit('close')
   })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Tambah Mata Pelajaran</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Tambah Mata Pelajaran</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <form class="px-4 py-2">
       <v-combobox v-model="selectedMataPelajaran" :items="dataMataPelajaran" item-title="nama"
         item-value="id_mata_pelajaran" :return-object="false" />
@@ -67,5 +65,6 @@ function onSubmit() {
         :return-object="false" />
       <v-btn @click="onSubmit">Tambah</v-btn>
     </form>
-  </v-main>
+  </v-card>
+
 </template>

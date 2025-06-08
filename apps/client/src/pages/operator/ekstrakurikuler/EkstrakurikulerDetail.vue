@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddEkstrakurikuler from './AddEkstrakurikuler.vue';
 
 const { id } = defineProps({
   id: String
@@ -17,9 +18,16 @@ const { data } = useTrcpQuery(trpc!.operator.ekstrakurikuler.get.queryOptions({
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>Detail Mata Pelajaran</v-app-bar-title>
-    <v-btn icon :to="`/operator/ekstrakurikuler/${data?.id_esktrakurikuler}/edit`">
-      <v-icon>mdi-pencil</v-icon>
-    </v-btn>
+    <v-dialog persistent>
+      <template v-slot:activator="{ props }">
+        <v-btn icon v-bind="props">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <add-ekstrakurikuler :id="id" @close="isActive.value = !isActive.value" />
+      </template>
+    </v-dialog>
   </v-app-bar>
   <v-main>
     <div class="px-4 py-2" v-if="data">

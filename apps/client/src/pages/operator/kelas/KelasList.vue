@@ -3,6 +3,7 @@ import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { usePeriodeStore } from '../../../store';
 import { computed } from 'vue';
+import AddKelas from './AddKelas.vue';
 
 const periodeStore = usePeriodeStore();
 
@@ -32,5 +33,12 @@ const { data } = useTrcpQuery(trpc!.operator.kelas.getAll.queryOptions({
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-plus" app to="/operator/kelas/add" />
+  <v-dialog persistent>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-plus" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <add-kelas @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>

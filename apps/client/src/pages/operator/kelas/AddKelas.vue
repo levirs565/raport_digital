@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import CGuruCombobox from '../../../components/CGuruCombobox.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
@@ -10,6 +9,7 @@ import { useRouter } from 'vue-router';
 const { id } = defineProps({
   id: String
 })
+const emit = defineEmits(['close'])
 
 const kelas = ref<number>()
 const kodeRuangKelas = ref("");
@@ -70,18 +70,18 @@ function onSubmit() {
     id
   }).then(() => {
     update();
-    router.back()
+    emit('close');
   })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Kelas</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>{{ id ? "Ubah" : "Tambah" }} Kelas</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <v-form class="px-4 py-2">
       <v-select v-model="kelas" label="Kelas" :items="[7, 8, 9]" />
       <v-text-field v-model="kodeRuangKelas" label="Kode Ruang Kelas" />
@@ -90,5 +90,6 @@ function onSubmit() {
 
       <v-btn @click="onSubmit">{{ id ? "Ubah" : "Tambah" }}</v-btn>
     </v-form>
-  </v-main>
+
+  </v-card>
 </template>

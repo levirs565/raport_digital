@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { usePeriodeStore } from '../../../store';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddMataPelajaran from './AddMataPelajaran.vue';
 
 const periodeStore = usePeriodeStore();
 
@@ -26,12 +27,19 @@ const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.getAll.queryOptions({
     <v-list>
       <template v-for="item in data" :key="item.id_mata_pelajaran">
         <v-list-item :to="`/operator/mata-pelajaran/${item.id_mata_pelajaran}`">
-          <v-list-item-title>{{ item.nama  }}</v-list-item-title>
+          <v-list-item-title>{{ item.nama }}</v-list-item-title>
         </v-list-item>
-        <v-divider/>
+        <v-divider />
       </template>
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-plus" app to="/operator/mata-pelajaran/add" />
+  <v-dialog persistent fullscreen>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-plus" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <add-mata-pelajaran @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>

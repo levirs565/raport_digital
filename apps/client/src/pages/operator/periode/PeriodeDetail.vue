@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddPeriode from './AddPeriode.vue';
 
 const { id } = defineProps({
   id: String
@@ -27,5 +28,12 @@ const { data } = useTrcpQuery(trpc!.operator.periodeAjar.get.queryOptions({
     </div>
   </v-main>
 
-  <v-fab icon="mdi-pencil" app :to="`/operator/periode/${id}/edit`" />
+  <v-dialog persistent>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-pencil" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <add-periode :id="id" @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>

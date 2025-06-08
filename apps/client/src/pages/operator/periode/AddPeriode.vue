@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 const { id } = defineProps({
   id: String
 })
+const emit = defineEmits(['close'])
 
 const tahunAjarItems: number[] = [];
 for (let i = 2000; i <= new Date().getFullYear(); i++) {
@@ -80,20 +81,20 @@ function onSubmit() {
       semester: selectedSemester.value
     }).then(() => {
       update();
-      router.back()
+      emit('close')
     })
 }
-
 </script>
 <template>
-  <v-app-bar>
-    <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Periode Ajar</v-app-bar-title>
-  </v-app-bar>
-  <v-main>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Periode Ajar</v-app-bar-title>
+    </v-toolbar>
     <v-form class="px-4 py-2">
       <v-select label="Tahun Ajaran" v-model="selectedTahunAjar" :items="tahunAjarSelectItems" />
       <v-select label="Semester" v-model="selectedSemester" :items="semesterSelectItems" />
       <v-btn @click="onSubmit">{{ id ? "Ubah" : "Tambah" }}</v-btn>
     </v-form>
-  </v-main>
+  </v-card>
 </template>

@@ -2,7 +2,6 @@
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { usePeriodeStore } from '../../../store';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import GuruSelectCard from '../../../components/GuruSelectCard.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
@@ -10,6 +9,7 @@ import { useRouter } from 'vue-router';
 const { id } = defineProps({
   id: String
 })
+const emit = defineEmits(['close'])
 
 const periodeStore = usePeriodeStore();
 
@@ -70,25 +70,23 @@ function onSubmit() {
       guruPengampu: [...guruList],
     }).then(() => {
       update();
-      router.back();
+      emit('close')
     })
 }
 
 </script>
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Mata Pelajaran</v-app-bar-title>
-  </v-app-bar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>{{ id ? "Ubah" : "Tambah" }} Mata Pelajaran</v-toolbar-title>
+    </v-toolbar>
 
-  <v-main>
     <v-form class="px-4 py-2">
       <v-text-field v-model="nama" label="Nama Mata Pelajaran" />
       <v-text-field v-model="kelompok" label="Kelompok" />
       <GuruSelectCard v-model="guruList" />
       <v-btn class="my-2" @click="onSubmit">{{ id ? "Ubah" : "Tambah" }} </v-btn>
     </v-form>
-  </v-main>
-
-  <v-fab icon="mdi-plus" app to="/operator/mata-pelajaran/add" />
+  </v-card>
 </template>

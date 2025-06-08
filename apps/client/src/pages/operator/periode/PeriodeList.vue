@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
+import AddPeriode from './AddPeriode.vue';
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.common.getAllPeriodeAjar.queryOptions());
@@ -25,5 +26,12 @@ const { data } = useTrcpQuery(trpc!.common.getAllPeriodeAjar.queryOptions());
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-plus" app to="/operator/periode/add" />
+  <v-dialog persistent>
+    <template v-slot:activator="{ props }">
+      <v-fab icon="mdi-plus" app v-bind="props" />
+    </template>
+    <template v-slot:default="{ isActive }">
+      <add-periode @close="isActive.value = !isActive.value" />
+    </template>
+  </v-dialog>
 </template>
