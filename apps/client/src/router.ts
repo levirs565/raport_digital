@@ -32,6 +32,7 @@ import GuruKelasDetail from './pages/guru/wali-kelas/GuruKelasDetail.vue';
 import GuruSiswaDetail from './pages/guru/wali-kelas/GuruSiswaDetail.vue';
 import KepalaSekolahKelasDetail from './pages/kepala-sekolah/KepalaSekolahKelasDetail.vue';
 import KepalaSekolahSiswa from './pages/kepala-sekolah/KepalaSekolahSiswa.vue';
+import Akun from './pages/auth/Akun.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -71,6 +72,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/',
         component: Dashboard,
+      },
+      {
+        path: '/akun',
+        component: Akun
       },
       {
         path: '/operator',

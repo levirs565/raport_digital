@@ -44,6 +44,12 @@ function onLogout() {
     queryClient.invalidateQueries({
       queryKey: authKey,
     });
+    queryClient.invalidateQueries({
+      queryKey: trpc!.auth.getProfile.queryKey()
+    })
+    queryClient.invalidateQueries({
+      queryKey: trpc!.auth.getTandaTangan.queryKey()
+    })
   });
 }
 
@@ -56,7 +62,7 @@ const userRoleMap: Record<UserType, string> = {
 const accountTitle = computed(() =>
   data.value?.type == 'OPERATOR' ? 'Operator' : data.value?.namaLengkap
 );
-const accountSubtitle = computed(() => userRoleMap[data.value!.type]);
+const accountSubtitle = computed(() => data.value ? userRoleMap[data.value.type] : "");
 
 const periodeIdComputed = computed(() => periodeStore.selectedPeriode!);
 const enabledGuru = computed(() => data.value?.type == "GURU" && !!periodeStore.selectedPeriode)
@@ -90,6 +96,7 @@ const { data: kepalaSekolahKelasData } = useTrcpQuery(trpc!.kepalaSekolah.getAll
 <template>
   <v-navigation-drawer v-model="drawer">
     <v-list-item :title="accountTitle" :subtitle="accountSubtitle" />
+    <v-list-item title="Akun" to="/akun" />
     <template v-if="data?.type == 'OPERATOR'">
       <v-divider />
       <v-list-item title="Dashboard" to="/" exact></v-list-item>

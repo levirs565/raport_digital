@@ -6,6 +6,7 @@ import { AccountData } from '../types';
 import { TandaTanganService } from '../tanda-tangan/tanda-tangan.service';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
+import { $Enums } from '@prisma/client';
 
 type LoginResult =
   | {
@@ -179,10 +180,64 @@ export class AuthService {
   }
 
   async getTandaTangan(username: string) {
-    return (await this.tandaTanganService.get(username))?.toString('base64');
+    return (await this.tandaTanganService.get(username))?.toString('base64') ?? null;
   }
 
   async updateTandaTangan(username: string, stream: ReadableStream) {
     await this.tandaTanganService.set(username, Readable.fromWeb(stream));
+  }
+
+  async getProfile(username: string) {
+    const akun = await this.prismaClient.akun.findUnique({
+      where: {
+        username,
+      },
+      select: {
+        type: true,
+        Guru: {
+          select: {
+            nama_lengkap: true,
+            NIP: true,
+          },
+        },
+        KepalaSekolah: {
+          select: {
+            nama_lengkap: true,
+            NIP: true,
+          },
+        },
+      },
+    });
+    if (!akun)
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Akun is not found',
+      });
+
+    if (akun.type == 'GURU') return { type: akun.type, ...akun.Guru! };
+    if (akun.type == 'KEPALA_SEKOLAH')
+      return { type: akun.type, ...akun.KepalaSekolah! };
+    return { type: akun.type };
+  }
+
+  async updateProfile(
+    username: string,
+    role: $Enums.AkunType,
+    data: { nama_lengkap: string; NIP: string | null }
+  ) {
+    if (role == 'KEPALA_SEKOLAH')
+      await this.prismaClient.kepala_Sekolah.update({
+        where: {
+          username,
+        },
+        data,
+      });
+    else if (role == 'GURU')
+      await this.prismaClient.guru.update({
+        where: {
+          username,
+        },
+        data,
+      });
   }
 }

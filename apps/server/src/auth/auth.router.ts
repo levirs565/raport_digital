@@ -109,5 +109,27 @@ export class AuthRouter {
         );
         return true;
       }),
+    getProfile: this.trpc.procedure.query(
+      async ({ ctx }) =>
+        await this.service.getProfile(ctx.session.account!.username)
+    ),
+    updateProfile: this.trpc.procedure
+      .meta({
+        allowedRole: ['GURU', 'KEPALA_SEKOLAH'],
+      })
+      .input(
+        z.object({
+          nama_lengkap: z.string(),
+          NIP: z.string().nullable(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await this.service.updateProfile(
+          ctx.session.account!.username,
+          ctx.session.account!.type,
+          input
+        );
+        return true;
+      }),
   });
 }

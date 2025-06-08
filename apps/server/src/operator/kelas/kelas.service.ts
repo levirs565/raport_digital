@@ -62,7 +62,6 @@ export class OperatorKelasService {
     });
 
     if (!result) this.throwNotFound();
-    console.log(result);
 
     const {
       Koor_P5,
