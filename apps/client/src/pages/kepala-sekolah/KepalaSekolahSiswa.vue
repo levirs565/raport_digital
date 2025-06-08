@@ -8,6 +8,7 @@ import { useLayout } from 'vuetify';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import KepalaSekolahReject from './KepalaSekolahReject.vue';
 import { RaportType } from '@raport-digital/client-api-types';
+import CRaportChip from '../../components/CRaportChip.vue';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
@@ -30,7 +31,7 @@ const { data: raportData } = useTrcpQuery(trpc!.kepalaSekolah.getRaportPDF.query
   type: selectedRaport.value!
 })),
   {
-    enabled: computed(() => !!selectedRaport) as unknown as boolean
+    enabled: computed(() => !!selectedRaport.value) as unknown as boolean
   }
 ))
 
@@ -83,11 +84,7 @@ function onUnlock() {
       <p v-if="data?.alasan_tolak">Ditolak dengan alasan "{{ data?.alasan_tolak }}"</p>
       <p v-if="data?.status == 'MENUNGGU_KONFIRMASI'">Menunggu Konfirmasli Wali Kelas</p>
     </div>
-    <v-chip-group v-model="selectedRaport" selected-class="text-primary" class="mx-4 my-2">
-      <v-chip rounded filter value="IDENTITAS">Identitas</v-chip>
-      <v-chip rounded filter value="AKADEMIK">Raport Akademik</v-chip>
-      <v-chip rounded filter value="P5">P5</v-chip>
-    </v-chip-group>
+    <c-raport-chip v-model="selectedRaport" class="mx-4 my-2"/>
     <c-pdf-viewer v-if="raportData" :data="raportData" />
     <v-sheet v-if="data?.status != 'MENUNGGU_KONFIRMASI'"
       class="position-fixed bottom-0 right-0 pa-4 d-flex justify-end" :style="{

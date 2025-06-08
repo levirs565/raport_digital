@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
+
+const { periodeAjarId } = defineProps({
+  periodeAjarId: String,
+  isItemDisabled: Function
+})
 
 const model: Set<string> = defineModel() as unknown as Set<string>;
 
@@ -8,6 +13,7 @@ const filter = ref("");
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.common.getSiswaList.queryOptions({
+  periode_ajar_id: computed(() => periodeAjarId!),
   filter: filter,
   limit: 100
 }))
@@ -28,12 +34,12 @@ const { data } = useTrcpQuery(trpc!.common.getSiswaList.queryOptions({
               } else {
                 model.add(item.id_siswa);
               }
-            }" />
+            }" :disabled="isItemDisabled ? isItemDisabled(item) : false"/>
           </v-list-item-action>
         </template>
 
         <v-list-item-title>{{ item.nama }}</v-list-item-title>
-        <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
+        <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }} {{ item.kelas ? `, Kelas ${item.kelas.kelas}-${item.kelas.kode_ruang_kelas}` : "" }}</v-list-item-subtitle>
       </v-list-item>
       <v-divider />
     </template>

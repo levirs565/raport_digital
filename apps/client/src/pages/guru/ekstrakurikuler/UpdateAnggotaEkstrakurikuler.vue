@@ -10,6 +10,9 @@ const { id } = defineProps({
 const emit = defineEmits(['close'])
 
 const trpc = injectTrpc();
+const { data: ekstrakurikulerData } = useTrcpQuery(trpc!.guru.ekstrakurikuler.get.queryOptions({
+  id: computed(() => id!)
+}))
 const { data } = useTrcpQuery(trpc!.guru.ekstrakurikuler.getAnggotaList.queryOptions({
   id: computed(() => id!)
 }))
@@ -44,7 +47,7 @@ function onSave() {
       <v-toolbar-title>Ubah Anggota Ekstrakurikuler</v-toolbar-title>
     </v-toolbar>
 
-    <c-siswa-select v-model="anggotaList" />
+    <c-siswa-select v-if="ekstrakurikulerData" :periode-ajar-id="ekstrakurikulerData.id_periode_ajar" v-model="anggotaList" />
     <v-btn @click="onSave" class="ma-4 mt-0">Simpan</v-btn>
   </v-card>
 </template>

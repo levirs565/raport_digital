@@ -1,7 +1,6 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import path from 'node:path';
 
 export default defineConfig(() => ({
   root: __dirname,
@@ -43,11 +42,5 @@ export default defineConfig(() => ({
       reportsDirectory: './test-output/vitest/coverage',
       provider: 'v8' as const,
     },
-  },
-  resolve: {
-    alias: {
-      'react': path.join(__dirname, "src/empty.ts"),
-      '@tanstack/react-query': '@tanstack/vue-query'
-    }
   }
 }));

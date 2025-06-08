@@ -13,7 +13,7 @@
     "@nestjs/platform-express": "^10.0.2",
     "@prisma/client": "^6.7.0",
     "@quixo3/prisma-session-store": "^3.1.13",
-    "@tanstack/vue-query": "^5.75.4",
+    "@tanstack/vue-query": "^5.80.6",
     "@trpc/client": "^11.1.2",
     "@trpc/server": "^11.1.2",
     "@trpc/tanstack-react-query": "https://pkg.pr.new/trpc/trpc/@trpc/tanstack-react-query@6776",

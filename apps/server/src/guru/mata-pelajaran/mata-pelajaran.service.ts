@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
+import { CommonUtilsService } from '../../common/common.utils.service';
 
 export interface MataPelajaranKelasID {
   id_kelas: string;
@@ -14,7 +15,10 @@ export interface NilaiMataPelajaran {
 
 @Injectable()
 export class GuruMataPelajaranService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly commonUtilsService: CommonUtilsService
+  ) {}
 
   async getAll(sessionUsername: string, periodeAjarId: string) {
     const result = await this.prismaClient.mata_Pelajaran_Kelas.findMany({
@@ -333,7 +337,27 @@ export class GuruMataPelajaranService {
   ) {
     await this.ensureMateriAccess(sessionUsername, id, false);
 
-    // TODO: Ensure id_siswa sesuai Kelas
+    const kelas = await this.prismaClient.materi.findUnique({
+      where: {
+        id_materi: id,
+      },
+      select: {
+        Mata_Pelajaran_Kelas: {
+          select: {
+            Kelas: {
+              select: {
+                id_kelas: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!kelas) this.throwNotFound();
+    await this.commonUtilsService.ensureSiswaListInKelas(
+      kelas.Mata_Pelajaran_Kelas.Kelas.id_kelas,
+      nilaiList.map((nilai) => nilai.id_siswa)
+    );
 
     await this.prismaClient.$transaction(
       nilaiList.map(({ id_siswa, nilai }) =>
@@ -377,7 +401,7 @@ export class GuruMataPelajaranService {
       },
       _sum: {
         nilai: true,
-      }
+      },
     });
 
     const anggotaKelas = await this.prismaClient.anggota_Kelas.findMany({

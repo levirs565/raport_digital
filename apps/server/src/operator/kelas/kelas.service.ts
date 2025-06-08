@@ -254,20 +254,84 @@ export class OperatorKelasService {
   }
 
   async updateAnggotaList(id: string, anggotaIdList: string[]) {
-    try {
-      await this.prismaClient.kelas.update({
-        where: {
-          id_kelas: id,
+    await this.ensureFound(id);
+
+    const anggotaKelasLain = await this.prismaClient.anggota_Kelas.findMany({
+      where: {
+        id_siswa: {
+          in: anggotaIdList,
         },
-        data: {
-          Anggota_Kelas: {
-            deleteMany: {},
-            create: anggotaIdList.map((id) => ({
-              id_siswa: id,
-            })),
+        id_kelas: {
+          not: id,
+        },
+      },
+      select: {
+        Siswa: {
+          select: {
+            nama: true,
+            NIS: true,
+            NISN: true,
           },
         },
+      },
+    });
+    if (anggotaKelasLain.length > 0) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message:
+          anggotaKelasLain
+            .map(({ Siswa }) => `${Siswa.nama} (${Siswa.NIS}/${Siswa.NISN})`)
+            .join(', ') + ' sudah berada di kelas lain',
       });
+    }
+    try {
+      await this.prismaClient.$transaction([
+        this.prismaClient.kelas.update({
+          where: {
+            id_kelas: id,
+          },
+          data: {
+            Anggota_Kelas: {
+              deleteMany: {},
+              create: anggotaIdList.map((id) => ({
+                id_siswa: id,
+              })),
+            },
+          },
+        }),
+        this.prismaClient.nilai_Materi.deleteMany({
+          where: {
+            Materi: {
+              id_kelas: id
+            },
+            id_siswa: {
+              notIn: anggotaIdList
+            }
+          }
+        }),
+        this.prismaClient.catatan_Proses_P5.deleteMany({
+          where: {
+            Proyek_P5: {
+              id_kelas: id
+            },
+            id_siswa: {
+              notIn: anggotaIdList
+            }
+          }
+        }),
+        this.prismaClient.nilai_P5.deleteMany({
+          where: {
+            Target_P5: {
+              Proyek_P5: {
+                id_kelas: id
+              }
+            },
+            id_siswa: {
+              notIn: anggotaIdList
+            }
+          }
+        })
+      ]);
     } catch (e) {
       if (PrismaHelper.isRecordNotFoundError(e)) {
         this.throwNotFound();

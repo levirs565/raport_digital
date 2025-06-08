@@ -22,6 +22,27 @@ export class CommonUtilsService {
       });
   }
 
+  async ensureSiswaListInKelas(kelasId: string, siswaIds: string[]) {
+    const actualIds = new Set(
+      (
+        await this.prismaClient.anggota_Kelas.findMany({
+          where: {
+            id_kelas: kelasId,
+          },
+          select: {
+            id_siswa: true,
+          },
+        })
+      ).map(({ id_siswa }) => id_siswa)
+    );
+
+    if (siswaIds.find((id) => !actualIds.has(id)))
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invalid siswa ID found',
+      });
+  }
+
   async getPeriodeFromKelas(kelasId: string) {
     const result = await this.prismaClient.kelas.findUnique({
       where: {

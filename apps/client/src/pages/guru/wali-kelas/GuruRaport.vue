@@ -3,9 +3,10 @@ import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useLayout } from 'vuetify';
-import { StatusRaportType } from '@raport-digital/client-api-types';
+import { RaportType, StatusRaportType } from '@raport-digital/client-api-types';
 import CRaportStatusStepper from '../../../components/CRaportStatusStepper.vue';
 import CPdfViewer from '../../../components/CPdfViewer.vue';
+import CRaportChip from '../../../components/CRaportChip.vue';
 
 const { idKelas, idSiswa, statusRaport } = defineProps({
   idKelas: String,
@@ -19,13 +20,13 @@ const queryClient = useQueryClient();
 
 const statusData = computed(() => statusRaport ? statusRaport as StatusRaportType : undefined);
 
-const selectedRaport = ref(-1);
-
+const selectedRaport = ref<RaportType>();
 const { data } = useTrcpQuery(trpc!.guru.waliKelas.getRaportPDF.queryOptions({
+  type: computed(() => selectedRaport.value!),
   kelas_id: computed(() => idKelas!),
   siswa_id: computed(() => idSiswa!),
 }, {
-  enabled: computed(() => selectedRaport.value == 1) as unknown as boolean
+  enabled: computed(() => !!selectedRaport.value) as unknown as boolean
 }))
 
 const { mutateAsync: confirmAsync } = useMutation(trpc!.guru.waliKelas.confirmRaport.mutationOptions())
@@ -60,11 +61,7 @@ const layout = useLayout();
     <p v-if="alasanTolak">Ditolak dengan alasan "{{ alasanTolak }}"</p>
     <p v-if="statusData == 'DIKONFIRMASI'">Menunggu Verifikasi Kepala Sekolah</p>
   </div>
-  <v-chip-group v-model="selectedRaport" selected-class="text-primary" class="mx-4 my-2">
-    <v-chip rounded filter>Identitas</v-chip>
-    <v-chip rounded filter>Raport Akademik</v-chip>
-    <v-chip rounded filter>P5</v-chip>
-  </v-chip-group>
+  <c-raport-chip v-model="selectedRaport" class="mx-4 my-2"/>
   <c-pdf-viewer v-if="data" :data="data" />
   <v-sheet v-if="statusData == 'MENUNGGU_KONFIRMASI'" class="position-fixed bottom-0 right-0 pa-4 d-flex justify-end"
     :style="{

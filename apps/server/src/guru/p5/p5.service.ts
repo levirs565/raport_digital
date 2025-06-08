@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { Nilai_P5_Enum } from '@prisma/client';
+import { CommonUtilsService } from '../../common/common.utils.service';
 
 interface ProyekP5 {
   tema: string;
@@ -28,7 +29,10 @@ interface NilaiP5 {
 
 @Injectable()
 export class GuruP5Service {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly commonUtilsService: CommonUtilsService
+  ) {}
 
   async getAll(sessionUsername: string, periodeId: string) {
     const result = await this.prismaClient.kelas.findMany({
@@ -231,27 +235,6 @@ export class GuruP5Service {
     );
   }
 
-  async ensureSiswaIds(kelasId: string, siswaIds: string[]) {
-    const actualIds = new Set(
-      (
-        await this.prismaClient.anggota_Kelas.findMany({
-          where: {
-            id_kelas: kelasId,
-          },
-          select: {
-            id_siswa: true,
-          },
-        })
-      ).map(({ id_siswa }) => id_siswa)
-    );
-
-    if (siswaIds.find((id) => !actualIds.has(id)))
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Invalid siswa ID found',
-      });
-  }
-
   async updateCatatanProsesProyek(
     sessionUsername: string,
     proyekId: string,
@@ -272,7 +255,7 @@ export class GuruP5Service {
       },
     });
     if (!kelasId) this.throwProyekNotFound();
-    await this.ensureSiswaIds(
+      await this.commonUtilsService.ensureSiswaListInKelas(
       kelasId.Kelas.id_kelas,
       catatan.map(({ id_siswa }) => id_siswa)
     );
@@ -309,8 +292,8 @@ export class GuruP5Service {
       select: {
         id_target_p5: true,
         dimensi: true,
-        target: true
-      }
+        target: true,
+      },
     });
 
     return result;
@@ -326,7 +309,7 @@ export class GuruP5Service {
       },
     });
 
-    return result.id_target_p5
+    return result.id_target_p5;
   }
 
   private throwTargetNotFound(): never {
@@ -473,7 +456,7 @@ export class GuruP5Service {
       },
     });
     if (!kelasId) this.throwTargetNotFound();
-    await this.ensureSiswaIds(
+      await this.commonUtilsService.ensureSiswaListInKelas(
       kelasId.Proyek_P5.Kelas.id_kelas,
       nilai.map(({ id_siswa }) => id_siswa)
     );

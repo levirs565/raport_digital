@@ -11,6 +11,9 @@ const { id } = defineProps({
 })
 
 const trpc = injectTrpc();
+const { data: kelasData } = useTrcpQuery(trpc!.operator.kelas.get.queryOptions({
+  id: computed(() => id!)
+}))
 const { data } = useTrcpQuery(trpc!.operator.kelas.getAnggotaList.queryOptions({
   id: computed(() => id!)
 }))
@@ -47,7 +50,8 @@ function onSave() {
   </v-app-bar>
 
   <v-main>
-    <c-siswa-select v-model="anggotaKelas" />
+    <c-siswa-select v-if="kelasData" :periode-ajar-id="kelasData.id_periode_ajar" v-model="anggotaKelas"
+      :is-item-disabled="(item: any) => item.kelas?.id_kelas && item.kelas.id_kelas != id" />
     <v-btn @click="onSave" class="ma-4 mt-0">Simpan</v-btn>
   </v-main>
 </template>
