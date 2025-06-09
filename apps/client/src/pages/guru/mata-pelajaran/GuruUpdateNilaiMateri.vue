@@ -47,7 +47,7 @@ function onSave() {
 
   mutateAsync({
     id: idMateri!,
-    nilai: anggotaList.value.map(({ id_siswa, index }) => ({
+    nilai: anggotaList.value.filter((item) => !item.is_locked).map(({ id_siswa, index }) => ({
       id_siswa,
       nilai: nilaiList[index]
     }))
@@ -70,7 +70,7 @@ function onSave() {
 </script>
 <template>
   <v-card>
-    <v-toolbar>
+    <v-toolbar color="surface">
       <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
       <v-toolbar-title>Ubah Nilai</v-toolbar-title>
     </v-toolbar>
@@ -82,7 +82,11 @@ function onSave() {
         <v-list-item>
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
           <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
-          <v-number-input class="py-2" label="Nilai" :model-value="nilaiList[item.index]" @update:model-value="(value) => {
+          <v-list-item-subtitle v-if="item.is_locked" class="items-center">
+            <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+            <span>Nilai Dikunci</span>
+          </v-list-item-subtitle>
+          <v-number-input :disabled="item.is_locked" class="py-2" label="Nilai" :model-value="nilaiList[item.index]" @update:model-value="(value) => {
             nilaiList[item.index] = value;
           }" :min="0" :max="100" />
         </v-list-item>

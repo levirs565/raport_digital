@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { CommonUtilsService } from '../../common/common.utils.service';
+import { isRaportLocked } from '../../utils';
 
 export interface MataPelajaranKelasID {
   id_kelas: string;
@@ -192,6 +193,12 @@ export class GuruMataPelajaranService {
         Mata_Pelajaran_Kelas: {
           select: {
             username_guru: true,
+            Kelas: {
+              select: {
+                id_kelas: true,
+                id_periode_ajar: true,
+              },
+            },
           },
         },
       },
@@ -205,6 +212,11 @@ export class GuruMataPelajaranService {
         code: 'FORBIDDEN',
         message: 'PAS cannot be modified',
       });
+
+    return {
+      id_kelas: data.Mata_Pelajaran_Kelas.Kelas.id_kelas,
+      id_periode_ajar: data.Mata_Pelajaran_Kelas.Kelas.id_periode_ajar,
+    };
   }
 
   async getMateri(sessionUsername: string, id: string) {
@@ -280,7 +292,11 @@ export class GuruMataPelajaranService {
   }
 
   async getNilaiMateri(sessionUsername: string, id: string) {
-    await this.ensureMateriAccess(sessionUsername, id, false);
+    const { id_periode_ajar } = await this.ensureMateriAccess(
+      sessionUsername,
+      id,
+      false
+    );
 
     const data = await this.prismaClient.materi.findUnique({
       where: {
@@ -305,6 +321,15 @@ export class GuruMataPelajaranService {
                         nama: true,
                         NIS: true,
                         NISN: true,
+                        Raport: {
+                          where: {
+                            id_periode_ajar,
+                          },
+                          take: 1,
+                          select: {
+                            status: true,
+                          },
+                        },
                       },
                     },
                   },
@@ -319,11 +344,12 @@ export class GuruMataPelajaranService {
     if (!data) this.throwNotFound();
 
     const result = data.Mata_Pelajaran_Kelas.Kelas.Anggota_Kelas.map(
-      ({ Siswa }) => ({
+      ({ Siswa: { Raport, ...Siswa } }) => ({
         ...Siswa,
         nilai:
           data.Nilai_Materi.find((nilai) => nilai.id_siswa == Siswa.id_siswa)
             ?.nilai ?? 0,
+        is_locked: isRaportLocked(Raport.at(0)?.status),
       })
     );
 
@@ -335,27 +361,9 @@ export class GuruMataPelajaranService {
     id: string,
     nilaiList: NilaiMataPelajaran[]
   ) {
-    await this.ensureMateriAccess(sessionUsername, id, false);
-
-    const kelas = await this.prismaClient.materi.findUnique({
-      where: {
-        id_materi: id,
-      },
-      select: {
-        Mata_Pelajaran_Kelas: {
-          select: {
-            Kelas: {
-              select: {
-                id_kelas: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    if (!kelas) this.throwNotFound();
-    await this.commonUtilsService.ensureSiswaListInKelas(
-      kelas.Mata_Pelajaran_Kelas.Kelas.id_kelas,
+    const kelas = await this.ensureMateriAccess(sessionUsername, id, false);
+    await this.commonUtilsService.ensureSiswaListNotLockedInKelas(
+      kelas.id_kelas,
       nilaiList.map((nilai) => nilai.id_siswa)
     );
 

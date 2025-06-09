@@ -22,6 +22,46 @@ export class CommonUtilsService {
       });
   }
 
+  async ensureSiswaListNotLockedInKelas(kelasId: string, siswaIds: string[]) {
+    const periodeAjarId = await this.getPeriodeFromKelas(kelasId);
+    const result = await this.prismaClient.anggota_Kelas.findMany({
+      where: {
+        id_kelas: kelasId,
+        id_siswa: {
+          in: siswaIds,
+        },
+        Siswa: {
+          OR: [
+            {
+              Raport: {
+                none: {
+                  id_periode_ajar: periodeAjarId,
+                },
+              },
+            },
+            {
+              Raport: {
+                some: {
+                  id_periode_ajar: periodeAjarId,
+                  status: 'MENUNGGU_KONFIRMASI',
+                },
+              },
+            },
+          ],
+        },
+      },
+      select: {
+        id_siswa: true,
+      },
+    });
+
+    if (result.length != siswaIds.length)
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Invalid siswa ID found',
+      });
+  }
+
   async ensureSiswaListInKelas(kelasId: string, siswaIds: string[]) {
     const actualIds = new Set(
       (
