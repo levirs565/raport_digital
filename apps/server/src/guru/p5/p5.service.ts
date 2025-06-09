@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { Nilai_P5_Enum } from '@prisma/client';
 import { CommonUtilsService } from '../../common/common.utils.service';
+import { isRaportLocked } from '../../utils';
 
 interface ProyekP5 {
   tema: string;
@@ -138,6 +139,8 @@ export class GuruP5Service {
       select: {
         Kelas: {
           select: {
+            id_kelas: true,
+            id_periode_ajar: true,
             username_koor_p5: true,
           },
         },
@@ -151,6 +154,11 @@ export class GuruP5Service {
         code: 'FORBIDDEN',
         message: 'Proyek cannot accessed',
       });
+
+    return {
+      id_kelas: result.Kelas.id_kelas,
+      id_periode_ajar: result.Kelas.id_periode_ajar,
+    };
   }
 
   async updateProyek(
@@ -192,7 +200,7 @@ export class GuruP5Service {
   }
 
   async getCatatanProsesProyek(sessionUsername: string, proyekId: string) {
-    await this.ensureProyekAccess(sessionUsername, proyekId);
+    const proyek = await this.ensureProyekAccess(sessionUsername, proyekId);
 
     const result = await this.prismaClient.proyek_P5.findUnique({
       where: {
@@ -209,6 +217,15 @@ export class GuruP5Service {
                     NIS: true,
                     NISN: true,
                     nama: true,
+                    Raport: {
+                      where: {
+                        id_periode_ajar: proyek.id_periode_ajar,
+                      },
+                      take: 1,
+                      select: {
+                        status: true,
+                      },
+                    },
                     Catatan_Proses_P5: {
                       where: {
                         id_proyek_p5: proyekId,
@@ -228,8 +245,9 @@ export class GuruP5Service {
     if (!result) this.throwProyekNotFound();
 
     return result.Kelas.Anggota_Kelas.map(
-      ({ Siswa: { Catatan_Proses_P5, ...Siswa } }) => ({
+      ({ Siswa: { Catatan_Proses_P5, Raport, ...Siswa } }) => ({
         ...Siswa,
+        is_locked: isRaportLocked(Raport.at(0)?.status),
         catatan_proses: Catatan_Proses_P5.at(0)?.catatan ?? undefined,
       })
     );
@@ -240,23 +258,10 @@ export class GuruP5Service {
     proyekId: string,
     catatan: CatatanProyekP5[]
   ) {
-    await this.ensureProyekAccess(sessionUsername, proyekId);
+    const proyek = await this.ensureProyekAccess(sessionUsername, proyekId);
 
-    const kelasId = await this.prismaClient.proyek_P5.findUnique({
-      where: {
-        id_proyek_p5: proyekId,
-      },
-      select: {
-        Kelas: {
-          select: {
-            id_kelas: true,
-          },
-        },
-      },
-    });
-    if (!kelasId) this.throwProyekNotFound();
-      await this.commonUtilsService.ensureSiswaListInKelas(
-      kelasId.Kelas.id_kelas,
+    await this.commonUtilsService.ensureSiswaListNotLockedInKelas(
+      proyek.id_kelas,
       catatan.map(({ id_siswa }) => id_siswa)
     );
 
@@ -329,6 +334,8 @@ export class GuruP5Service {
           select: {
             Kelas: {
               select: {
+                id_kelas: true,
+                id_periode_ajar: true,
                 username_koor_p5: true,
               },
             },
@@ -337,13 +344,18 @@ export class GuruP5Service {
       },
     });
 
-    if (!result) this.throwProyekNotFound();
+    if (!result) this.throwTargetNotFound();
 
     if (result.Proyek_P5.Kelas.username_koor_p5 != sessionUsername)
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'Target cannot accessed',
       });
+
+    return {
+      id_kelas: result.Proyek_P5.Kelas.id_kelas,
+      id_periode_ajar: result.Proyek_P5.Kelas.id_periode_ajar,
+    };
   }
 
   async updateTarget(
@@ -388,7 +400,7 @@ export class GuruP5Service {
   }
 
   async getNilaiTarget(sessionUsername: string, targetId: string) {
-    await this.ensureTargetAccess(sessionUsername, targetId);
+    const target = await this.ensureTargetAccess(sessionUsername, targetId);
 
     const anggotaKelas = await this.prismaClient.target_P5.findUnique({
       where: {
@@ -407,6 +419,15 @@ export class GuruP5Service {
                         NIS: true,
                         NISN: true,
                         nama: true,
+                        Raport: {
+                          where: {
+                            id_periode_ajar: target.id_periode_ajar,
+                          },
+                          take: 1,
+                          select: {
+                            status: true,
+                          },
+                        },
                       },
                     },
                   },
@@ -424,12 +445,15 @@ export class GuruP5Service {
       },
     });
 
-    return anggotaKelas.Proyek_P5.Kelas.Anggota_Kelas.map(({ Siswa }) => ({
-      ...Siswa,
-      nilai:
-        nilai.find((nilai) => nilai.id_siswa == Siswa.id_siswa)?.nilai ??
-        undefined,
-    }));
+    return anggotaKelas.Proyek_P5.Kelas.Anggota_Kelas.map(
+      ({ Siswa: { Raport, ...Siswa } }) => ({
+        ...Siswa,
+        is_locked: isRaportLocked(Raport.at(0)?.status),
+        nilai:
+          nilai.find((nilai) => nilai.id_siswa == Siswa.id_siswa)?.nilai ??
+          undefined,
+      })
+    );
   }
 
   async updateNilaiTarget(
@@ -437,27 +461,9 @@ export class GuruP5Service {
     targetId: string,
     nilai: NilaiP5[]
   ) {
-    await this.ensureTargetAccess(sessionUsername, targetId);
-
-    const kelasId = await this.prismaClient.target_P5.findUnique({
-      where: {
-        id_target_p5: targetId,
-      },
-      select: {
-        Proyek_P5: {
-          select: {
-            Kelas: {
-              select: {
-                id_kelas: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    if (!kelasId) this.throwTargetNotFound();
-      await this.commonUtilsService.ensureSiswaListInKelas(
-      kelasId.Proyek_P5.Kelas.id_kelas,
+    const target = await this.ensureTargetAccess(sessionUsername, targetId);
+    await this.commonUtilsService.ensureSiswaListNotLockedInKelas(
+      target.id_kelas,
       nilai.map(({ id_siswa }) => id_siswa)
     );
 

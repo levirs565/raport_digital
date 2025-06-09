@@ -44,7 +44,7 @@ function onSave() {
 
   mutateAsync({
     id_proyek: idProyek,
-    catatan: anggotaList.value.map(({ id_siswa, index }) => ({
+    catatan: anggotaList.value.filter(item => !item.is_locked).map(({ id_siswa, index }) => ({
       id_siswa,
       catatan_proses: catatanList[index]
     }))
@@ -73,9 +73,14 @@ function onSave() {
         <v-list-item>
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
           <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
-          <v-textarea class="mt-4" label="Nilai" :model-value="catatanList[item.index]" @update:model-value="(value) => {
-            catatanList[item.index] = value;
-          }" />
+          <v-list-item-subtitle v-if="item.is_locked" class="items-center">
+            <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+            <span>Nilai Dikunci</span>
+          </v-list-item-subtitle>
+          <v-textarea :disabled="item.is_locked" class="mt-4" label="Catatan" :model-value="catatanList[item.index]"
+            @update:model-value="(value) => {
+              catatanList[item.index] = value;
+            }" />
         </v-list-item>
         <v-divider />
       </template>
