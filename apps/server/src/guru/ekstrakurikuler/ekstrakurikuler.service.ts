@@ -2,7 +2,8 @@ import { TRPCError } from '@trpc/server';
 import { PrismaService } from '../../prisma/prisma.service';
 import { $Enums } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import { isRaportLocked, isSubset, setDifference } from '../../utils';
+import { isRaportLocked } from '../../utils';
+import { CommonUtilsService } from '../../common/common.utils.service';
 
 export interface NilaiEkstrakurikuler {
   id_siswa: string;
@@ -12,7 +13,10 @@ export interface NilaiEkstrakurikuler {
 
 @Injectable()
 export class GuruEkstrakurikulerService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly commonUtilsService: CommonUtilsService
+  ) {}
 
   async getAll(sessionUsername: string, periodeAjarId: string) {
     const result = this.prismaClient.ekstrakurikuler.findMany({
@@ -131,58 +135,24 @@ export class GuruEkstrakurikulerService {
   ) {
     const ekstrakurikuler = await this.ensureCanEdit(sessionUsername, id);
 
-    const lockedAnggota = new Set(
-      (
-        await this.prismaClient.anggota_Ekstrakurikuler.findMany({
-          where: {
-            id_ekstrakurikuler: id,
-            Siswa: {
-              Raport: {
-                some: {
-                  id_periode_ajar: ekstrakurikuler.id_periode_ajar,
-                  status: {
-                    not: 'MENUNGGU_KONFIRMASI',
-                  },
-                },
-              },
-            },
-          },
-          select: {
-            id_siswa: true,
-          },
-        })
-      ).map((Anggota) => Anggota.id_siswa)
+    const lockedAnggota = (
+      await this.prismaClient.anggota_Ekstrakurikuler.findMany({
+        where: {
+          id_ekstrakurikuler: id,
+          Siswa: this.commonUtilsService.createSiswaLockedSelector(
+            ekstrakurikuler.id_periode_ajar
+          ),
+        },
+        select: {
+          id_siswa: true,
+        },
+      })
+    ).map((Anggota) => Anggota.id_siswa);
+    await this.commonUtilsService.ensureCanUpdateAnggota(
+      ekstrakurikuler.id_periode_ajar,
+      siswaIdList,
+      lockedAnggota
     );
-    const currentAnggota = new Set(siswaIdList);
-
-    if (!isSubset(lockedAnggota, currentAnggota))
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Cannot delete locked anggota',
-      });
-
-    const otherAnggota = setDifference(currentAnggota, lockedAnggota);
-
-    const newLockedAnggota = await this.prismaClient.raport.findMany({
-      where: {
-        id_periode_ajar: ekstrakurikuler.id_periode_ajar,
-        id_siswa: {
-          in: [...otherAnggota],
-        },
-        status: {
-          not: 'MENUNGGU_KONFIRMASI',
-        },
-      },
-      select: {
-        id_siswa: true,
-      },
-    });
-
-    if (newLockedAnggota.length > 0)
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Cannot add locked anggota',
-      });
 
     await this.prismaClient.$transaction([
       this.prismaClient.anggota_Ekstrakurikuler.deleteMany({
@@ -229,7 +199,7 @@ export class GuruEkstrakurikulerService {
               Raport: {
                 some: {
                   id_periode_ajar: ekstrakurikuler.id_periode_ajar,
-                  status: "MENUNGGU_KONFIRMASI"
+                  status: 'MENUNGGU_KONFIRMASI',
                 },
               },
             },

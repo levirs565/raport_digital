@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
-import { PrismaHelper } from '../../utils';
+import { isRaportLocked, PrismaHelper } from '../../utils';
+import { CommonUtilsService } from '../../common/common.utils.service';
 
 @Injectable()
 export class OperatorKelasService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly commonUtilsService: CommonUtilsService
+  ) {}
 
   async getAll(periodeAjarId: string) {
     const result = await this.prismaClient.kelas.findMany({
@@ -244,16 +248,49 @@ export class OperatorKelasService {
             NIS: true,
             NISN: true,
             nama: true,
+            Raport: {
+              where: {
+                id_periode_ajar:
+                  await this.commonUtilsService.getPeriodeFromKelas(id),
+              },
+              take: 1,
+              select: {
+                status: true,
+              },
+            },
           },
         },
       },
     });
 
-    return result.map(({ Siswa }) => Siswa);
+    return result.map(({ Siswa: { Raport, ...Siswa } }) => ({
+      ...Siswa,
+      is_locked: isRaportLocked(Raport.at(0)?.status),
+    }));
   }
 
   async updateAnggotaList(id: string, anggotaIdList: string[]) {
     await this.ensureFound(id);
+
+    const periodeAjarId = await this.commonUtilsService.getPeriodeFromKelas(id);
+
+    const lockedAnggota = (
+      await this.prismaClient.anggota_Kelas.findMany({
+        where: {
+          id_kelas: id,
+          Siswa:
+            this.commonUtilsService.createSiswaLockedSelector(periodeAjarId),
+        },
+        select: {
+          id_siswa: true,
+        },
+      })
+    ).map((anggota) => anggota.id_siswa);
+    await this.commonUtilsService.ensureCanUpdateAnggota(
+      periodeAjarId,
+      anggotaIdList,
+      lockedAnggota
+    );
 
     const anggotaKelasLain = await this.prismaClient.anggota_Kelas.findMany({
       where: {
@@ -301,35 +338,35 @@ export class OperatorKelasService {
         this.prismaClient.nilai_Materi.deleteMany({
           where: {
             Materi: {
-              id_kelas: id
+              id_kelas: id,
             },
             id_siswa: {
-              notIn: anggotaIdList
-            }
-          }
+              notIn: anggotaIdList,
+            },
+          },
         }),
         this.prismaClient.catatan_Proses_P5.deleteMany({
           where: {
             Proyek_P5: {
-              id_kelas: id
+              id_kelas: id,
             },
             id_siswa: {
-              notIn: anggotaIdList
-            }
-          }
+              notIn: anggotaIdList,
+            },
+          },
         }),
         this.prismaClient.nilai_P5.deleteMany({
           where: {
             Target_P5: {
               Proyek_P5: {
-                id_kelas: id
-              }
+                id_kelas: id,
+              },
             },
             id_siswa: {
-              notIn: anggotaIdList
-            }
-          }
-        })
+              notIn: anggotaIdList,
+            },
+          },
+        }),
       ]);
     } catch (e) {
       if (PrismaHelper.isRecordNotFoundError(e)) {

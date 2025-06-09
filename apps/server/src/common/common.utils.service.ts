@@ -1,11 +1,63 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
-import { isRaportLocked } from '../utils';
+import { isRaportLocked, isSubset, setDifference } from '../utils';
 
 @Injectable()
 export class CommonUtilsService {
   constructor(private readonly prismaClient: PrismaService) {}
+
+  createSiswaLockedSelector(
+    periodeAjarId: string
+  ): Extract<
+    Parameters<typeof this.prismaClient.siswa.findMany>[0],
+    {}
+  >['where'] {
+    return {
+      Raport: {
+        some: {
+          id_periode_ajar: periodeAjarId,
+          status: {
+            not: 'MENUNGGU_KONFIRMASI',
+          },
+        },
+      },
+    };
+  }
+
+  async ensureCanUpdateAnggota(periodeAjarId: string, targetList: string[], lockedList: string[]) {
+    const lockedAnggota = new Set(lockedList)
+    const currentAnggota = new Set(targetList);
+
+    if (!isSubset(lockedAnggota, currentAnggota))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Cannot delete locked anggota',
+      });
+
+    const otherAnggota = setDifference(currentAnggota, lockedAnggota);
+
+    const newLockedAnggota = await this.prismaClient.raport.findMany({
+      where: {
+        id_periode_ajar: periodeAjarId,
+        id_siswa: {
+          in: [...otherAnggota],
+        },
+        status: {
+          not: 'MENUNGGU_KONFIRMASI',
+        },
+      },
+      select: {
+        id_siswa: true,
+      },
+    });
+
+    if (newLockedAnggota.length > 0)
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Cannot add locked anggota',
+      });
+  }
 
   async ensureSiswaInKelas(kelasId: string, siswaId: string) {
     const result = await this.prismaClient.anggota_Kelas.findUnique({
