@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
+import { isRaportLocked } from '../utils';
 
 @Injectable()
 export class CommonUtilsService {
@@ -19,6 +20,25 @@ export class CommonUtilsService {
       throw new TRPCError({
         code: 'NOT_FOUND',
         message: 'Siswa is not found',
+      });
+  }
+
+  async ensureSiswaNotLocked(periodeId: string, siswaId: string) {
+    const raport = await this.prismaClient.raport.findUnique({
+      where: {
+        id_periode_ajar_id_siswa: {
+          id_periode_ajar: periodeId,
+          id_siswa: siswaId,
+        },
+      },
+      select: {
+        status: true,
+      },
+    });
+    if (isRaportLocked(raport?.status))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Raport is locked',
       });
   }
 

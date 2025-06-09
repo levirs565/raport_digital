@@ -54,6 +54,7 @@ export class GuruWaliKelasService {
       },
       select: {
         username_wali_kelas: true,
+        id_periode_ajar: true,
       },
     });
 
@@ -63,6 +64,10 @@ export class GuruWaliKelasService {
         code: 'FORBIDDEN',
         message: 'You have no access to this kelas',
       });
+
+    return {
+      id_periode_ajar: result.id_periode_ajar,
+    };
   }
 
   async get(sessionUsername: string, kelasId: string) {
@@ -95,7 +100,11 @@ export class GuruWaliKelasService {
     type: RaportType
   ) {
     await this.ensureAccess(sessionUsername, kelasId);
-    const result = await this.raportService.getRaportPDF(kelasId, siswaId, type);
+    const result = await this.raportService.getRaportPDF(
+      kelasId,
+      siswaId,
+      type
+    );
     if (result == null) this.throwNotFound();
     return result;
   }
@@ -130,7 +139,7 @@ export class GuruWaliKelasService {
       },
       update: {
         status: 'DIKONFIRMASI',
-        alasan_tolak: null
+        alasan_tolak: null,
       },
     });
   }
@@ -180,12 +189,13 @@ export class GuruWaliKelasService {
     siswaId: string,
     kehadiran: Kehadiran
   ) {
-    await this.ensureAccess(sessionUsername, kelasId);
-    await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
-
-    const periodeId = await this.commonUtilsService.getPeriodeFromKelas(
+    const { id_periode_ajar: periodeId } = await this.ensureAccess(
+      sessionUsername,
       kelasId
     );
+    await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
+    await this.commonUtilsService.ensureSiswaNotLocked(periodeId, siswaId);
+
     await this.prismaClient.raport.upsert({
       where: {
         id_periode_ajar_id_siswa: {
@@ -233,12 +243,10 @@ export class GuruWaliKelasService {
     siswaId: string,
     catatan: string
   ) {
-    await this.ensureAccess(sessionUsername, kelasId);
+    const { id_periode_ajar: periodeId } = await this.ensureAccess(sessionUsername, kelasId);
     await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
+    await this.commonUtilsService.ensureSiswaNotLocked(periodeId, siswaId);
 
-    const periodeId = await this.commonUtilsService.getPeriodeFromKelas(
-      kelasId
-    );
     await this.prismaClient.raport.upsert({
       where: {
         id_periode_ajar_id_siswa: {
@@ -294,6 +302,7 @@ export class GuruWaliKelasService {
       },
       select: {
         id_siswa: true,
+        id_periode_ajar: true,
       },
     });
     if (!result)
@@ -302,6 +311,11 @@ export class GuruWaliKelasService {
         message: 'Prestasi not found',
       });
     await this.commonUtilsService.ensureSiswaInKelas(kelasId, result.id_siswa);
+
+    return {
+      id_periode_ajar: result.id_periode_ajar,
+      id_siswa: result.id_siswa,
+    };
   }
 
   async getPrestasi(
@@ -334,11 +348,14 @@ export class GuruWaliKelasService {
     await this.ensureAccess(sessionUsername, kelasId);
     await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
 
+    const periodeId = await this.commonUtilsService.getPeriodeFromKelas(
+      kelasId
+    );
+    await this.commonUtilsService.ensureSiswaNotLocked(periodeId, siswaId);
+
     const result = await this.prismaClient.prestasi.create({
       data: {
-        id_periode_ajar: await this.commonUtilsService.getPeriodeFromKelas(
-          kelasId
-        ),
+        id_periode_ajar: periodeId,
         id_siswa: siswaId,
         ...prestasi,
       },
@@ -353,7 +370,16 @@ export class GuruWaliKelasService {
     prestasiId: string,
     prestasi: Prestasi
   ) {
-    await this.ensurePrestasiAccess(sessionUsername, kelasId, prestasiId);
+    const { id_periode_ajar, id_siswa } = await this.ensurePrestasiAccess(
+      sessionUsername,
+      kelasId,
+      prestasiId
+    );
+
+    await this.commonUtilsService.ensureSiswaNotLocked(
+      id_periode_ajar,
+      id_siswa
+    );
 
     await this.prismaClient.prestasi.update({
       where: {
@@ -368,7 +394,16 @@ export class GuruWaliKelasService {
     kelasId: string,
     prestasiId: string
   ) {
-    await this.ensurePrestasiAccess(sessionUsername, kelasId, prestasiId);
+    const { id_periode_ajar, id_siswa } = await this.ensurePrestasiAccess(
+      sessionUsername,
+      kelasId,
+      prestasiId
+    );
+
+    await this.commonUtilsService.ensureSiswaNotLocked(
+      id_periode_ajar,
+      id_siswa
+    );
 
     await this.prismaClient.prestasi.delete({
       where: {

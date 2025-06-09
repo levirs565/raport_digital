@@ -27,6 +27,8 @@ const { data: catatanData } = useTrcpQuery(trpc!.guru.waliKelas.getCatatanWaliKe
 const { mutateAsync: deletePrestasiAsync } = useMutation(trpc!.guru.waliKelas.deletePrestasi.mutationOptions());
 const queryClient = useQueryClient();
 
+const isLocked = computed(() => !data.value || data.value.status != "MENUNGGU_KONFIRMASI")
+
 function onDeletePrestasi(idPrestasi: string) {
   deletePrestasiAsync({
     kelas_id: idKelas!,
@@ -46,7 +48,10 @@ const activeTab = ref(0);
 <template>
   <v-app-bar>
     <c-app-bar-hamburger />
-    <v-app-bar-title>{{ data?.nama }}</v-app-bar-title>
+    <v-app-bar-title>
+      <span>{{ data?.nama }}</span>
+      <v-icon v-if="isLocked" size="small" class="ml-4">mdi-lock</v-icon>
+    </v-app-bar-title>
     <template v-slot:extension>
       <v-tabs grow v-model="activeTab">
         <v-tab>Rekap Nilai</v-tab>
@@ -92,7 +97,7 @@ const activeTab = ref(0);
                 <v-list-item-title>{{ item.jenis }}</v-list-item-title>
                 <v-list-item-subtitle>{{ item.keterangan }}</v-list-item-subtitle>
                 <template v-slot:append>
-                  <v-btn variant="text" icon color="text">
+                  <v-btn v-if="!isLocked" variant="text" icon color="text">
                     <v-icon>mdi-dots-vertical</v-icon>
                     <v-menu activator="parent">
                       <v-list>
@@ -116,7 +121,7 @@ const activeTab = ref(0);
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-dialog persistent>
+            <v-dialog v-if="!isLocked" persistent>
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Tambah</v-btn>
               </template>
@@ -143,7 +148,7 @@ const activeTab = ref(0);
             </div>
           </div>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-dialog persistent>
+            <v-dialog v-if="!isLocked" persistent>
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Ubah</v-btn>
               </template>
@@ -158,7 +163,7 @@ const activeTab = ref(0);
           <v-card-title>Catatan</v-card-title>
           <v-card-text>{{ catatanData ?? "-" }}</v-card-text>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-dialog persistent>
+            <v-dialog v-if="!isLocked" persistent>
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Ubah</v-btn>
               </template>
