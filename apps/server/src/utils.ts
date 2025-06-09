@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { $Enums, Prisma } from '@prisma/client';
 import z from 'zod';
 
 export namespace PrismaHelper {
@@ -21,4 +21,34 @@ export function extractFields<T extends z.ZodRawShape>(
     }
   }
   return result;
+}
+
+export function isRaportLocked(status: $Enums.Status_Raport | undefined | null) {
+  return !!status && status != "MENUNGGU_KONFIRMASI";
+}
+
+export function isSubset<T>(subset: Set<T>, superset: Set<T>): boolean {
+  if (subset.size > superset.size) {
+    return false;
+  }
+
+  for (const item of subset) {
+    if (!superset.has(item)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function setDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
+  const difference = new Set<T>();
+
+  for (const item of setA) {
+    if (!setB.has(item)) {
+      difference.add(item);
+    }
+  }
+
+  return difference;
 }

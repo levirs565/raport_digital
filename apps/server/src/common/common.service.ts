@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { isRaportLocked } from '../utils';
 
 @Injectable()
 export class CommonService {
@@ -37,6 +38,15 @@ export class CommonService {
           nama: true,
           NIS: true,
           NISN: true,
+          Raport: {
+            where: {
+              id_periode_ajar: periodeAjarId
+            },
+            take: 1,
+            select: {
+              status: true,
+            }
+          },
           Kelas: {
             take: 1,
             where: {
@@ -56,9 +66,10 @@ export class CommonService {
           },
         },
       })
-    ).map(({ Kelas, ...Siswa }) => ({
+    ).map(({ Kelas, Raport, ...Siswa }) => ({
       ...Siswa,
       kelas: Kelas.at(0)?.Kelas,
+      is_locked: isRaportLocked(Raport.at(0)?.status)
     }));
   }
 }

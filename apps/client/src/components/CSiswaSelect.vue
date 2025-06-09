@@ -4,7 +4,7 @@ import { injectTrpc, useTrcpQuery } from '../api-vue';
 
 const { periodeAjarId } = defineProps({
   periodeAjarId: String,
-  isItemDisabled: Function
+  isItemDisabled: Function,
 })
 
 const model: Set<string> = defineModel() as unknown as Set<string>;
@@ -34,12 +34,22 @@ const { data } = useTrcpQuery(trpc!.common.getSiswaList.queryOptions({
               } else {
                 model.add(item.id_siswa);
               }
-            }" :disabled="isItemDisabled ? isItemDisabled(item) : false"/>
+            }" :disabled="item.is_locked || (isItemDisabled ? isItemDisabled(item) : false)" />
           </v-list-item-action>
         </template>
 
         <v-list-item-title>{{ item.nama }}</v-list-item-title>
-        <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }} {{ item.kelas ? `, Kelas ${item.kelas.kelas}-${item.kelas.kode_ruang_kelas}` : "" }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="item.is_locked" class="items-center">
+          <v-icon  size="small" class="mr-2">mdi-lock</v-icon>
+          <span>Dikunci</span>
+        </v-list-item-subtitle>
+        <v-list-item-subtitle>
+          NIS. {{ item.NIS }}
+          NISN. {{ item.NISN }}
+          {{ item.kelas ? `, Kelas
+          ${item.kelas.kelas}-${item.kelas.kode_ruang_kelas}`
+            : "" }}
+        </v-list-item-subtitle>
       </v-list-item>
       <v-divider />
     </template>
