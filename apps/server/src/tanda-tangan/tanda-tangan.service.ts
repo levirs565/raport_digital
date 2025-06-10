@@ -8,7 +8,8 @@ import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { createWriteStream } from 'node:fs';
 import { ensureDir } from 'fs-extra';
-import { readFile } from 'node:fs/promises';
+import { readFile, rename } from 'node:fs/promises';
+import tmp from 'tmp-promise';
 
 const algorithm = 'aes-256-cbc';
 const iterations = 100000;
@@ -44,29 +45,33 @@ export class TandaTanganService {
 
   async set(username: string, stream: Readable) {
     await ensureDir(this.tandaTanganPath);
+    const { path: filePath, cleanup } = await tmp.file();
+    try {
+      const salt = crypto.randomBytes(16);
+      const { key, iv } = await this.derikeKeyAndIV(
+        this.tandaTanganPassword,
+        salt
+      );
 
-    const salt = crypto.randomBytes(16);
-    const { key, iv } = await this.derikeKeyAndIV(
-      this.tandaTanganPassword,
-      salt
-    );
+      const cipher = crypto.createCipheriv(algorithm, key, iv);
 
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
+      const resizer = sharp()
+        .resize({
+          width: 500,
+          withoutEnlargement: true,
+        })
+        .png({
+          quality: 90,
+        });
+      const outputStream = createWriteStream(filePath);
 
-    const resizer = sharp()
-      .resize({
-        width: 500,
-        withoutEnlargement: true,
-      })
-      .png({
-        quality: 90,
-      });
-    const outputStream = createWriteStream(
-      path.join(this.tandaTanganPath, username)
-    );
+      outputStream.write(salt);
+      await pipeline(stream, resizer, cipher, outputStream);
 
-    outputStream.write(salt);
-    await pipeline(stream, resizer, cipher, outputStream);
+      await rename(filePath, path.join(this.tandaTanganPath, username))
+    } finally {
+      cleanup();
+    }
   }
 
   async get(username: string) {
