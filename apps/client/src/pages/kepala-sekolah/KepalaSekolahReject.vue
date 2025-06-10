@@ -2,6 +2,9 @@
 import { ref } from 'vue';
 import { injectTrpc } from '../../api-vue';
 import { useMutation } from '@tanstack/vue-query';
+import { SubmitEventPromise } from 'vuetify';
+import { formatError } from '../../api';
+import { useRules } from 'vuetify/labs/rules';
 
 const emit = defineEmits(['close', 'success'])
 
@@ -13,9 +16,13 @@ const { idKelas, idSiswa } = defineProps({
 const alasan = ref("");
 
 const trpc = injectTrpc();
-const { mutateAsync: verifyAsync } = useMutation(trpc!.kepalaSekolah.verifyRaport.mutationOptions());
+const { mutateAsync: verifyAsync, error, isPending, reset } = useMutation(trpc!.kepalaSekolah.verifyRaport.mutationOptions());
 
-function onSubmit() {
+async function onSubmit(event: SubmitEventPromise) {
+  if (!(await event).valid) {
+    reset();
+    return;
+  }
   if (!alasan.value) return;
 
   verifyAsync({
@@ -30,6 +37,7 @@ function onSubmit() {
   })
 }
 
+const rules = useRules();
 </script>
 <template>
   <v-card>
@@ -38,9 +46,12 @@ function onSubmit() {
       <v-toolbar-title>Tolak Raport</v-toolbar-title>
     </v-toolbar>
 
-    <v-form class="px-4 py-2">
-      <v-textarea v-model="alasan" label="Alasan" />
-      <v-btn @click="onSubmit">Tolak</v-btn>
+    <v-form class="px-4 py-2" @submit.prevent="onSubmit">
+      <v-textarea :rules="[rules!.required!()]" v-model="alasan" label="Alasan" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+        {{ formatError(error) }}
+      </v-card-text>
+      <v-btn class="my-2" type="submit" :loading="isPending">Tolak</v-btn>
     </v-form>
   </v-card>
 </template>

@@ -51,7 +51,7 @@ function onSave() {
       <v-toolbar-title>Ubah Catatan</v-toolbar-title>
     </v-toolbar>
 
-    <v-form  class="pa-4" @submit.prevent="onSave">
+    <v-form class="pa-4" @submit.prevent="onSave">
       <v-textarea v-model="catatan" label="Catatan Wali Kelas" />
       <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
         {{ formatError(error) }}
