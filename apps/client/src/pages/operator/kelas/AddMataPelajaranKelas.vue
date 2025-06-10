@@ -7,7 +7,8 @@ import { useRules } from 'vuetify/labs/rules';
 import { SubmitEventPromise } from 'vuetify';
 
 const { id } = defineProps({
-  id: String
+  id: String,
+  idMataPelajaran: String,
 })
 const emit = defineEmits(["close"])
 
@@ -77,9 +78,9 @@ const rules = useRules();
         item-title="nama" item-value="id_mata_pelajaran" :return-object="false" />
       <v-combobox :rules="[rules!.required!()]" v-model="selectedGuru" :items="dataPengampu?.guru"
         item-title="nama_lengkap" item-value="username" :return-object="false" />
-      <v-card-text class="text-error text-center pa-0 my-2" v-if="id ? updateError : error">{{ formatError(id ?
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="idMataPelajaran ? updateError : error">{{ formatError(id ?
         updateError : error) }}</v-card-text>
-      <v-btn class="my-2" type="submit" :loading="id ? updateIsPending : isPending">Tambah</v-btn>
+      <v-btn class="my-2" type="submit" :loading="idMataPelajaran ? updateIsPending : isPending">Tambah</v-btn>
     </v-form>
   </v-card>
 </template>
