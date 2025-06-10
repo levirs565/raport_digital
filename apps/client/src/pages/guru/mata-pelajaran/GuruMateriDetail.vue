@@ -5,8 +5,12 @@ import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CNilaiMataPelajaranList from '../../../components/CNilaiMataPelajaranList.vue';
 import GuruAddMateri from './GuruAddMateri.vue';
 import GuruUpdateNilaiMateri from './GuruUpdateNilaiMateri.vue';
+import { useRouter } from 'vue-router';
+import { useSnackbarStore } from '../../../store';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
-const { idMateri } = defineProps({
+const { idMateri, idKelas, idMataPelajaran } = defineProps({
   idKelas: String,
   idMataPelajaran: String,
   idMateri: String
@@ -21,6 +25,25 @@ const { data } = useTrcpQuery(trpc!.guru.mataPelajaran.getMateri.queryOptions({
 const { data: nilaiData } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri.queryOptions({
   id: idMateriComputed
 }))
+const { mutateAsync: deleteAsync } = useMutation(trpc!.guru.mataPelajaran.deleteMateri.mutationOptions())
+
+const router = useRouter();
+const snackbar = useSnackbarStore();
+const queryClient = useQueryClient();
+function onDelete() {
+  deleteAsync({
+    id: idMateri!
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc?.guru.mataPelajaran.getMateriList.queryKey({
+        id_kelas: idKelas
+      })
+    })
+    router.replace(`/guru/mata-pelajaran/${idKelas}/${idMataPelajaran}`)
+  }).catch(e => {
+    snackbar.errors.push(formatError(e));
+  })
+}
 
 </script>
 <template>
@@ -36,6 +59,28 @@ const { data: nilaiData } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri
       <p>Materi</p>
       <p>{{ data.detail }}</p>
       <div class="d-flex justify-end ma-4">
+        <v-dialog v-if="!data.is_locked">
+          <template v-slot:activator="{ props: activatorProps }">
+            <v-btn v-bind="activatorProps" color="error" variant="outlined" class="mr-2">
+              Hapus
+            </v-btn>
+          </template>
+          <template v-slot:default="{ isActive }">
+            <v-card title="Konfirmasi Hapus">
+              <v-card-text>
+                Apakah anda yakin menghapus Materi ini?
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+                <v-btn text="Hapus" color="red" @click="() => {
+                  isActive.value = false
+                  onDelete();
+                }"></v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
         <v-dialog persistent v-if="!data.is_locked">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props">Ubah</v-btn>
