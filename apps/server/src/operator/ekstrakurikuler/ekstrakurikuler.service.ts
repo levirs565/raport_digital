@@ -2,14 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { PrismaHelper } from '../../utils';
-import { CommonUtilsService } from '../../common/common.utils.service';
 
 @Injectable()
 export class OperatorEkstrakurikulerService {
-  constructor(
-    private readonly prismaClient: PrismaService,
-    private readonly commonUtilsService: CommonUtilsService
-  ) {}
+  constructor(private readonly prismaClient: PrismaService) {}
 
   async count(periodeAjarId: string) {
     return await this.prismaClient.ekstrakurikuler.count({
@@ -73,7 +69,6 @@ export class OperatorEkstrakurikulerService {
         username: username_guru,
         ...Guru,
       },
-      can_delete: await this.getCanDelete(id),
       ...rest,
     };
   }
@@ -87,33 +82,6 @@ export class OperatorEkstrakurikulerService {
       },
     });
     return result.id_esktrakurikuler;
-  }
-
-  private async getCanDelete(id: string) {
-    const ekstrakurikuler = await this.prismaClient.ekstrakurikuler.findUnique({
-      where: {
-        id_esktrakurikuler: id,
-      },
-      select: {
-        id_periode_ajar: true,
-      },
-    });
-    if (!ekstrakurikuler)
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Ekstrakurikuler not found',
-      });
-
-    const result = await this.prismaClient.anggota_Ekstrakurikuler.count({
-      where: {
-        id_ekstrakurikuler: id,
-        Siswa: this.commonUtilsService.createSiswaLockedSelector(
-          ekstrakurikuler.id_periode_ajar
-        ),
-      },
-    });
-
-    return result == 0;
   }
 
   async update(id: string, nama: string, usernameGuru: string) {
@@ -138,16 +106,19 @@ export class OperatorEkstrakurikulerService {
   }
 
   async delete(id: string) {
-    if (!(await this.getCanDelete(id)))
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Salah satu raport anggota sudah dikunci',
+    try {
+      await this.prismaClient.ekstrakurikuler.delete({
+        where: {
+          id_esktrakurikuler: id,
+        },
       });
-
-    await this.prismaClient.ekstrakurikuler.delete({
-      where: {
-        id_esktrakurikuler: id,
-      },
-    });
+    } catch (e) {
+      if (PrismaHelper.isForeignConstraintFailed(e)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Hapus semua anggota untuk menghapus',
+        });
+      } else throw e;
+    }
   }
 }

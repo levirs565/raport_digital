@@ -13,6 +13,12 @@ export namespace PrismaHelper {
       e instanceof Prisma.PrismaClientKnownRequestError && e.code == 'P2002'
     );
   }
+
+    export function isForeignConstraintFailed(e: any) {
+    return (
+      e instanceof Prisma.PrismaClientKnownRequestError && e.code == 'P2003'
+    );
+  }
 }
 
 export function extractFields<T extends z.ZodRawShape>(

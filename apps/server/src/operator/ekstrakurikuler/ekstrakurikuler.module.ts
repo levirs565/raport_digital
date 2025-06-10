@@ -3,10 +3,9 @@ import { PrismaModule } from '../../prisma/prisma.module';
 import { TrpcModule } from '../../trpc/trpc.module';
 import { OperatorEkstrakurikulerService } from './ekstrakurikuler.service';
 import { OperatorEkstrakurikulerRouter } from './ekstrakurikuler.router';
-import { CommonModule } from '../../common/common.module';
 
 @Module({
-  imports: [PrismaModule, TrpcModule, CommonModule],
+  imports: [PrismaModule, TrpcModule],
   providers: [OperatorEkstrakurikulerService, OperatorEkstrakurikulerRouter],
   exports: [OperatorEkstrakurikulerRouter],
 })
