@@ -50,6 +50,28 @@ function onDelete() {
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>{{ data?.nama }}</v-app-bar-title>
+    <v-dialog v-if="data?.nama != 'PAS'">
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn icon v-bind="activatorProps">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <v-card title="Konfirmasi Hapus">
+          <v-card-text>
+            Apakah anda yakin menghapus Materi ini?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+            <v-btn text="Hapus" color="red" @click="() => {
+              isActive.value = false
+              onDelete();
+            }"></v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </v-app-bar>
 
   <v-main>
@@ -59,28 +81,6 @@ function onDelete() {
       <p>Materi</p>
       <p>{{ data.detail }}</p>
       <div class="d-flex justify-end ma-4">
-        <v-dialog v-if="!data.is_locked">
-          <template v-slot:activator="{ props: activatorProps }">
-            <v-btn v-bind="activatorProps" color="error" variant="outlined" class="mr-2">
-              Hapus
-            </v-btn>
-          </template>
-          <template v-slot:default="{ isActive }">
-            <v-card title="Konfirmasi Hapus">
-              <v-card-text>
-                Apakah anda yakin menghapus Materi ini?
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn text="Batal" @click="isActive.value = false"></v-btn>
-                <v-btn text="Hapus" color="red" @click="() => {
-                  isActive.value = false
-                  onDelete();
-                }"></v-btn>
-              </v-card-actions>
-            </v-card>
-          </template>
-        </v-dialog>
         <v-dialog persistent v-if="!data.is_locked">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props">Ubah</v-btn>

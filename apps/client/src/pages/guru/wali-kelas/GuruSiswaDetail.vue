@@ -8,6 +8,8 @@ import GuruUpdateCatatan from './GuruUpdateCatatan.vue';
 import GuruUpdateKehadiran from './GuruUpdateKehadiran.vue';
 import GuruAddPrestasi from './GuruAddPrestasi.vue';
 import GuruRaport from './GuruRaport.vue';
+import { useSnackbarStore } from '../../../store';
+import { formatError } from '../../../api';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
@@ -29,6 +31,7 @@ const queryClient = useQueryClient();
 
 const isLocked = computed(() => !data.value || data.value.status != "MENUNGGU_KONFIRMASI")
 
+const snackbar = useSnackbarStore();
 function onDeletePrestasi(idPrestasi: string) {
   deletePrestasiAsync({
     kelas_id: idKelas!,
@@ -40,6 +43,8 @@ function onDeletePrestasi(idPrestasi: string) {
         siswa_id: idSiswa!
       })
     })
+  }).catch(e => {
+    snackbar.errors.push(formatError(e))
   })
 }
 
@@ -99,7 +104,7 @@ const activeTab = ref(0);
                 <template v-slot:append>
                   <v-btn v-if="!isLocked" variant="text" icon color="text">
                     <v-icon>mdi-dots-vertical</v-icon>
-                    <v-menu activator="parent">
+                    <v-menu activator="parent" v-if="!isLocked" >
                       <v-list>
                         <v-dialog persistent>
                           <template v-slot:activator="{ props }">
@@ -110,8 +115,27 @@ const activeTab = ref(0);
                               @close="isActive.value = !isActive.value" />
                           </template>
                         </v-dialog>
+                        <v-dialog>
+                          <template v-slot:activator="{ props: activatorProps }">
+                            <v-list-item title="Hapus" v-bind="activatorProps" />
+                          </template>
+                          <template v-slot:default="{ isActive }">
+                            <v-card title="Konfirmasi Hapus">
+                              <v-card-text>
+                                Apakah anda yakin menghapus Prestasi ini?
+                              </v-card-text>
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+                                <v-btn text="Hapus" color="red" @click="() => {
+                                  isActive.value = false
+                                  onDeletePrestasi(item.id_prestasi)
+                                }"></v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </template>
+                        </v-dialog>
 
-                        <v-list-item title="Hapus" @click="() => onDeletePrestasi(item.id_prestasi)" />
                       </v-list>
                     </v-menu>
                   </v-btn>
