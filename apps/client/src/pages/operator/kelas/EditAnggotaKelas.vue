@@ -3,6 +3,7 @@ import { computed, reactive, watchEffect } from 'vue';
 import CSiswaSelect from '../../../components/CSiswaSelect.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
 const { id } = defineProps({
   id: String
@@ -16,7 +17,7 @@ const { data: kelasData } = useTrcpQuery(trpc!.operator.kelas.get.queryOptions({
 const { data } = useTrcpQuery(trpc!.operator.kelas.getAnggotaList.queryOptions({
   id: computed(() => id!)
 }))
-const { mutateAsync } = useMutation(trpc!.operator.kelas.updateAnggotaList.mutationOptions());
+const { mutateAsync, error, isPending } = useMutation(trpc!.operator.kelas.updateAnggotaList.mutationOptions());
 
 const anggotaKelas = reactive(new Set<string>())
 
@@ -50,6 +51,9 @@ function onSave() {
 
     <c-siswa-select v-if="kelasData" :periode-ajar-id="kelasData.id_periode_ajar" v-model="anggotaKelas"
       :is-item-disabled="(item: any) => item.kelas?.id_kelas && item.kelas.id_kelas != id" />
-    <v-btn @click="onSave" class="ma-4 mt-0">Simpan</v-btn>
+    <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+      {{ formatError(error) }}
+    </v-card-text>
+    <v-btn @click="onSave" :loading="isPending" class="ma-4 mt-0">Simpan</v-btn>
   </v-card>
 </template>

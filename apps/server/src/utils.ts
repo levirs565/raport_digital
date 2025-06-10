@@ -7,6 +7,12 @@ export namespace PrismaHelper {
       e instanceof Prisma.PrismaClientKnownRequestError && e.code == 'P2025'
     );
   }
+
+  export function isUniqueConstraintFailed(e: any) {
+    return (
+      e instanceof Prisma.PrismaClientKnownRequestError && e.code == 'P2002'
+    );
+  }
 }
 
 export function extractFields<T extends z.ZodRawShape>(
@@ -23,8 +29,10 @@ export function extractFields<T extends z.ZodRawShape>(
   return result;
 }
 
-export function isRaportLocked(status: $Enums.Status_Raport | undefined | null) {
-  return !!status && status != "MENUNGGU_KONFIRMASI";
+export function isRaportLocked(
+  status: $Enums.Status_Raport | undefined | null
+) {
+  return !!status && status != 'MENUNGGU_KONFIRMASI';
 }
 
 export function isSubset<T>(subset: Set<T>, superset: Set<T>): boolean {

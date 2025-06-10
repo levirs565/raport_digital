@@ -33,3 +33,7 @@ export const trpc = createTRPCOptionsProxy<Router>({
   client: trpcClient,
   queryClient,
 });
+
+export function formatError(error: any) {
+  return error.message;
+}

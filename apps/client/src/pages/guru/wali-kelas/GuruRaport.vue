@@ -52,7 +52,6 @@ function onConfirm() {
     })
   })
 }
-
 const layout = useLayout();
 </script>
 <template>
@@ -61,7 +60,7 @@ const layout = useLayout();
     <p v-if="alasanTolak">Ditolak dengan alasan "{{ alasanTolak }}"</p>
     <p v-if="statusData == 'DIKONFIRMASI'">Menunggu Verifikasi Kepala Sekolah</p>
   </div>
-  <c-raport-chip v-model="selectedRaport" class="mx-4 my-2"/>
+  <c-raport-chip v-model="selectedRaport" class="mx-4 my-2" />
   <c-pdf-viewer v-if="data" :data="data" />
   <v-sheet v-if="statusData == 'MENUNGGU_KONFIRMASI'" class="position-fixed bottom-0 right-0 pa-4 d-flex justify-end"
     :style="{

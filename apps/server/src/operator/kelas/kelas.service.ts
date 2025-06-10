@@ -79,6 +79,7 @@ export class OperatorKelasService {
       ...rest,
       wali_kelas: Wali_Kelas,
       koor_p5: Koor_P5,
+      is_locked: await this.commonUtilsService.isKelasLocked(id),
     };
   }
 
@@ -171,23 +172,46 @@ export class OperatorKelasService {
     mataPelajaranId: string,
     usernameGuru: string
   ) {
-    await this.prismaClient.$transaction([
-      this.prismaClient.mata_Pelajaran_Kelas.create({
-        data: {
+    await this.commonUtilsService.ensureKelasNotLocked(id);
+    try {
+      await this.prismaClient.$transaction([
+        this.prismaClient.mata_Pelajaran_Kelas.create({
+          data: {
+            id_kelas: id,
+            id_mata_pelajaran: mataPelajaranId,
+            username_guru: usernameGuru,
+          },
+        }),
+        this.prismaClient.materi.create({
+          data: {
+            id_kelas: id,
+            id_mata_pelajaran: mataPelajaranId,
+            nama: 'PAS',
+            detail: '',
+          },
+        }),
+      ]);
+    } catch (e) {
+      if (PrismaHelper.isUniqueConstraintFailed(e))
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Mata pelajaran sudah ada',
+        });
+    }
+  }
+
+  async getMataPelajaran(id: string, mataPelajaranId: string) {
+    return await this.prismaClient.mata_Pelajaran_Kelas.findUnique({
+      where: {
+        id_mata_pelajaran_id_kelas: {
           id_kelas: id,
-          id_mata_pelajaran: mataPelajaranId,
-          username_guru: usernameGuru,
-        },
-      }),
-      this.prismaClient.materi.create({
-        data: {
-          id_kelas: id,
-          id_mata_pelajaran: mataPelajaranId,
-          nama: 'PAS',
-          detail: '',
-        },
-      }),
-    ]);
+          id_mata_pelajaran: mataPelajaranId
+        }
+      },
+      select: {
+        username_guru: true
+      }
+    })
   }
 
   async updateMataPelajaran(
@@ -215,6 +239,7 @@ export class OperatorKelasService {
 
   async deleteMataPelajaran(id: string, mataPelajaranId: string) {
     await this.ensureFound(id);
+    await this.commonUtilsService.ensureKelasNotLocked(id);
     try {
       await this.prismaClient.mata_Pelajaran_Kelas.delete({
         where: {
@@ -397,6 +422,7 @@ export class OperatorKelasService {
   }
 
   async delete(id: string) {
+    await this.commonUtilsService.ensureKelasNotLocked(id);
     try {
       // TODO: Not work
       await this.prismaClient.kelas.delete({

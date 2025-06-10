@@ -49,8 +49,7 @@ const activeTab = ref(0);
           <p>Deskripsi</p>
           <p>{{ data.deskripsi }}</p>
           <div class="d-flex justify-end">
-
-            <v-dialog persistent>
+            <v-dialog v-if="!data.is_locked" persistent>
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Ubah</v-btn>
               </template>
@@ -59,6 +58,10 @@ const activeTab = ref(0);
                   @close="isActive.value = !isActive.value" />
               </template>
             </v-dialog>
+            <p v-else>
+              <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+              <span>Dikunci</span>
+            </p>
           </div>
         </v-card>
         <v-card class="mt-4" v-if="targetData">
@@ -73,7 +76,7 @@ const activeTab = ref(0);
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4 mt-0">
-            <v-dialog persistent>
+            <v-dialog persistent v-if="!data?.is_locked">
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Tambah</v-btn>
               </template>
@@ -82,6 +85,10 @@ const activeTab = ref(0);
                   @close="isActive.value = !isActive.value" />
               </template>
             </v-dialog>
+            <p v-else>
+              <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+              <span>Dikunci</span>
+            </p>
           </div>
         </v-card>
       </v-tabs-window-item>

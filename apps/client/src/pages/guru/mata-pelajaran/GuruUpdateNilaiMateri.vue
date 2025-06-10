@@ -3,6 +3,7 @@ import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { reactive } from 'vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
 const { idKelas, idMataPelajaran, idMateri } = defineProps({
   idKelas: String,
@@ -15,7 +16,7 @@ const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri.queryOptions({
   id: computed(() => idMateri!)
 }))
-const { mutateAsync } = useMutation(trpc!.guru.mataPelajaran.updateNilaiMateri.mutationOptions());
+const { mutateAsync, error, isPending } = useMutation(trpc!.guru.mataPelajaran.updateNilaiMateri.mutationOptions());
 
 type NilaiListType = Extract<typeof data["value"], Array<any>>
 type NilaiItemType = NilaiListType extends Array<infer U> ? U : never
@@ -66,7 +67,6 @@ function onSave() {
     emit('close');
   })
 }
-
 </script>
 <template>
   <v-card>
@@ -86,13 +86,17 @@ function onSave() {
             <v-icon size="small" class="mr-2">mdi-lock</v-icon>
             <span>Nilai Dikunci</span>
           </v-list-item-subtitle>
-          <v-number-input :disabled="item.is_locked" class="py-2" label="Nilai" :model-value="nilaiList[item.index]" @update:model-value="(value) => {
-            nilaiList[item.index] = value;
-          }" :min="0" :max="100" />
+          <v-number-input :disabled="item.is_locked" class="py-2" label="Nilai" :model-value="nilaiList[item.index]"
+            @update:model-value="(value) => {
+              nilaiList[item.index] = value;
+            }" :min="0" :max="100" />
         </v-list-item>
         <v-divider />
       </template>
     </v-list>
-    <v-btn @click="onSave" class="mx-4 my-2">Simpan</v-btn>
+    <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+      {{ formatError(error) }}
+    </v-card-text>
+    <v-btn @click="onSave" :loading="isPending" class="mx-4 my-2">Simpan</v-btn>
   </v-card>
 </template>

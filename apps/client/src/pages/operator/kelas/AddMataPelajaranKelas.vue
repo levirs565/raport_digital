@@ -1,14 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
+import { useRules } from 'vuetify/labs/rules';
+import { SubmitEventPromise } from 'vuetify';
 
-const { id } = defineProps({
-  id: String
+const { id, idMataPelajaran } = defineProps({
+  id: String,
+  idMataPelajaran: String,
 })
 const emit = defineEmits(["close"])
 
 const trpc = injectTrpc();
+
+const { data } = useTrcpQuery(trpc!.operator.kelas.getMataPelajaran.queryOptions({
+  id: computed(() => id!),
+  id_mata_pelajaran: computed(() => idMataPelajaran!)
+}, {
+  enabled: computed(() => !!idMataPelajaran) as unknown as boolean
+}));
+
 const { data: dataKelas } = useTrcpQuery(trpc!.operator.kelas.get.queryOptions({
   id: computed(() => id!)
 }))
@@ -30,26 +42,60 @@ const { data: dataPengampu } = useTrcpQuery(trpc!.operator.mataPelajaran.get.que
 
 const selectedGuru = ref<string>();
 
-const { mutateAsync: addAsync } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
+watchEffect(() => {
+  if (data.value) {
+    selectedMataPelajaran.value = idMataPelajaran;
+    selectedGuru.value = data.value.username_guru;
+  }
+})
+
+const { mutateAsync: addAsync, error, isPending, reset } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
+const { mutateAsync: updateAsync, error: updateError, isPending: updateIsPending, reset: updateReset } = useMutation(trpc!.operator.kelas.updateMataPelajaran.mutationOptions());
+
 
 const queryClient = useQueryClient();
-function onSubmit() {
+async function onSubmit(event: SubmitEventPromise) {
+  if (!(await event).valid) {
+    reset();
+    updateReset();
+    return;
+  }
+
   if (!dataKelas.value || !selectedMataPelajaran.value || !selectedGuru.value) return;
   const update = () => {
     queryClient.invalidateQueries({
       queryKey: trpc!.operator.kelas.getMataPelajaranList.queryKey()
     })
+    if (idMataPelajaran) {
+      queryClient.invalidateQueries({
+        queryKey: trpc!.operator.kelas.getMataPelajaran.queryKey({
+          id: id!,
+          id_mata_pelajaran: idMataPelajaran!
+        })
+      })
+    }
   }
-  addAsync({
-    id: id!,
-    id_mata_pelajaran: selectedMataPelajaran.value,
-    username_guru: selectedGuru.value
-  }).then(() => {
-    update();
-    emit('close')
-  })
+  if (idMataPelajaran)
+    updateAsync({
+      id: id!,
+      id_mata_pelajaran: selectedMataPelajaran.value,
+      username_guru: selectedGuru.value
+    }).then(() => {
+      update();
+      emit('close')
+    })
+  else
+    addAsync({
+      id: id!,
+      id_mata_pelajaran: selectedMataPelajaran.value,
+      username_guru: selectedGuru.value
+    }).then(() => {
+      update();
+      emit('close')
+    })
 }
 
+const rules = useRules();
 </script>
 <template>
   <v-card>
@@ -58,13 +104,16 @@ function onSubmit() {
       <v-toolbar-title>Tambah Mata Pelajaran</v-toolbar-title>
     </v-toolbar>
 
-    <form class="px-4 py-2">
-      <v-combobox v-model="selectedMataPelajaran" :items="dataMataPelajaran" item-title="nama"
-        item-value="id_mata_pelajaran" :return-object="false" />
-      <v-combobox v-model="selectedGuru" :items="dataPengampu?.guru" item-title="nama_lengkap" item-value="username"
-        :return-object="false" />
-      <v-btn @click="onSubmit">Tambah</v-btn>
-    </form>
+    <v-form @submit.prevent="onSubmit" class="px-4 py-2">
+      <v-combobox :rules="[rules!.required!()]" v-model="selectedMataPelajaran" :items="dataMataPelajaran"
+        item-title="nama" item-value="id_mata_pelajaran" :return-object="false" />
+      <v-combobox :rules="[rules!.required!()]" v-model="selectedGuru" :items="dataPengampu?.guru"
+        item-title="nama_lengkap" item-value="username" :return-object="false" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="idMataPelajaran ? updateError : error">{{
+        formatError(idMataPelajaran ?
+          updateError : error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="idMataPelajaran ? updateIsPending : isPending">{{ idMataPelajaran ?
+        "Ubah" : "Tambah"}}</v-btn>
+    </v-form>
   </v-card>
-
 </template>

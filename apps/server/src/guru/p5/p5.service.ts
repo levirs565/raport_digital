@@ -92,7 +92,10 @@ export class GuruP5Service {
     });
     if (!result) this.throwNotFound();
 
-    return result;
+    return {
+      is_locked: await this.commonUtilsService.isKelasLocked(kelasId),
+      ...result,
+    };
   }
 
   async getProyekList(sessionUsername: string, kelasId: string) {
@@ -113,6 +116,7 @@ export class GuruP5Service {
 
   async addProyek(sessionUsername: string, kelasId: string, proyek: ProyekP5) {
     await this.ensureAccess(sessionUsername, kelasId);
+    await this.commonUtilsService.ensureKelasNotLocked(kelasId);
 
     const result = await this.prismaClient.proyek_P5.create({
       data: {
@@ -166,7 +170,11 @@ export class GuruP5Service {
     proyekId: string,
     proyek: ProyekP5
   ) {
-    await this.ensureProyekAccess(sessionUsername, proyekId);
+    const { id_kelas } = await this.ensureProyekAccess(
+      sessionUsername,
+      proyekId
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.proyek_P5.update({
       where: {
@@ -186,11 +194,18 @@ export class GuruP5Service {
     });
     if (!result) this.throwProyekNotFound();
 
-    return result;
+    return {
+      is_locked: await this.commonUtilsService.isKelasLocked(result.id_kelas),
+      ...result,
+    };
   }
 
   async deleteProyek(sessionUsername: string, proyekId: string) {
-    await this.ensureProyekAccess(sessionUsername, proyekId);
+    const { id_kelas } = await this.ensureProyekAccess(
+      sessionUsername,
+      proyekId
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.proyek_P5.delete({
       where: {
@@ -305,7 +320,11 @@ export class GuruP5Service {
   }
 
   async addTarget(sessionUsername: string, proyekId: string, target: TargetP5) {
-    await this.ensureProyekAccess(sessionUsername, proyekId);
+    const { id_kelas } = await this.ensureProyekAccess(
+      sessionUsername,
+      proyekId
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     const result = await this.prismaClient.target_P5.create({
       data: {
@@ -363,7 +382,11 @@ export class GuruP5Service {
     targetId: string,
     target: TargetP5
   ) {
-    await this.ensureTargetAccess(sessionUsername, targetId);
+    const { id_kelas } = await this.ensureTargetAccess(
+      sessionUsername,
+      targetId
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.target_P5.update({
       where: {
@@ -374,7 +397,11 @@ export class GuruP5Service {
   }
 
   async deleteTarget(sessionUsername: string, targetId: string) {
-    await this.ensureTargetAccess(sessionUsername, targetId);
+    const { id_kelas } = await this.ensureTargetAccess(
+      sessionUsername,
+      targetId
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.target_P5.delete({
       where: {
@@ -384,7 +411,10 @@ export class GuruP5Service {
   }
 
   async getTarget(sessionUsername: string, targetId: string) {
-    await this.ensureTargetAccess(sessionUsername, targetId);
+    const { id_kelas } = await this.ensureTargetAccess(
+      sessionUsername,
+      targetId
+    );
 
     const result = await this.prismaClient.target_P5.findUnique({
       where: {
@@ -396,7 +426,10 @@ export class GuruP5Service {
     });
     if (!result) this.throwTargetNotFound();
 
-    return result;
+    return {
+      is_locked: await this.commonUtilsService.isKelasLocked(id_kelas),
+      ...result,
+    };
   }
 
   async getNilaiTarget(sessionUsername: string, targetId: string) {

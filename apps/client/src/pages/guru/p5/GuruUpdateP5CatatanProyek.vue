@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
 const { idProyek } = defineProps({
   idKelas: String,
@@ -13,7 +14,7 @@ const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.guru.p5.getCatatanProsesProyek.queryOptions({
   id_proyek: computed(() => idProyek!)
 }))
-const { mutateAsync } = useMutation(trpc!.guru.p5.updateCatatanProsesProyek.mutationOptions());
+const { mutateAsync, error, isPending } = useMutation(trpc!.guru.p5.updateCatatanProsesProyek.mutationOptions());
 
 type NilaiListType = Extract<typeof data["value"], Array<any>>;
 type NilaiItemType = NilaiListType extends Array<infer U> ? U : never;
@@ -57,7 +58,6 @@ function onSave() {
     emit('close')
   })
 }
-
 </script>
 <template>
   <v-card>
@@ -85,6 +85,9 @@ function onSave() {
         <v-divider />
       </template>
     </v-list>
-    <v-btn @click="onSave" class="mx-4 my-2">Simpan</v-btn>
+    <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+      {{ formatError(error) }}
+    </v-card-text>
+    <v-btn @click="onSave" :loading="isPending" class="mx-4 my-2">Simpan</v-btn>
   </v-card>
 </template>

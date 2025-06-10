@@ -3,6 +3,7 @@ import { computed, reactive, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CSiswaSelect from '../../../components/CSiswaSelect.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
 const { id } = defineProps({
   id: String
@@ -16,7 +17,7 @@ const { data: ekstrakurikulerData } = useTrcpQuery(trpc!.guru.ekstrakurikuler.ge
 const { data } = useTrcpQuery(trpc!.guru.ekstrakurikuler.getAnggotaList.queryOptions({
   id: computed(() => id!)
 }))
-const { mutateAsync } = useMutation(trpc!.guru.ekstrakurikuler.updateAnggotaList.mutationOptions());
+const { mutateAsync, error, isPending } = useMutation(trpc!.guru.ekstrakurikuler.updateAnggotaList.mutationOptions());
 
 const anggotaList = reactive(new Set<string>());
 watchEffect(() => {
@@ -38,7 +39,6 @@ function onSave() {
     emit('close')
   })
 }
-
 </script>
 <template>
   <v-card>
@@ -48,7 +48,10 @@ function onSave() {
     </v-toolbar>
 
     <c-siswa-select v-if="ekstrakurikulerData" :periode-ajar-id="ekstrakurikulerData.id_periode_ajar"
-      v-model="anggotaList"/>
-    <v-btn @click="onSave" class="ma-4 mt-0">Simpan</v-btn>
+      v-model="anggotaList" />
+    <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+      {{ formatError(error) }}
+    </v-card-text>
+    <v-btn @click="onSave" :loading="isPending" class="ma-4 mt-0">Simpan</v-btn>
   </v-card>
 </template>
