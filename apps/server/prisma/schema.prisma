@@ -210,7 +210,7 @@ model Materi {
 
   id_mata_pelajaran String @db.VarChar(36)
   id_kelas String @db.VarChar(36)
-  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas @relation(fields: [id_kelas, id_mata_pelajaran], references: [id_kelas, id_mata_pelajaran])
+  Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas @relation(fields: [id_kelas, id_mata_pelajaran], references: [id_kelas, id_mata_pelajaran], onDelete: Cascade)
   Nilai_Materi Nilai_Materi[]
 }
 
@@ -221,7 +221,7 @@ model Nilai_Materi {
 
   nilai Int
 
-  Materi Materi @relation(fields: [id_materi], references: [id_materi])
+  Materi Materi @relation(fields: [id_materi], references: [id_materi], onDelete: Cascade)
   Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }
 

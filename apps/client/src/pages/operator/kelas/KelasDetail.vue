@@ -6,6 +6,9 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import AddKelas from './AddKelas.vue';
 import EditAnggotaKelas from './EditAnggotaKelas.vue';
 import AddMataPelajaranKelas from './AddMataPelajaranKelas.vue';
+import { useRouter } from 'vue-router';
+import { useSnackbarStore } from '../../../store';
+import { formatError } from '../../../api';
 
 const { id } = defineProps({
   id: String
@@ -26,8 +29,12 @@ const { data: anggotaKelasData } = useTrcpQuery(trpc!.operator.kelas.getAnggotaL
 const activeTab = ref(0);
 
 const { mutateAsync: deleteMataPelajaranAsync } = useMutation(trpc!.operator.kelas.deleteMataPelajaran.mutationOptions());
+const { mutateAsync: deleteAsync } = useMutation(trpc!.operator.kelas.delete.mutationOptions());
 
 const queryClient = useQueryClient();
+const snackbar = useSnackbarStore();
+const router = useRouter();
+
 function onDeleteMataPelajaran(idMapel: string) {
   deleteMataPelajaranAsync({
     id: id!,
@@ -36,6 +43,21 @@ function onDeleteMataPelajaran(idMapel: string) {
     queryClient.invalidateQueries({
       queryKey: trpc!.operator.kelas.getMataPelajaranList.queryKey()
     })
+  }).catch(e => {
+    snackbar.errors.push(formatError(e));
+  })
+}
+
+function onDelete() {
+  deleteAsync({
+    id: id!
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc?.operator.kelas.getAll.queryKey()
+    })
+    router.replace("/operator/kelas")
+  }).catch(e => {
+    snackbar.errors.push(formatError(e));
   })
 }
 
@@ -44,6 +66,28 @@ function onDeleteMataPelajaran(idMapel: string) {
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>Kelas {{ data?.kelas }}-{{ data?.kode_ruang_kelas }}</v-app-bar-title>
+    <v-dialog>
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn icon v-bind="activatorProps">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <v-card title="Konfirmasi Hapus">
+          <v-card-text>
+            Apakah anda yakin menghapus Kelas?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+            <v-btn text="Hapus" color="red" @click="() => {
+              isActive.value = false
+              onDelete();
+            }"></v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
 
     <template v-slot:extension>
       <v-tabs grow v-model="activeTab">

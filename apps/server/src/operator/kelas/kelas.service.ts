@@ -432,13 +432,16 @@ export class OperatorKelasService {
   async delete(id: string) {
     await this.commonUtilsService.ensureKelasNotLocked(id);
     try {
-      // TODO: Not work
       await this.prismaClient.kelas.delete({
         where: {
           id_kelas: id,
         },
       });
     } catch (e) {
+      if (PrismaHelper.isForeignConstraintFailed(e)) throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Hapus anggota kelas dan mata pelajaran dahulu"
+      })
       if (PrismaHelper.isRecordNotFoundError(e)) this.throwNotFound();
       else throw e;
     }
