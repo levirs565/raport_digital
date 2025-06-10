@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { OperatorRouter } from './operator.router.js';
-import { OperatorPeriodeAjarModule } from './periode-ajar/periode-ajar.module.js';
-import { TrpcModule } from '../trpc/trpc.module.js';
-import { OperatorMataPelajaranModule } from './mata-pelajaran/mata-pelajaran.module.js';
-import { OperatorGuruModule } from './guru/guru.module.js';
-import { OperatorSiswaModule } from './siswa/siswa.module.js';
-import { OperatorEkstrakurikulerModule } from './ekstrakurikuler/ekstrakurikuler.module.js';
-import { OperatorKelasModule } from './kelas/kelas.module.js';
+import { OperatorRouter } from './operator.router';
+import { OperatorPeriodeAjarModule } from './periode-ajar/periode-ajar.module';
+import { TrpcModule } from '../trpc/trpc.module';
+import { OperatorMataPelajaranModule } from './mata-pelajaran/mata-pelajaran.module';
+import { OperatorGuruModule } from './guru/guru.module';
+import { OperatorSiswaModule } from './siswa/siswa.module';
+import { OperatorEkstrakurikulerModule } from './ekstrakurikuler/ekstrakurikuler.module';
+import { OperatorKelasModule } from './kelas/kelas.module';
 
 @Module({
   exports: [OperatorRouter],

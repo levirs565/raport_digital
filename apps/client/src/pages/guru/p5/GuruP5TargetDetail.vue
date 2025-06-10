@@ -57,10 +57,10 @@ const nilaiMap: Record<NilaiP5Type, string> = {
               @close="isActive.value = !isActive.value" />
           </template>
         </v-dialog>
-                    <p v-else>
-              <v-icon size="small" class="mr-2">mdi-lock</v-icon>
-              <span>Dikunci</span>
-            </p>
+        <p v-else>
+          <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+          <span>Dikunci</span>
+        </p>
       </div>
     </v-card>
 

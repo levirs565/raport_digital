@@ -29,7 +29,7 @@ function verify(userName: string, accepted: boolean) {
   </v-app-bar>
   <v-main>
     <div class="d-flex flex-column pa-4">
-      <v-card v-if="data" v-for="guru in data">
+      <v-card v-if="data" v-for="guru in data" class="mb-4">
         <v-card-title>{{ guru.nama_lengkap }}</v-card-title>
         <v-card-text>{{ guru.username }}</v-card-text>
         <v-card-actions class="justify-end">

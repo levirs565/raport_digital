@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { TrpcService } from '../trpc/trpc.service.js';
-import { OperatorPeriodeAjarRouter } from './periode-ajar/periode-ajar.router.js';
-import { OperatorMataPelajaranRouter } from './mata-pelajaran/mata_pelajaran.router.js';
-import { OperatorGuruRouter } from './guru/guru.router.js';
-import { OperatorSiswaRouter } from './siswa/siswa.router.js';
-import { OperatorEkstrakurikulerRouter } from './ekstrakurikuler/ekstrakurikuler.router.js';
-import { OperatorKelasRouter } from './kelas/kelas.router.js';
+import { TrpcService } from '../trpc/trpc.service';
+import { OperatorPeriodeAjarRouter } from './periode-ajar/periode-ajar.router';
+import { OperatorMataPelajaranRouter } from './mata-pelajaran/mata_pelajaran.router';
+import { OperatorGuruRouter } from './guru/guru.router';
+import { OperatorSiswaRouter } from './siswa/siswa.router';
+import { OperatorEkstrakurikulerRouter } from './ekstrakurikuler/ekstrakurikuler.router';
+import { OperatorKelasRouter } from './kelas/kelas.router';
 
 @Injectable()
 export class OperatorRouter {

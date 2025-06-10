@@ -169,7 +169,7 @@ model Mata_Pelajaran_Kelas {
   Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
   Guru Guru @relation(fields: [username_guru], references: [username])
   Guru_Mata_Pelajaran Guru_Mata_Pelajaran @relation(fields: [id_mata_pelajaran, username_guru], references: [id_mata_pelajaran, username_guru])
-  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
+  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas], onDelete: Cascade)
   Materi Materi[]
 }
 
@@ -255,7 +255,7 @@ model Proyek_P5 {
   deskripsi String
   id_kelas String @db.VarChar(36)
 
-  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas])
+  Kelas Kelas @relation(fields: [id_kelas], references: [id_kelas], onDelete: Cascade)
   Catatan_Proses_P5 Catatan_Proses_P5[]
   Target_P5 Target_P5[]
 }
@@ -267,7 +267,7 @@ model Catatan_Proses_P5 {
 
   catatan String?
 
-  Proyek_P5 Proyek_P5 @relation(fields: [id_proyek_p5], references: [id_proyek_p5])
+  Proyek_P5 Proyek_P5 @relation(fields: [id_proyek_p5], references: [id_proyek_p5], onDelete: Cascade)
   Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }
 
@@ -279,7 +279,7 @@ model Target_P5 {
   target String
   id_proyek_p5 String @db.VarChar(36)
 
-  Proyek_P5 Proyek_P5 @relation(fields: [id_proyek_p5], references: [id_proyek_p5])
+  Proyek_P5 Proyek_P5 @relation(fields: [id_proyek_p5], references: [id_proyek_p5], onDelete: Cascade)
   Nilai_P5 Nilai_P5[]
 }
 
@@ -296,7 +296,7 @@ model Nilai_P5 {
   @@id([id_target_p5, id_siswa])
 
   nilai Nilai_P5_Enum?
-  Target_P5 Target_P5 @relation(fields: [id_target_p5], references: [id_target_p5])
+  Target_P5 Target_P5 @relation(fields: [id_target_p5], references: [id_target_p5], onDelete: Cascade)
   Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }
 

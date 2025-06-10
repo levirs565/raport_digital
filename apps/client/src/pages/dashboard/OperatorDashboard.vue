@@ -37,7 +37,7 @@ const { data: kelasCount } = useTrcpQuery(trpc!.operator.kelas.count.queryOption
     <v-card-text class="text-h5 py-0">{{ unverifiedCount }}</v-card-text>
     <v-card-text class="text-caption pt-0">Guru Belum Diverifikasi</v-card-text>
   </v-card>
-  <v-card :to="`/operator/periode-ajar`" class="ma-4">
+  <v-card :to="`/operator/periode`" class="ma-4">
     <v-card-title class="text-subtitle-1 d-flex flex-row justify-space-between">
       Periode Ajar
       <v-icon>mdi-chevron-right</v-icon></v-card-title>

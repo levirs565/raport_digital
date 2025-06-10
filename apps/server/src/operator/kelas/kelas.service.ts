@@ -438,10 +438,10 @@ export class OperatorKelasService {
         },
       });
     } catch (e) {
-      if (PrismaHelper.isForeignConstraintFailed(e)) throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Hapus anggota kelas dan mata pelajaran dahulu"
-      })
+      // if (PrismaHelper.isForeignConstraintFailed(e)) throw new TRPCError({
+      //   code: "FORBIDDEN",
+      //   message: "Hapus anggota kelas dahulu"
+      // })
       if (PrismaHelper.isRecordNotFoundError(e)) this.throwNotFound();
       else throw e;
     }

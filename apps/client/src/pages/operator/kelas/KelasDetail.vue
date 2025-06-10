@@ -75,7 +75,7 @@ function onDelete() {
       <template v-slot:default="{ isActive }">
         <v-card title="Konfirmasi Hapus">
           <v-card-text>
-            Apakah anda yakin menghapus Kelas?
+            Apakah anda yakin menghapus Kelas? Ini akan menghapus Mata Pelajaran beserta isinya dan Proyek P5 beserta isinya
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
