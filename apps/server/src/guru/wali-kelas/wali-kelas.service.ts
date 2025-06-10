@@ -278,6 +278,7 @@ export class GuruWaliKelasService {
         id_periode_ajar: await this.commonUtilsService.getPeriodeFromKelas(
           kelasId
         ),
+        id_siswa: siswaId
       },
       select: {
         id_prestasi: true,
