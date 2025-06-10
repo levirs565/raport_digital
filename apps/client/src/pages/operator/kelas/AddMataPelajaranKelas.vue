@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
+import { useRules } from 'vuetify/labs/rules';
+import { SubmitEventPromise } from 'vuetify';
 
 const { id } = defineProps({
   id: String
@@ -30,10 +33,20 @@ const { data: dataPengampu } = useTrcpQuery(trpc!.operator.mataPelajaran.get.que
 
 const selectedGuru = ref<string>();
 
-const { mutateAsync: addAsync } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
+const { mutateAsync: addAsync, error, isPending, reset } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
+// TODO: Add update
+const { mutateAsync: updateAsync, error: updateError, isPending: updateIsPending, reset: updateReset } = useMutation(trpc!.operator.kelas.addMataPelajaran.mutationOptions());
+
+
 
 const queryClient = useQueryClient();
-function onSubmit() {
+async function onSubmit(event: SubmitEventPromise) {
+  if (!(await event).valid) {
+    reset();
+    updateReset();
+    return;
+  }
+
   if (!dataKelas.value || !selectedMataPelajaran.value || !selectedGuru.value) return;
   const update = () => {
     queryClient.invalidateQueries({
@@ -50,6 +63,7 @@ function onSubmit() {
   })
 }
 
+const rules = useRules();
 </script>
 <template>
   <v-card>
@@ -58,13 +72,14 @@ function onSubmit() {
       <v-toolbar-title>Tambah Mata Pelajaran</v-toolbar-title>
     </v-toolbar>
 
-    <form class="px-4 py-2">
-      <v-combobox v-model="selectedMataPelajaran" :items="dataMataPelajaran" item-title="nama"
-        item-value="id_mata_pelajaran" :return-object="false" />
-      <v-combobox v-model="selectedGuru" :items="dataPengampu?.guru" item-title="nama_lengkap" item-value="username"
-        :return-object="false" />
-      <v-btn @click="onSubmit">Tambah</v-btn>
-    </form>
+    <v-form @submit.prevent="onSubmit" class="px-4 py-2">
+      <v-combobox :rules="[rules!.required!()]" v-model="selectedMataPelajaran" :items="dataMataPelajaran"
+        item-title="nama" item-value="id_mata_pelajaran" :return-object="false" />
+      <v-combobox :rules="[rules!.required!()]" v-model="selectedGuru" :items="dataPengampu?.guru"
+        item-title="nama_lengkap" item-value="username" :return-object="false" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="id ? updateError : error">{{ formatError(id ?
+        updateError : error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="id ? updateIsPending : isPending">Tambah</v-btn>
+    </v-form>
   </v-card>
-
 </template>
