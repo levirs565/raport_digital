@@ -6,9 +6,10 @@ import * as directives from 'vuetify/directives';
 import { id } from 'vuetify/locale';
 import { md3 } from 'vuetify/blueprints';
 import { createRulesPlugin } from 'vuetify/labs/rules';
+import { VDateInput } from 'vuetify/labs/VDateInput';
 
 export const vuetify = createVuetify({
-  components,
+  components: { VDateInput, ...components },
   directives,
   blueprint: md3,
   locale: {
