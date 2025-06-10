@@ -77,6 +77,7 @@ export class GuruMataPelajaranService {
       },
       select: {
         username_guru: true,
+        id_kelas: true,
       },
     });
 
@@ -111,6 +112,9 @@ export class GuruMataPelajaranService {
     if (!result) this.throwNotFound();
 
     return {
+      is_locked: await this.commonUtilsService.isKelasLocked(
+        result.Kelas.id_kelas
+      ),
       mata_pelajaran: result.Mata_Pelajaran,
       kelas: result.Kelas,
     };
@@ -166,6 +170,7 @@ export class GuruMataPelajaranService {
   ) {
     await this.ensureAccess(sessionUsername, id);
     await this.ensureNameValid(nama);
+    await this.commonUtilsService.ensureKelasNotLocked(id.id_kelas);
 
     const result = await this.prismaClient.materi.create({
       data: {
@@ -258,6 +263,7 @@ export class GuruMataPelajaranService {
       ...rest,
       kelas: Mata_Pelajaran_Kelas.Kelas,
       mata_pelajaran: Mata_Pelajaran_Kelas.Mata_Pelajaran,
+      is_locked: await this.commonUtilsService.isKelasLocked(Mata_Pelajaran_Kelas.id_kelas)
     };
   }
 
@@ -267,8 +273,13 @@ export class GuruMataPelajaranService {
     nama: string,
     detail: string
   ) {
-    await this.ensureMateriAccess(sessionUsername, id, true);
+    const { id_kelas } = await this.ensureMateriAccess(
+      sessionUsername,
+      id,
+      true
+    );
     await this.ensureNameValid(nama);
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.materi.update({
       where: {
@@ -282,7 +293,12 @@ export class GuruMataPelajaranService {
   }
 
   async deleteMateri(sessionUsername: string, id: string) {
-    await this.ensureMateriAccess(sessionUsername, id, true);
+    const { id_kelas } = await this.ensureMateriAccess(
+      sessionUsername,
+      id,
+      true
+    );
+    await this.commonUtilsService.ensureKelasNotLocked(id_kelas);
 
     await this.prismaClient.materi.delete({
       where: {

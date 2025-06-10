@@ -36,7 +36,7 @@ const { data: nilaiData } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri
       <p>Materi</p>
       <p>{{ data.detail }}</p>
       <div class="d-flex justify-end ma-4">
-        <v-dialog persistent>
+        <v-dialog persistent v-if="!data.is_locked">
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props">Ubah</v-btn>
           </template>
@@ -45,6 +45,10 @@ const { data: nilaiData } = useTrcpQuery(trpc!.guru.mataPelajaran.getNilaiMateri
               @close="isActive.value = !isActive.value" />
           </template>
         </v-dialog>
+        <p v-else>
+          <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+          <span>Dikunci</span>
+        </p>
       </div>
     </v-card>
 

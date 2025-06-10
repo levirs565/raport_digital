@@ -31,7 +31,7 @@ const activeTab = ref(0);
       data?.mata_pelajaran.nama }}</v-app-bar-title>
     <template v-slot:extension>
       <v-tabs grow v-model="activeTab">
-        <v-tab>Materi</v-tab>
+        <v-tab><v-icon v-if="data?.is_locked">mdi-lock</v-icon>Materi</v-tab>
         <v-tab>Nilai Total</v-tab>
       </v-tabs>
     </template>
@@ -48,7 +48,7 @@ const activeTab = ref(0);
             <v-divider />
           </template>
         </v-list>
-        <v-dialog persistent>
+        <v-dialog v-if="!data?.is_locked" persistent>
           <template v-slot:activator="{ props }">
             <v-fab icon="mdi-plus" app v-bind="props" />
           </template>
