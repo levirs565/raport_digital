@@ -22,7 +22,8 @@ const { data: proyekData } = useTrcpQuery(trpc!.guru.p5.getProyekList.queryOptio
 <template>
   <v-app-bar>
     <c-app-bar-hamburger />
-    <v-app-bar-title>Kelas {{ data?.kelas }}-{{ data?.kode_ruang_kelas }} - Proyek P5</v-app-bar-title>
+    <v-app-bar-title><v-icon v-if="data?.is_locked" size="small" class="mr-2">mdi-lock</v-icon>Kelas {{ data?.kelas }}-{{ data?.kode_ruang_kelas
+      }} - Proyek P5</v-app-bar-title>
   </v-app-bar>
   <v-main>
     <v-list>
@@ -34,7 +35,7 @@ const { data: proyekData } = useTrcpQuery(trpc!.guru.p5.getProyekList.queryOptio
       </template>
     </v-list>
   </v-main>
-  <v-dialog persistent>
+  <v-dialog v-if="!data?.is_locked" persistent>
     <template v-slot:activator="{ props }">
       <v-fab icon="mdi-plus" app v-bind="props" />
     </template>
