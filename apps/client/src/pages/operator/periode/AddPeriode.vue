@@ -97,20 +97,19 @@ async function onSubmit(event: SubmitEventPromise) {
 const rules = useRules();
 </script>
 <template>
-  <v-form @submit.prevent="onSubmit">
-    <v-card>
-      <v-toolbar color="surface">
-        <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
-        <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Periode Ajar</v-app-bar-title>
-      </v-toolbar>
-      <div class="px-4 py-2">
-        <v-select :rules="[rules!.required!()]" label="Tahun Ajaran" v-model="selectedTahunAjar"
-          :items="tahunAjarSelectItems" />
-        <v-select :rules="[rules!.required!()]" label="Semester" v-model="selectedSemester"
-          :items="semesterSelectItems" />
-        <v-card-text class="text-error text-center pa-0 my-2" v-if="id ? updateError : error">{{ formatError(id ? updateError : error) }}</v-card-text>
-        <v-btn class="my-2" type="submit" :loading="id ? updateIsPending : isPending">{{ id ? "Ubah" : "Tambah" }}</v-btn>
-      </div>
-    </v-card>
-  </v-form>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Periode Ajar</v-app-bar-title>
+    </v-toolbar>
+    <v-form @submit.prevent="onSubmit">
+      <v-select :rules="[rules!.required!()]" label="Tahun Ajaran" v-model="selectedTahunAjar"
+        :items="tahunAjarSelectItems" />
+      <v-select :rules="[rules!.required!()]" label="Semester" v-model="selectedSemester"
+        :items="semesterSelectItems" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="id ? updateError : error">{{ formatError(id ?
+        updateError : error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="id ? updateIsPending : isPending">{{ id ? "Ubah" : "Tambah" }}</v-btn>
+    </v-form>
+  </v-card>
 </template>
