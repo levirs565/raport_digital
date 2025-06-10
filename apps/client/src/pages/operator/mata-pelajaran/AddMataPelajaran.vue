@@ -5,6 +5,9 @@ import { usePeriodeStore } from '../../../store';
 import GuruSelectCard from '../../../components/GuruSelectCard.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
+import { useRules } from 'vuetify/labs/rules';
+import { formatError } from '../../../api';
+import { SubmitEventPromise } from 'vuetify';
 
 const { id } = defineProps({
   id: String
@@ -14,8 +17,8 @@ const emit = defineEmits(['close'])
 const periodeStore = usePeriodeStore();
 
 const trpc = injectTrpc();
-const { mutateAsync: addAsync } = useMutation(trpc!.operator.mataPelajaran.add.mutationOptions())
-const { mutateAsync: updateAsync } = useMutation(trpc!.operator.mataPelajaran.update.mutationOptions());
+const { mutateAsync: addAsync, error, isPending, reset } = useMutation(trpc!.operator.mataPelajaran.add.mutationOptions())
+const { mutateAsync: updateAsync, error: updateError, isPending: updateIsPending, reset: updateReset } = useMutation(trpc!.operator.mataPelajaran.update.mutationOptions());
 
 const nama = ref("");
 const kelompok = ref("");
@@ -43,7 +46,13 @@ watchEffect(() => {
 
 const queryClient = useQueryClient();
 const router = useRouter();
-function onSubmit() {
+async function onSubmit(event: SubmitEventPromise) {
+  if (!(await event).valid) {
+    reset();
+    updateReset();
+    return;
+  }
+
   if (!periodeStore.selectedPeriode) return;
   const kelompokValue = kelompok.value == "" ? undefined : kelompok.value;
   const update = () => {
@@ -79,6 +88,7 @@ function onSubmit() {
     })
 }
 
+const rules = useRules();
 </script>
 <template>
   <v-card>
@@ -87,11 +97,14 @@ function onSubmit() {
       <v-toolbar-title>{{ id ? "Ubah" : "Tambah" }} Mata Pelajaran</v-toolbar-title>
     </v-toolbar>
 
-    <v-form class="px-4 py-2">
-      <v-text-field v-model="nama" label="Nama Mata Pelajaran" />
+    <v-form @submit.prevent="onSubmit" class="px-4 py-2">
+      <v-text-field :rules="[rules!.required!()]" v-model="nama" label="Nama Mata Pelajaran" />
       <v-text-field v-model="kelompok" label="Kelompok" />
       <GuruSelectCard :is-item-disabled="(item: any) => lockedGuruList.has(item.username)" v-model="guruList" />
-      <v-btn class="my-2" @click="onSubmit">{{ id ? "Ubah" : "Tambah" }} </v-btn>
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="id ? updateError : error">{{ formatError(id ?
+        updateError : error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="id ? updateIsPending : isPending">{{ id ? "Ubah" : "Tambah" }}
+      </v-btn>
     </v-form>
   </v-card>
 </template>
