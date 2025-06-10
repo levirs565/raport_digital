@@ -31,40 +31,6 @@ const pekerjaanIbu = ref('');
 const namaWali = ref('');
 const pekerjaanWali = ref('');
 const alamatWali = ref('');
-
-// function tambahSiswa() {
-//   // Validasi sederhana sebelum mengirim
-//   if (!namaLengkap.value || !nis.value) {
-//     alert('Nama Lengkap dan NIS wajib diisi!');
-//     return;
-//   }
-
-//   addSiswaMutation.mutate({
-//     nis: nis.value,
-//     nisn: nisn.value,
-//     nama: namaLengkap.value,
-//     jenisKelamin: selectedGender.value as 'LAKI_LAKI' | 'PEREMPUAN',
-//     tempatLahir: tempatLahir.value,
-//     tanggalLahir: new Date(tanggalLahir.value).toISOString(),
-//     alamat: alamat.value,
-//     agama: selectedReligion.value,
-//     statusDalamKeluarga: statusKeluarga.value,
-//     anakKe: parseInt(anakKe.value) || 0,
-//     noTelp: nomorTelepon.value,
-//     sekolahAsal: asalSekolah.value,
-//     diterimaDiKelas: selectedDiKelas.value,
-//     diterimaPadaTanggal: new Date(padaTanggal.value).toISOString(),
-//     namaAyah: namaAyah.value,
-//     namaIbu: namaIbu.value,
-//     alamatOrtu: alamatOrangTua.value,
-//     pekerjaanAyah: pekerjaanAyah.value,
-//     pekerjaanIbu: pekerjaanIbu.value,
-//     namaWali: namaWali.value,
-//     pekerjaanWali: pekerjaanWali.value,
-//     alamatWali: alamatWali.value,
-//   });
-// }
-
 </script>
 
 <template>
