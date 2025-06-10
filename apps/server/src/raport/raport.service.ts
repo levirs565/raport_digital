@@ -270,7 +270,25 @@ export class RaportService {
 
   async changeRaportStatus(kelasId: string, siswaId: string) {}
 
-  private async getIdentitasRaportPDF(siswaId: string) {
+  private async getTandaTanganWaliKelas(
+    status: Status_Raport,
+    username: string
+  ) {
+    if (status != 'MENUNGGU_KONFIRMASI')
+      return await this.tandaTanganService.get(username);
+    return null;
+  }
+
+  private async getTandaTanganKepalaSekolah(
+    status: Status_Raport,
+    username: string
+  ) {
+    if (status == 'DIVERIFIKASI')
+      return await this.tandaTanganService.get(username);
+    return null;
+  }
+
+  private async getIdentitasRaportPDF(kelasId: string, siswaId: string) {
     const [siswa, kepalaSekolah] = await Promise.all([
       this.prismaClient.siswa.findUnique({
         where: {
@@ -282,7 +300,10 @@ export class RaportService {
     if (siswa == null) return null;
     if (!kepalaSekolah) return null;
 
-    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+    const tandaTanganKepalaSekolah = await this.getTandaTanganKepalaSekolah(
+      (
+        await this.getRaportStatus(kelasId, siswaId)
+      ).status,
       kepalaSekolah.username
     );
 
@@ -510,15 +531,18 @@ export class RaportService {
       }),
       this.prismaClient.kepala_Sekolah.findFirst(),
     ]);
+    const status = (await this.getRaportStatus(kelasId, siswaId)).status;
     if (!data) return null;
     const kelas = data.Kelas.at(0)?.Kelas;
     if (!kelas) return null;
     if (!kepalaSekolah) return null;
 
-    const tandaTanganWaliKelas = await this.tandaTanganService.get(
+    const tandaTanganWaliKelas = await this.getTandaTanganWaliKelas(
+      status,
       kelas.Wali_Kelas.username
     );
-    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+    const tandaTanganKepalaSekolah = await this.getTandaTanganKepalaSekolah(
+      status,
       kepalaSekolah.username
     );
 
@@ -777,6 +801,7 @@ export class RaportService {
       }),
       this.prismaClient.kepala_Sekolah.findFirst(),
     ]);
+    const status = (await this.getRaportStatus(kelasId, siswaId)).status;
     if (!siswa) return null;
     if (!kelas) return null;
     if (!kepalaSekolah) return null;
@@ -808,10 +833,12 @@ export class RaportService {
       },
     ];
     const checkmark = '✓';
-    const tandaTanganWaliKelas = await this.tandaTanganService.get(
+    const tandaTanganWaliKelas = await this.getTandaTanganWaliKelas(
+      status,
       kelas.Wali_Kelas.username
     );
-    const tandaTanganKepalaSekolah = await this.tandaTanganService.get(
+    const tandaTanganKepalaSekolah = await this.getTandaTanganKepalaSekolah(
+      status,
       kepalaSekolah.username
     );
 
@@ -969,7 +996,7 @@ export class RaportService {
   ): Promise<string | null> {
     const doc =
       type == 'IDENTITAS'
-        ? await this.getIdentitasRaportPDF(siswaId)
+        ? await this.getIdentitasRaportPDF(kelasId, siswaId)
         : type == 'AKADEMIK'
         ? await this.getAkademikRaportPDF(kelasId, siswaId)
         : await this.getP5RaportPDF(kelasId, siswaId);
