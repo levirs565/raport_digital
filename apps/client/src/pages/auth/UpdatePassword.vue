@@ -39,22 +39,20 @@ function konfirmasiPasswordRule() {
 const rules = useRules();
 </script>
 <template>
-  <v-form @submit.prevent="onSubmit">
-    <v-card>
-      <v-toolbar color="surface">
-        <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
-        <v-toolbar-title>Ubah Password</v-toolbar-title>
-      </v-toolbar>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Password</v-toolbar-title>
+    </v-toolbar>
 
-      <div class="px-4 py-2">
-        <c-password-field :rules="[rules!.required!()]" v-model="oldPassword" label="Password Lama" />
-        <c-password-field :rules="[rules!.required!(), rules!.minLength!(8)]" v-model="newPassword"
-          label="Password Baru" />
-        <c-password-field :rules="[rules!.required!(), konfirmasiPasswordRule]" v-model="newPasswordConfirm"
-          label="Konfirmasi Password Baru" />
-        <v-card-text class="text-error text-center pa-0 my-2" v-if="error">{{ formatError(error) }}</v-card-text>
-        <v-btn class="my-2" type="submit" :loading="isPending">Ubah</v-btn>
-      </div>
-    </v-card>
-  </v-form>
+    <v-form @submit.prevent="onSubmit" class="px-4 py-2">
+      <c-password-field :rules="[rules!.required!()]" v-model="oldPassword" label="Password Lama" />
+      <c-password-field :rules="[rules!.required!(), rules!.minLength!(8)]" v-model="newPassword"
+        label="Password Baru" />
+      <c-password-field :rules="[rules!.required!(), konfirmasiPasswordRule]" v-model="newPasswordConfirm"
+        label="Konfirmasi Password Baru" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="error">{{ formatError(error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="isPending">Ubah</v-btn>
+    </v-form>
+  </v-card>
 </template>

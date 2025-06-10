@@ -69,26 +69,24 @@ async function onSubmit(event: SubmitEventPromise) {
 const rules = useRules();
 </script>
 <template>
-  <v-form @submit.prevent="onSubmit">
-    <v-card>
-      <v-toolbar color="surface">
-        <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
-        <v-toolbar-title>Ubah Password</v-toolbar-title>
-      </v-toolbar>
-      <div class="px-4 py-2">
-        <v-text-field :rules="[rules!.required!()]" label="Nama Lengkap" v-model="namaLengkap" />
-        <v-text-field label="NIP" v-model="nip" />
-        <p>Tanda Tangan</p>
-        <input ref="file-input" type="file" accept=".jpg, .jpeg, .png" @change="onFileChange" hidden>
-        <img v-if="tandaTanganData || imageDataUrl"
-          :src="imageDataUrl ? imageDataUrl : `data:image/png;base64,${tandaTanganData}`" style="max-height: 100px;" />
-        <p v-else>Belum ada tangan tangan</p>
-        <v-btn class="d-block" variant="outlined" @click="fileInput?.click()">Upload Tanda Tangan Baru</v-btn>
-        <v-card-text class="text-error text-center pa-0 my-2" v-if="error || tandaTanganError">
-          {{ error ? formatError(error) : "" }}{{ tandaTanganError ? formatError(tandaTanganError) : "" }}
-        </v-card-text>
-        <v-btn class="d-block mt-4" type="submit" :loading="isPending || tandaTanganIsPending">Ubah</v-btn>
-      </div>
-    </v-card>
-  </v-form>
+  <v-card>
+    <v-toolbar color="surface">
+      <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
+      <v-toolbar-title>Ubah Password</v-toolbar-title>
+    </v-toolbar>
+    <v-form @submit.prevent="onSubmit" class="px-4 py-2">
+      <v-text-field :rules="[rules!.required!()]" label="Nama Lengkap" v-model="namaLengkap" />
+      <v-text-field label="NIP" v-model="nip" />
+      <p>Tanda Tangan</p>
+      <input ref="file-input" type="file" accept=".jpg, .jpeg, .png" @change="onFileChange" hidden>
+      <img v-if="tandaTanganData || imageDataUrl"
+        :src="imageDataUrl ? imageDataUrl : `data:image/png;base64,${tandaTanganData}`" style="max-height: 100px;" />
+      <p v-else>Belum ada tangan tangan</p>
+      <v-btn class="d-block" variant="outlined" @click="fileInput?.click()">Upload Tanda Tangan Baru</v-btn>
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="error || tandaTanganError">
+        {{ error ? formatError(error) : "" }}{{ tandaTanganError ? formatError(tandaTanganError) : "" }}
+      </v-card-text>
+      <v-btn class="d-block mt-4" type="submit" :loading="isPending || tandaTanganIsPending">Ubah</v-btn>
+    </v-form>
+  </v-card>
 </template>
