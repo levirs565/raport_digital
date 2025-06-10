@@ -5,8 +5,12 @@ import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import GuruAddP5Proyek from './GuruAddP5Proyek.vue';
 import GuruAddP5Target from './GuruAddP5Target.vue';
 import GuruUpdateP5CatatanProyek from './GuruUpdateP5CatatanProyek.vue';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { useRouter } from 'vue-router';
+import { useSnackbarStore } from '../../../store';
+import { formatError } from '../../../api';
 
-const { idProyek } = defineProps({
+const { idProyek, idKelas } = defineProps({
   idKelas: String,
   idProyek: String
 })
@@ -25,11 +29,53 @@ const { data: catatanData } = useTrcpQuery(trpc!.guru.p5.getCatatanProsesProyek.
 
 const activeTab = ref(0);
 
+const { mutateAsync: deleteAsync } = useMutation(trpc!.guru.p5.deleteProyek.mutationOptions())
+
+const router = useRouter();
+const snackbar = useSnackbarStore();
+const queryClient = useQueryClient();
+function onDelete() {
+  deleteAsync({
+    id_proyek: idProyek!
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc?.guru.p5.getProyekList.queryKey({
+        id_kelas: idKelas!
+      })
+    })
+    router.replace(`/guru/p5/${idKelas}`)
+  }).catch(e => {
+    snackbar.errors.push(formatError(e));
+  })
+}
+
 </script>
 <template>
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>{{ data?.judul }}</v-app-bar-title>
+    <v-dialog>
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn icon v-bind="activatorProps">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <v-card title="Konfirmasi Hapus">
+          <v-card-text>
+            Apakah anda yakin menghapus Proyek ini?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+            <v-btn text="Hapus" color="red" @click="() => {
+              isActive.value = false
+              onDelete();
+            }"></v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
     <template v-slot:extension>
       <v-tabs grow v-model="activeTab">
         <v-tab>Informasi Proyek</v-tab>

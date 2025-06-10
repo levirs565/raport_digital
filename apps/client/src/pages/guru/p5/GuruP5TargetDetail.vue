@@ -5,8 +5,12 @@ import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { NilaiP5Type } from '@raport-digital/client-api-types';
 import GuruAddP5Target from './GuruAddP5Target.vue';
 import GuruUpdateP5NilaiTarget from './GuruUpdateP5NilaiTarget.vue';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { useRouter } from 'vue-router';
+import { useSnackbarStore } from '../../../store';
+import { formatError } from '../../../api';
 
-const { idTarget } = defineProps({
+const { idTarget, idProyek, idKelas } = defineProps({
   idKelas: String,
   idProyek: String,
   idTarget: String
@@ -30,11 +34,53 @@ const nilaiMap: Record<NilaiP5Type, string> = {
   SANGAT_BERKEMBANG: 'Sangat Berkembang'
 }
 
+const { mutateAsync: deleteAsync } = useMutation(trpc!.guru.p5.deleteTarget.mutationOptions())
+
+const router = useRouter();
+const snackbar = useSnackbarStore();
+const queryClient = useQueryClient();
+function onDelete() {
+  deleteAsync({
+    id_target: idTarget!
+  }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc?.guru.p5.getAllTarget.queryKey({
+        id_proyek: idProyek
+      })
+    })
+    router.replace(`/guru/p5/${idKelas}/proyek/${idProyek}`)
+  }).catch(e => {
+    snackbar.errors.push(formatError(e));
+  })
+}
+
 </script>
 <template>
   <v-app-bar>
     <c-app-bar-hamburger />
     <v-app-bar-title>{{ data?.target }}</v-app-bar-title>
+    <v-dialog>
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn icon v-bind="activatorProps">
+          <v-icon>mdi-trash-can-outline</v-icon>
+        </v-btn>
+      </template>
+      <template v-slot:default="{ isActive }">
+        <v-card title="Konfirmasi Hapus">
+          <v-card-text>
+            Apakah anda yakin menghapus Target ini?
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text="Batal" @click="isActive.value = false"></v-btn>
+            <v-btn text="Hapus" color="red" @click="() => {
+              isActive.value = false
+              onDelete();
+            }"></v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </v-app-bar>
 
   <v-main>
