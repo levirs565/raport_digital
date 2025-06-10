@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useMutation } from '@tanstack/vue-query';
-import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc } from '../../../api-vue';
+
+const emit = defineEmits(['close'])
+const dialog = ref(true);
 
 const trpc = injectTrpc()
 useMutation(trpc!.operator.siswa.add.mutationOptions())
@@ -29,47 +31,87 @@ const pekerjaanIbu = ref('');
 const namaWali = ref('');
 const pekerjaanWali = ref('');
 const alamatWali = ref('');
+
+// function tambahSiswa() {
+//   // Validasi sederhana sebelum mengirim
+//   if (!namaLengkap.value || !nis.value) {
+//     alert('Nama Lengkap dan NIS wajib diisi!');
+//     return;
+//   }
+
+//   addSiswaMutation.mutate({
+//     nis: nis.value,
+//     nisn: nisn.value,
+//     nama: namaLengkap.value,
+//     jenisKelamin: selectedGender.value as 'LAKI_LAKI' | 'PEREMPUAN',
+//     tempatLahir: tempatLahir.value,
+//     tanggalLahir: new Date(tanggalLahir.value).toISOString(),
+//     alamat: alamat.value,
+//     agama: selectedReligion.value,
+//     statusDalamKeluarga: statusKeluarga.value,
+//     anakKe: parseInt(anakKe.value) || 0,
+//     noTelp: nomorTelepon.value,
+//     sekolahAsal: asalSekolah.value,
+//     diterimaDiKelas: selectedDiKelas.value,
+//     diterimaPadaTanggal: new Date(padaTanggal.value).toISOString(),
+//     namaAyah: namaAyah.value,
+//     namaIbu: namaIbu.value,
+//     alamatOrtu: alamatOrangTua.value,
+//     pekerjaanAyah: pekerjaanAyah.value,
+//     pekerjaanIbu: pekerjaanIbu.value,
+//     namaWali: namaWali.value,
+//     pekerjaanWali: pekerjaanWali.value,
+//     alamatWali: alamatWali.value,
+//   });
+// }
+
 </script>
 
 <template>
-  <v-app-bar>
-    <c-app-bar-hamburger />
-    <v-app-bar-title>Verifikasi Akun Guru</v-app-bar-title>
-  </v-app-bar>
-  <v-main>
-    <v-text-field v-model="nis" label="NIS"></v-text-field>
-    <v-text-field v-model="nisn" label="NISN"></v-text-field>
-    <v-text-field v-model="namaLengkap" label="Nama Lengkap"></v-text-field>
-    <v-select label="Jenis Kelamin"
-      :items="[{ value: 'LAKI_LAKI', title: 'Laki-Laki' }, { value: 'PEREMPUAN', title: 'Perempuan' }]"
-      v-model="selectedGender"></v-select>
-    <v-text-field v-model="tempatLahir" label="Tempat Lahir"></v-text-field>
-    <v-date-input v-model="tanggalLahir" label="Tanggal Lahir"></v-date-input>
-    <v-textarea v-model="alamat" label="Alamat"></v-textarea>
-    <v-select label="Agama" :items="['Islam', 'Katolik', 'Kristen', 'Hindu', 'Buddha', 'Konghucu']"
-      v-model="selectedReligion"></v-select>
-    <v-text-field v-model="statusKeluarga" label="Status dalam Keluarga"></v-text-field>
-    <v-text-field v-model="anakKe" label="Anak Ke"></v-text-field>
-    <v-text-field v-model="nomorTelepon" label="Nomor Telepon Rumah/HP"></v-text-field>
-    <v-text-field v-model="asalSekolah" label="Asal Sekolah"></v-text-field>
-    <v-divider></v-divider>
-    <p>Diterima di Sekolah Ini</p>
-    <v-select label="Di Kelas" :items="['7', '8', '9']" v-model="selectedDiKelas"></v-select>
-    <v-date-input v-model="padaTanggal" label="Pada Tanggal"></v-date-input>
-    <v-divider></v-divider>
-    <p>Nama Orang Tua</p>
-    <v-text-field v-model="namaAyah" label="Nama Ayah"></v-text-field>
-    <v-text-field v-model="namaIbu" label="Nama Ibu"></v-text-field>
-    <v-textarea v-model="alamatOrangTua" label="Alamat Orang Tua"></v-textarea>
-    <v-divider></v-divider>
-    <p>Pekerjaan Orang Tua</p>
-    <v-text-field v-model="pekerjaanAyah" label="Pekerjaan Ayah"></v-text-field>
-    <v-text-field v-model="pekerjaanIbu" label="Pekerjaan Ibu"></v-text-field>
-    <v-divider></v-divider>
-    <p>Wali</p>
-    <v-text-field v-model="namaWali" label="Nama Wali"></v-text-field>
-    <v-text-field v-model="pekerjaanWali" label="Pekerjaan Wali"></v-text-field>
-    <v-textarea v-model="alamatWali" label="Alamat Wali"></v-textarea>
-    <v-btn @click="">Tambah</v-btn>
-  </v-main>
+  <v-dialog v-model="dialog" max-width="800px" persistent>
+    <v-card>
+      <v-card-title class="headline">
+        <v-btn color="#000" variant="plain" icon="mdi-close" @click="$emit('close')"></v-btn>
+        Tambah Siswa
+      </v-card-title>
+      <v-card-text style="max-height: 75vh; overflow-y: auto;">
+        <v-form @submit.prevent="">
+          <v-text-field v-model="nis" label="NIS"></v-text-field>
+          <v-text-field v-model="nisn" label="NISN"></v-text-field>
+          <v-text-field v-model="namaLengkap" label="Nama Lengkap"></v-text-field>
+          <v-select label="Jenis Kelamin"
+            :items="[{ value: 'LAKI_LAKI', title: 'Laki-Laki' }, { value: 'PEREMPUAN', title: 'Perempuan' }]"
+            v-model="selectedGender"></v-select>
+          <v-text-field v-model="tempatLahir" label="Tempat Lahir"></v-text-field>
+          <v-date-input v-model="tanggalLahir" label="Tanggal Lahir"></v-date-input>
+          <v-textarea v-model="alamat" label="Alamat"></v-textarea>
+          <v-select label="Agama" :items="['Islam', 'Katolik', 'Kristen', 'Hindu', 'Buddha', 'Konghucu']"
+            v-model="selectedReligion"></v-select>
+          <v-text-field v-model="statusKeluarga" label="Status dalam Keluarga"></v-text-field>
+          <v-text-field v-model="anakKe" label="Anak Ke"></v-text-field>
+          <v-text-field v-model="nomorTelepon" label="Nomor Telepon Rumah/HP"></v-text-field>
+          <v-text-field v-model="asalSekolah" label="Asal Sekolah"></v-text-field>
+          <v-divider></v-divider>
+          <p>Diterima di Sekolah Ini</p>
+          <v-select label="Di Kelas" :items="['7', '8', '9']" v-model="selectedDiKelas"></v-select>
+          <v-date-input v-model="padaTanggal" label="Pada Tanggal"></v-date-input>
+          <v-divider></v-divider>
+          <p>Nama Orang Tua</p>
+          <v-text-field v-model="namaAyah" label="Nama Ayah"></v-text-field>
+          <v-text-field v-model="namaIbu" label="Nama Ibu"></v-text-field>
+          <v-textarea v-model="alamatOrangTua" label="Alamat Orang Tua"></v-textarea>
+          <v-divider></v-divider>
+          <p>Pekerjaan Orang Tua</p>
+          <v-text-field v-model="pekerjaanAyah" label="Pekerjaan Ayah"></v-text-field>
+          <v-text-field v-model="pekerjaanIbu" label="Pekerjaan Ibu"></v-text-field>
+          <v-divider></v-divider>
+          <p>Wali</p>
+          <v-text-field v-model="namaWali" label="Nama Wali"></v-text-field>
+          <v-text-field v-model="pekerjaanWali" label="Pekerjaan Wali"></v-text-field>
+          <v-textarea v-model="alamatWali" label="Alamat Wali"></v-textarea>
+          <v-btn color="primary" variant="elevated" @click="">Tambah</v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>

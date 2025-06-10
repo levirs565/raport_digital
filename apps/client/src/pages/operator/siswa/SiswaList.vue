@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
+import AddSiswa from './AddSiswa.vue';
+
+const dialog = ref(false);
 
 const pageIndex = ref(0);
 
@@ -60,12 +63,25 @@ const filterSiswa = ref('');
       <template v-for="item in data?.page">
         <v-list-item>
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
-          <v-list-item-subtitle>NIS. {{ item.NIS }}  NISN. {{ item.NISN }}</v-list-item-subtitle>
+          <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
         </v-list-item>
-        <v-divider/>
+        <v-divider />
       </template>
     </v-list>
   </v-main>
 
-  <v-fab icon="mdi-plus" app to="/operator/siswa/add"></v-fab>
+  <v-fab app icon="mdi-plus">
+    <v-speed-dial transition="fade-transition" location="bottom end" activator="parent">
+      <v-dialog persistent>
+        <template v-slot:activator="{ props }">
+          <v-btn key="1" prepend-icon="mdi-plus" variant="tonal" @click="dialog = true" v-bind="props">Input Manual</v-btn>
+        </template>
+        <template v-slot:default="{ isActive }">
+          <AddSiswa v-model="dialog" @close="isActive.value = !isActive.value"/>
+        </template>
+      </v-dialog>
+      <v-btn key="2" prepend-icon="mdi-upload-outline" variant="tonal" to="">Import CSV</v-btn>
+    </v-speed-dial>
+    <v-icon>mdi-plus</v-icon>
+  </v-fab>
 </template>
