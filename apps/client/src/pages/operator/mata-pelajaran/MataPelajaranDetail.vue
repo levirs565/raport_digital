@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useMutation } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import AddMataPelajaran from './AddMataPelajaran.vue';
@@ -20,10 +20,14 @@ const { mutateAsync: deleteAsync } = useMutation(trpc!.operator.mataPelajaran.de
 
 const router = useRouter();
 const snackbar = useSnackbarStore();
+const queryClient = useQueryClient();
 function onDelete() {
   deleteAsync({
     id: id!
   }).then(() => {
+    queryClient.invalidateQueries({
+      queryKey: trpc?.operator.mataPelajaran.getAll.queryKey()
+    })
     router.replace("/operator/mata-pelajaran")
   }).catch(e => {
     snackbar.errors.push(formatError(e));

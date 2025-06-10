@@ -199,7 +199,7 @@ model Anggota_Ekstrakurikuler {
   keterangan String?
 
   //TODO: fix typo id_esktrakurikuler
-  Ekstrakurikuler Ekstrakurikuler @relation(fields: [id_ekstrakurikuler], references: [id_esktrakurikuler])
+  Ekstrakurikuler Ekstrakurikuler @relation(fields: [id_ekstrakurikuler], references: [id_esktrakurikuler], onDelete: Cascade)
   Siswa Siswa @relation(fields: [id_siswa], references: [id_siswa])
 }
 

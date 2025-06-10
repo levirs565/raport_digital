@@ -113,7 +113,7 @@ export class OperatorEkstrakurikulerService {
       },
     });
 
-    return result > 0;
+    return result == 0;
   }
 
   async update(id: string, nama: string, usernameGuru: string) {
@@ -135,5 +135,19 @@ export class OperatorEkstrakurikulerService {
         });
       else throw e;
     }
+  }
+
+  async delete(id: string) {
+    if (!(await this.getCanDelete(id)))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Salah satu raport anggota sudah dikunci',
+      });
+
+    await this.prismaClient.ekstrakurikuler.delete({
+      where: {
+        id_esktrakurikuler: id,
+      },
+    });
   }
 }
