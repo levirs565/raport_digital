@@ -200,6 +200,20 @@ export class OperatorKelasService {
     }
   }
 
+  async getMataPelajaran(id: string, mataPelajaranId: string) {
+    return await this.prismaClient.mata_Pelajaran_Kelas.findUnique({
+      where: {
+        id_mata_pelajaran_id_kelas: {
+          id_kelas: id,
+          id_mata_pelajaran: mataPelajaranId
+        }
+      },
+      select: {
+        username_guru: true
+      }
+    })
+  }
+
   async updateMataPelajaran(
     id: string,
     mataPelajaranId: string,

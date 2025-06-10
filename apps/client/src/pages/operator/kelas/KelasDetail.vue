@@ -96,7 +96,16 @@ function onDeleteMataPelajaran(idMapel: string) {
                       <v-list>
                         <v-list-item title="Hapus" v-if="!data?.is_locked"
                           @click="onDeleteMataPelajaran(item.mata_pelajaran.id_mata_pelajaran)" />
-                        <!-- TODO: update guru -->
+                        <v-dialog persistent v-if="!data?.is_locked">
+                          <template v-slot:activator="{ props }">
+                            <v-list-item title="Ubah" v-bind="props" />
+                          </template>
+                          <template v-slot:default="{ isActive }">
+                            <add-mata-pelajaran-kelas :id="id"
+                              :id-mata-pelajaran="item.mata_pelajaran.id_mata_pelajaran"
+                              @close="isActive.value = !isActive.value" />
+                          </template>
+                        </v-dialog>
                       </v-list>
                     </v-menu>
                   </v-btn>
