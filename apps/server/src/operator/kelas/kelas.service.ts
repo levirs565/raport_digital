@@ -79,7 +79,7 @@ export class OperatorKelasService {
       ...rest,
       wali_kelas: Wali_Kelas,
       koor_p5: Koor_P5,
-      is_locked: await this.commonUtilsService.isKelasLocked(id)
+      is_locked: await this.commonUtilsService.isKelasLocked(id),
     };
   }
 
@@ -173,23 +173,31 @@ export class OperatorKelasService {
     usernameGuru: string
   ) {
     await this.commonUtilsService.ensureKelasNotLocked(id);
-    await this.prismaClient.$transaction([
-      this.prismaClient.mata_Pelajaran_Kelas.create({
-        data: {
-          id_kelas: id,
-          id_mata_pelajaran: mataPelajaranId,
-          username_guru: usernameGuru,
-        },
-      }),
-      this.prismaClient.materi.create({
-        data: {
-          id_kelas: id,
-          id_mata_pelajaran: mataPelajaranId,
-          nama: 'PAS',
-          detail: '',
-        },
-      }),
-    ]);
+    try {
+      await this.prismaClient.$transaction([
+        this.prismaClient.mata_Pelajaran_Kelas.create({
+          data: {
+            id_kelas: id,
+            id_mata_pelajaran: mataPelajaranId,
+            username_guru: usernameGuru,
+          },
+        }),
+        this.prismaClient.materi.create({
+          data: {
+            id_kelas: id,
+            id_mata_pelajaran: mataPelajaranId,
+            nama: 'PAS',
+            detail: '',
+          },
+        }),
+      ]);
+    } catch (e) {
+      if (PrismaHelper.isUniqueConstraintFailed(e))
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Mata pelajaran sudah ada',
+        });
+    }
   }
 
   async updateMataPelajaran(

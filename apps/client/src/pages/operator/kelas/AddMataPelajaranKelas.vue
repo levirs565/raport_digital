@@ -78,7 +78,7 @@ const rules = useRules();
         item-title="nama" item-value="id_mata_pelajaran" :return-object="false" />
       <v-combobox :rules="[rules!.required!()]" v-model="selectedGuru" :items="dataPengampu?.guru"
         item-title="nama_lengkap" item-value="username" :return-object="false" />
-      <v-card-text class="text-error text-center pa-0 my-2" v-if="idMataPelajaran ? updateError : error">{{ formatError(id ?
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="idMataPelajaran ? updateError : error">{{ formatError(idMataPelajaran ?
         updateError : error) }}</v-card-text>
       <v-btn class="my-2" type="submit" :loading="idMataPelajaran ? updateIsPending : isPending">Tambah</v-btn>
     </v-form>
