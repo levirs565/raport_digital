@@ -4,6 +4,9 @@ import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useRouter } from 'vue-router';
 import { watchEffect } from 'vue';
+import { formatError } from '../../../api';
+import { useRules } from 'vuetify/labs/rules';
+import { SubmitEventPromise } from 'vuetify';
 
 const { idProyek, idKelas, idTarget } = defineProps({
   idKelas: String,
@@ -18,8 +21,8 @@ const subelemen = ref("");
 const target = ref("");
 
 const trpc = injectTrpc();
-const { mutateAsync: addAsync } = useMutation(trpc!.guru.p5.addTarget.mutationOptions())
-const { mutateAsync: updateAsync } = useMutation(trpc!.guru.p5.updateTarget.mutationOptions());
+const { mutateAsync: addAsync, error, isPending, reset } = useMutation(trpc!.guru.p5.addTarget.mutationOptions())
+const { mutateAsync: updateAsync, error: updateError, isPending: updateIsPending, reset: updateReset } = useMutation(trpc!.guru.p5.updateTarget.mutationOptions());
 const { data } = useTrcpQuery(trpc!.guru.p5.getTarget.queryOptions({
   id_target: computed(() => idTarget!)
 }, {
@@ -38,7 +41,13 @@ watchEffect(() => {
 const queryClient = useQueryClient();
 const router = useRouter();
 
-function onSubmit() {
+async function onSubmit(event: SubmitEventPromise) {
+  if (!(await event).valid) {
+    reset();
+    updateReset();
+    return;
+  }
+
   if (!idProyek) return;
 
   const update = () => {
@@ -79,6 +88,7 @@ function onSubmit() {
     })
 }
 
+const rules = useRules()
 </script>
 <template>
   <v-card>
@@ -87,12 +97,16 @@ function onSubmit() {
       <v-toolbar-title>{{ idTarget ? 'Ubah' : 'Tambah' }} Target</v-toolbar-title>
     </v-toolbar>
 
-    <v-form class="px-4 py-2">
-      <v-text-field v-model="dimensi" label="Dimensi" />
-      <v-text-field v-model="elemen" label="Elemen" />
-      <v-text-field v-model="subelemen" label="Subelemen" />
-      <v-text-field v-model="target" label="Target" />
-      <v-btn @click="onSubmit">{{ idTarget ? 'Ubah' : 'Tambah' }}</v-btn>
+    <v-form class="px-4 py-2" @submit.prevent="onSubmit">
+      <v-text-field :rules="[rules!.required!()]" v-model="dimensi" label="Dimensi" />
+      <v-text-field :rules="[rules!.required!()]" v-model="elemen" label="Elemen" />
+      <v-text-field :rules="[rules!.required!()]" v-model="subelemen" label="Subelemen" />
+      <v-text-field :rules="[rules!.required!()]" v-model="target" label="Target" />
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="idTarget ? updateError : error">{{
+        formatError(idTarget ?
+          updateError : error) }}</v-card-text>
+      <v-btn class="my-2" type="submit" :loading="idTarget ? updateIsPending : isPending">{{ idTarget ? 'Ubah' :
+        'Tambah' }}</v-btn>
     </v-form>
   </v-card>
 </template>
