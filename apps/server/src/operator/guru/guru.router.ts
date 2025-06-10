@@ -14,6 +14,9 @@ export class OperatorGuruRouter {
     getVerifiedAll: this.trpc.operatorProcedure.query(
       async () => await this.service.getVerifiedAll()
     ),
+    countUnverified: this.trpc.operatorProcedure.query(
+      async () => await this.service.countUnverified()
+    ),
     getUnverifiedAll: this.trpc.operatorProcedure.query(
       async () => await this.service.getUnverifiedAll()
     ),

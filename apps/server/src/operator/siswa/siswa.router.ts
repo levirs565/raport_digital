@@ -48,6 +48,9 @@ export class OperatorSiswaRouter {
         async ({ input }) =>
           await this.service.getAll(input.page_index, input.order_by, input.asc)
       ),
+    count: this.trpc.operatorProcedure.query(
+      async () => await this.service.count()
+    ),
     get: this.trpc.operatorProcedure
       .input(z.object({ id: z.string() }))
       .query(async ({ input }) => await this.service.get(input.id)),

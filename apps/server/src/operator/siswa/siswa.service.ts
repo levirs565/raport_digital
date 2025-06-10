@@ -119,6 +119,10 @@ export class OperatorSiswaService {
     };
   }
 
+  async count() {
+    return this.prismaClient.siswa.count();
+  }
+
   async get(id: string) {
     const result = await this.prismaClient.siswa.findUnique({
       where: {

@@ -16,6 +16,19 @@ export class OperatorPeriodeAjarService {
       });
   }
 
+  async getLatest() {
+    return this.prismaClient.periode_Ajar.findFirst({
+      orderBy: [
+        {
+          tahunAjar: 'desc',
+        },
+        {
+          semester: 'desc',
+        },
+      ],
+    });
+  }
+
   async get(id: string) {
     const result = await this.prismaClient.periode_Ajar.findUnique({
       where: {

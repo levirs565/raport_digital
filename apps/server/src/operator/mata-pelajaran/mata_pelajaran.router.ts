@@ -21,6 +21,9 @@ export class OperatorMataPelajaranRouter {
   ) {}
 
   router = this.trpc.router({
+    count: this.trpc.operatorProcedure
+      .input(baseInputSchema)
+      .query(({ input }) => this.service.count(input.periodeAjarId)),
     getAll: this.trpc.operatorProcedure
       .input(baseInputSchema)
       .query(({ input }) => this.service.getAll(input.periodeAjarId)),

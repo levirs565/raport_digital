@@ -30,6 +30,14 @@ export class OperatorGuruService {
     });
   }
 
+  async countUnverified() {
+    return this.prismaClient.guru.count({
+      where: {
+        is_verified: false,
+      },
+    });
+  }
+
   async verify(username: string, accept: boolean) {
     const guru = await this.prismaClient.guru.findUnique({
       where: {

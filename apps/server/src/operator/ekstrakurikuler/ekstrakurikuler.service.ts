@@ -11,6 +11,14 @@ export class OperatorEkstrakurikulerService {
     private readonly commonUtilsService: CommonUtilsService
   ) {}
 
+  async count(periodeAjarId: string) {
+    return await this.prismaClient.ekstrakurikuler.count({
+      where: {
+        id_periode_ajar: periodeAjarId,
+      },
+    });
+  }
+
   async getAll(periodeAjarId: string) {
     const result = await this.prismaClient.ekstrakurikuler.findMany({
       where: {

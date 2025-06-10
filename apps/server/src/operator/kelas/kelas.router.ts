@@ -31,6 +31,11 @@ export class OperatorKelasRouter {
   ) {}
 
   router = this.trpc.router({
+    count: this.trpc.operatorProcedure
+      .input(periodeAjarIdSchema)
+      .query(
+        async ({ input }) => await this.service.count(input.periode_ajar_id)
+      ),
     getAll: this.trpc.operatorProcedure
       .input(periodeAjarIdSchema)
       .query(

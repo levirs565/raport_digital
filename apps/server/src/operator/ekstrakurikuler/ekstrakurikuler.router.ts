@@ -20,6 +20,11 @@ export class OperatorEkstrakurikulerRouter {
   ) {}
 
   router = this.trpc.router({
+    count: this.trpc.operatorProcedure
+      .input(baseInputSchema)
+      .query(
+        async ({ input }) => await this.service.count(input.periodeAjarId)
+      ),
     getAll: this.trpc.operatorProcedure
       .input(baseInputSchema)
       .query(

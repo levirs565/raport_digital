@@ -25,6 +25,7 @@ export class GuruWaliKelasService {
   ) {}
 
   async getAll(sessionUsername: string, periodeId: string) {
+    // TODO: refactor
     const result = await this.prismaClient.kelas.findMany({
       where: {
         username_wali_kelas: sessionUsername,
@@ -34,10 +35,40 @@ export class GuruWaliKelasService {
         id_kelas: true,
         kelas: true,
         kode_ruang_kelas: true,
+        _count: {
+          select: {
+            Anggota_Kelas: {
+              where: {
+                Siswa: {
+                  OR: [
+                    {
+                      Raport: {
+                        none: {
+                          id_periode_ajar: periodeId,
+                        },
+                      },
+                    },
+                    {
+                      Raport: {
+                        some: {
+                          id_periode_ajar: periodeId,
+                          status: 'MENUNGGU_KONFIRMASI',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
       },
     });
 
-    return result;
+    return result.map(({ _count, ...rest }) => ({
+      belum_selesai: _count.Anggota_Kelas,
+      ...rest,
+    }));
   }
 
   private throwNotFound(): never {
@@ -243,7 +274,10 @@ export class GuruWaliKelasService {
     siswaId: string,
     catatan: string
   ) {
-    const { id_periode_ajar: periodeId } = await this.ensureAccess(sessionUsername, kelasId);
+    const { id_periode_ajar: periodeId } = await this.ensureAccess(
+      sessionUsername,
+      kelasId
+    );
     await this.commonUtilsService.ensureSiswaInKelas(kelasId, siswaId);
     await this.commonUtilsService.ensureSiswaNotLocked(periodeId, siswaId);
 
@@ -278,7 +312,7 @@ export class GuruWaliKelasService {
         id_periode_ajar: await this.commonUtilsService.getPeriodeFromKelas(
           kelasId
         ),
-        id_siswa: siswaId
+        id_siswa: siswaId,
       },
       select: {
         id_prestasi: true,

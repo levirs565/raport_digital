@@ -11,6 +11,14 @@ export class OperatorKelasService {
     private readonly commonUtilsService: CommonUtilsService
   ) {}
 
+  async count(periodeAjarId: string) {
+    return await this.prismaClient.kelas.count({
+      where: {
+        id_periode_ajar: periodeAjarId,
+      },
+    });
+  }
+
   async getAll(periodeAjarId: string) {
     const result = await this.prismaClient.kelas.findMany({
       where: {
@@ -205,13 +213,13 @@ export class OperatorKelasService {
       where: {
         id_mata_pelajaran_id_kelas: {
           id_kelas: id,
-          id_mata_pelajaran: mataPelajaranId
-        }
+          id_mata_pelajaran: mataPelajaranId,
+        },
       },
       select: {
-        username_guru: true
-      }
-    })
+        username_guru: true,
+      },
+    });
   }
 
   async updateMataPelajaran(

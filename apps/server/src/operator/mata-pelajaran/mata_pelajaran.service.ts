@@ -5,9 +5,7 @@ import { isSubset, PrismaHelper } from '../../utils';
 
 @Injectable()
 export class OperatorMataPelajaranService {
-  constructor(
-    private readonly prismaClient: PrismaService
-  ) {}
+  constructor(private readonly prismaClient: PrismaService) {}
 
   async getAll(periodeAjarId: string) {
     return await this.prismaClient.mata_Pelajaran.findMany({
@@ -22,6 +20,14 @@ export class OperatorMataPelajaranService {
           nama: 'asc',
         },
       ],
+    });
+  }
+
+  async count(periodeAjarId: string) {
+    return await this.prismaClient.mata_Pelajaran.count({
+      where: {
+        id_periode_ajar: periodeAjarId,
+      }
     });
   }
 

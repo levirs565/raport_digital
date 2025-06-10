@@ -5,6 +5,7 @@ import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { UserType } from '@raport-digital/client-api-types';
 import { usePeriodeStore } from '../store';
+import { getPeriodeTitle } from '../utils';
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ const periodeSelectItems = computed(() => {
   if (periodeData.value) {
     return periodeData.value.map((periode) => ({
       ...periode,
-      title: `${periode.tahunAjar}/${periode.tahunAjar + 1} ${periode.semester == "GANJIL" ? "Ganjil" : "Genap"}`
+      title: getPeriodeTitle(periode)
     }))
   }
 
@@ -95,7 +96,7 @@ const { data: kepalaSekolahKelasData } = useTrcpQuery(trpc!.kepalaSekolah.getAll
 </script>
 <template>
   <v-navigation-drawer v-model="drawer"
-    style="border-bottom-right-radius: 16px; border-top-right-radius: 16px overflow: hidden;">
+    style="border-bottom-right-radius: 16px; border-top-right-radius: 16px; overflow: hidden;">
     <div class="pa-4 d-flex flex-column align-center text-center">
       <v-icon :size="48" class="mb-2">mdi-account-circle-outline</v-icon>
       <p class="text-h6">{{ accountTitle }}</p>
@@ -119,6 +120,7 @@ const { data: kepalaSekolahKelasData } = useTrcpQuery(trpc!.kepalaSekolah.getAll
       <v-list-item prepend-icon="mdi-folder-outline" title="Kelas" to="/operator/kelas" />
     </template>
     <template v-if="data?.type == 'GURU'">
+      <v-list-item prepend-icon="mdi-home-outline" title="Dashboard" to="/" exact></v-list-item>
       <v-divider />
       <template v-if="waliKelasData?.length">
         <v-list-subheader class="px-4">Wali Kelas</v-list-subheader>
@@ -152,6 +154,7 @@ const { data: kepalaSekolahKelasData } = useTrcpQuery(trpc!.kepalaSekolah.getAll
       </template>
     </template>
     <template v-if="data?.type == 'KEPALA_SEKOLAH'">
+      <v-list-item prepend-icon="mdi-home-outline" title="Dashboard" to="/" exact></v-list-item>
       <v-divider />
       <v-list-subheader class="px-4">Verifikasi Raport Siswa</v-list-subheader>
       <v-list-item prepend-icon="mdi-folder-outline" v-for="item in kepalaSekolahKelasData" :key="item.id_kelas"
