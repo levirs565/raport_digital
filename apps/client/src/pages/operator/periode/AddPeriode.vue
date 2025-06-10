@@ -102,7 +102,7 @@ const rules = useRules();
       <v-btn icon="mdi-close" @click="$emit('close')"></v-btn>
       <v-app-bar-title>{{ id ? "Ubah" : "Tambah" }} Periode Ajar</v-app-bar-title>
     </v-toolbar>
-    <v-form @submit.prevent="onSubmit">
+    <v-form class="px-4 py-2"  @submit.prevent="onSubmit">
       <v-select :rules="[rules!.required!()]" label="Tahun Ajaran" v-model="selectedTahunAjar"
         :items="tahunAjarSelectItems" />
       <v-select :rules="[rules!.required!()]" label="Semester" v-model="selectedSemester"
