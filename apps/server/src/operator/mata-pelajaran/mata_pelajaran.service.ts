@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
-import { PrismaHelper } from '../../utils';
+import { isSubset, PrismaHelper } from '../../utils';
 
 @Injectable()
 export class OperatorMataPelajaranService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService
+  ) {}
 
   async getAll(periodeAjarId: string) {
     return await this.prismaClient.mata_Pelajaran.findMany({
@@ -23,6 +25,16 @@ export class OperatorMataPelajaranService {
     });
   }
 
+  // private async getCanDelete(id: string) {
+  //   const result = await this.prismaClient.mata_Pelajaran_Kelas.count({
+  //     where: {
+  //       id_mata_pelajaran: id,
+  //     },
+  //   });
+
+  //   return result > 0;
+  // }
+
   async get(id: string) {
     const result = await this.prismaClient.mata_Pelajaran.findUnique({
       where: {
@@ -36,6 +48,15 @@ export class OperatorMataPelajaranService {
                 nama_lengkap: true,
                 NIP: true,
                 username: true,
+                _count: {
+                  select: {
+                    Mata_Pelajaran_Kelas: {
+                      where: {
+                        id_mata_pelajaran: id,
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -50,7 +71,10 @@ export class OperatorMataPelajaranService {
 
     const { Guru_Mata_Pelajaran, ...rest } = result;
     return {
-      guru: Guru_Mata_Pelajaran.map((item) => item.Guru),
+      guru: Guru_Mata_Pelajaran.map(({ Guru: { _count, ...Guru } }) => ({
+        is_locked: _count.Mata_Pelajaran_Kelas > 0,
+        ...Guru,
+      })),
       ...rest,
     };
   }
@@ -82,6 +106,24 @@ export class OperatorMataPelajaranService {
     kelompok: string | null,
     usernameGuruPengampu: string[]
   ) {
+    const cannotDeletedKelas = (
+      await this.prismaClient.guru_Mata_Pelajaran.findMany({
+        where: {
+          id_mata_pelajaran: mapelId,
+          Mata_Pelajaran_Kelas: {
+            some: {},
+          },
+        },
+        select: {
+          username_guru: true,
+        },
+      })
+    ).map((guruMapel) => guruMapel.username_guru);
+    if (!isSubset(new Set(cannotDeletedKelas), new Set(usernameGuruPengampu)))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Cannot deleted used guru',
+      });
     try {
       await this.prismaClient.mata_Pelajaran.update({
         where: {
@@ -93,20 +135,20 @@ export class OperatorMataPelajaranService {
           Guru_Mata_Pelajaran: {
             deleteMany: {
               username_guru: {
-                notIn: usernameGuruPengampu
-              }
+                notIn: usernameGuruPengampu,
+              },
             },
             upsert: usernameGuruPengampu.map((item) => ({
               where: {
                 id_mata_pelajaran_username_guru: {
                   id_mata_pelajaran: mapelId,
-                  username_guru: item
-                }
+                  username_guru: item,
+                },
               },
               create: {
                 username_guru: item,
               },
-              update: {}
+              update: {},
             })),
           },
         },

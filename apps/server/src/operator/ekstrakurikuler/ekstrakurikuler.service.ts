@@ -22,18 +22,6 @@ export class OperatorEkstrakurikulerService {
         },
       ],
       include: {
-        _count: {
-          select: {
-            Anggota_Ekstrakurikuler: {
-              where: {
-                Siswa:
-                  this.commonUtilsService.createSiswaLockedSelector(
-                    periodeAjarId
-                  ),
-              },
-            },
-          },
-        },
         Guru: {
           select: {
             nama_lengkap: true,
@@ -41,47 +29,21 @@ export class OperatorEkstrakurikulerService {
         },
       },
     });
-    return result.map(({ Guru, username_guru, _count, ...rest }) => ({
+    return result.map(({ Guru, username_guru, ...rest }) => ({
       guru: {
         username: username_guru,
         nama_lengkap: Guru.nama_lengkap,
       },
-      is_locked: _count.Anggota_Ekstrakurikuler > 0,
       ...rest,
     }));
   }
 
   async get(id: string) {
-    const ekstrakurikuler = await this.prismaClient.ekstrakurikuler.findUnique({
-      where: {
-        id_esktrakurikuler: id,
-      },
-      select: {
-        id_periode_ajar: true,
-      },
-    });
-    if (!ekstrakurikuler)
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Ekstrakurikuler not found',
-      });
-
     const result = await this.prismaClient.ekstrakurikuler.findUnique({
       where: {
         id_esktrakurikuler: id,
       },
       include: {
-        _count: {
-          select: {
-            Anggota_Ekstrakurikuler: {
-              where: {
-                Siswa: this.commonUtilsService.createSiswaLockedSelector(
-                  ekstrakurikuler.id_periode_ajar
-                ),
-              },
-            },
-          },
-        },
         Guru: {
           select: {
             nama_lengkap: true,
@@ -97,13 +59,13 @@ export class OperatorEkstrakurikulerService {
         message: 'Ekstrakurikuler not found',
       });
 
-    const { Guru, username_guru, _count, ...rest } = result;
+    const { Guru, username_guru, ...rest } = result;
     return {
       guru: {
         username: username_guru,
         ...Guru,
       },
-      is_locked: _count.Anggota_Ekstrakurikuler > 0,
+      can_delete: await this.getCanDelete(id),
       ...rest,
     };
   }
@@ -119,7 +81,7 @@ export class OperatorEkstrakurikulerService {
     return result.id_esktrakurikuler;
   }
 
-  private async ensureIsNotLocked(id: string) {
+  private async getCanDelete(id: string) {
     const ekstrakurikuler = await this.prismaClient.ekstrakurikuler.findUnique({
       where: {
         id_esktrakurikuler: id,
@@ -134,40 +96,19 @@ export class OperatorEkstrakurikulerService {
         message: 'Ekstrakurikuler not found',
       });
 
-    const result = await this.prismaClient.ekstrakurikuler.findUnique({
+    const result = await this.prismaClient.anggota_Ekstrakurikuler.count({
       where: {
-        id_esktrakurikuler: id,
-      },
-      select: {
-        _count: {
-          select: {
-            Anggota_Ekstrakurikuler: {
-              where: {
-                Siswa: this.commonUtilsService.createSiswaLockedSelector(
-                  ekstrakurikuler.id_periode_ajar
-                ),
-              },
-            },
-          },
-        },
+        id_ekstrakurikuler: id,
+        Siswa: this.commonUtilsService.createSiswaLockedSelector(
+          ekstrakurikuler.id_periode_ajar
+        ),
       },
     });
 
-    if (!result)
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Ekstrakurikuler not found',
-      });
-    if (result._count.Anggota_Ekstrakurikuler > 0)
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Ekstrakurikuler is locked',
-      });
+    return result > 0;
   }
 
   async update(id: string, nama: string, usernameGuru: string) {
-    await this.ensureIsNotLocked(id);
-
     try {
       await this.prismaClient.ekstrakurikuler.update({
         data: {

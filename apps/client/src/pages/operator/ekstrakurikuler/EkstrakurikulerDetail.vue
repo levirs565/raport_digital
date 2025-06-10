@@ -19,9 +19,8 @@ const { data } = useTrcpQuery(trpc!.operator.ekstrakurikuler.get.queryOptions({
     <c-app-bar-hamburger />
     <v-app-bar-title>
       <span>Detail Ekstrakurikuler</span>
-      <v-icon v-if="data?.is_locked" size="small" class="ml-4">mdi-lock</v-icon>
     </v-app-bar-title>
-    <v-dialog v-if="data && !data.is_locked" persistent>
+    <v-dialog persistent>
       <template v-slot:activator="{ props }">
         <v-btn icon v-bind="props">
           <v-icon>mdi-pencil</v-icon>

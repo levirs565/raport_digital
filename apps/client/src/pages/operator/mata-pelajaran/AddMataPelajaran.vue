@@ -20,6 +20,7 @@ const { mutateAsync: updateAsync } = useMutation(trpc!.operator.mataPelajaran.up
 const nama = ref("");
 const kelompok = ref("");
 const guruList = reactive<Set<string>>(new Set());
+const lockedGuruList = reactive(new Set<string>());
 
 const { data } = useTrcpQuery(trpc!.operator.mataPelajaran.get.queryOptions({
   id: id!
@@ -32,7 +33,11 @@ watchEffect(() => {
     nama.value = data.value.nama;
     kelompok.value = data.value.kelompok_mapel ?? "";
     guruList.clear();
-    data.value.guru.forEach(guru => guruList.add(guru.username));
+    lockedGuruList.clear();
+    data.value.guru.forEach(guru => {
+      guruList.add(guru.username);
+      if (guru.is_locked) lockedGuruList.add(guru.username)
+    });
   }
 })
 
@@ -85,7 +90,7 @@ function onSubmit() {
     <v-form class="px-4 py-2">
       <v-text-field v-model="nama" label="Nama Mata Pelajaran" />
       <v-text-field v-model="kelompok" label="Kelompok" />
-      <GuruSelectCard v-model="guruList" />
+      <GuruSelectCard :is-item-disabled="(item: any) => lockedGuruList.has(item.username)" v-model="guruList" />
       <v-btn class="my-2" @click="onSubmit">{{ id ? "Ubah" : "Tambah" }} </v-btn>
     </v-form>
   </v-card>
