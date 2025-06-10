@@ -2,6 +2,7 @@
 import { computed, ref, watchEffect } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { formatError } from '../../../api';
 
 const { idKelas, idSiswa } = defineProps({
   idKelas: String,
@@ -16,7 +17,7 @@ const { data } = useTrcpQuery(trpc!.guru.waliKelas.getCatatanWaliKelas.queryOpti
   kelas_id: idKelas!,
   siswa_id: idSiswa!
 }))))
-const { mutateAsync } = useMutation(trpc!.guru.waliKelas.updateCatatanWaliKelas.mutationOptions());
+const { mutateAsync, error, isPending } = useMutation(trpc!.guru.waliKelas.updateCatatanWaliKelas.mutationOptions());
 
 watchEffect(() => {
   if (data.value) {
@@ -50,9 +51,12 @@ function onSave() {
       <v-toolbar-title>Ubah Catatan</v-toolbar-title>
     </v-toolbar>
 
-    <v-form class="pa-4">
+    <v-form  class="pa-4" @submit.prevent="onSave">
       <v-textarea v-model="catatan" label="Catatan Wali Kelas" />
-      <v-btn @click="onSave">Simpan</v-btn>
+      <v-card-text class="text-error text-center pa-0 my-2" v-if="error">
+        {{ formatError(error) }}
+      </v-card-text>
+      <v-btn  class="my-2" type="submit" :loading="isPending">Simpan</v-btn>
     </v-form>
   </v-card>
 </template>

@@ -161,7 +161,7 @@ const activeTab = ref(0);
         </v-card>
         <v-card>
           <v-card-title>Catatan</v-card-title>
-          <v-card-text>{{ catatanData ?? "-" }}</v-card-text>
+          <v-card-text>{{ catatanData ? catatanData : "-" }}</v-card-text>
           <div class="d-flex justify-end ma-4 mt-0">
             <v-dialog v-if="!isLocked" persistent>
               <template v-slot:activator="{ props }">
