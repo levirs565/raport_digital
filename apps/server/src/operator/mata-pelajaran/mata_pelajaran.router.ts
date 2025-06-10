@@ -30,6 +30,12 @@ export class OperatorMataPelajaranRouter {
     get: this.trpc.operatorProcedure
       .input(z.object({ id: z.string() }))
       .query(({ input }) => this.service.get(input.id)),
+    delete: this.trpc.operatorProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        await this.service.delete(input.id);
+        return true;
+      }),
     add: this.trpc.operatorProcedure
       .input(baseInputSchema.extend(baseWriteSchema))
       .mutation(({ input }) =>

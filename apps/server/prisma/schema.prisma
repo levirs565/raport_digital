@@ -88,7 +88,7 @@ model Guru_Mata_Pelajaran {
   username_guru String
   @@id([id_mata_pelajaran,username_guru])
 
-  Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran])
+  Mata_Pelajaran Mata_Pelajaran @relation(fields: [id_mata_pelajaran], references: [id_mata_pelajaran], onDelete: Cascade)
   Guru Guru @relation(fields: [username_guru], references: [username])
   Mata_Pelajaran_Kelas Mata_Pelajaran_Kelas[]
 }

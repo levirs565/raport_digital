@@ -3,6 +3,7 @@ import { watch } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
 import { validateUserRole } from '../router';
 import { useRoute, useRouter } from 'vue-router';
+import { useSnackbarStore } from '../store';
 
 const route = useRoute();
 const router = useRouter();
@@ -15,10 +16,13 @@ watch([data, route], ([currentData, currentRoute]) => {
     router.push(validation.path);
   }
 });
+
+const snackbarStore = useSnackbarStore();
 </script>
 
 <template>
   <v-app>
     <router-view />
+    <v-snackbar-queue v-model="snackbarStore.errors" color="error"></v-snackbar-queue>
   </v-app>
 </template>

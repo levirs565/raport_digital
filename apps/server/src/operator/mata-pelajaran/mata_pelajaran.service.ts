@@ -27,19 +27,19 @@ export class OperatorMataPelajaranService {
     return await this.prismaClient.mata_Pelajaran.count({
       where: {
         id_periode_ajar: periodeAjarId,
-      }
+      },
     });
   }
 
-  // private async getCanDelete(id: string) {
-  //   const result = await this.prismaClient.mata_Pelajaran_Kelas.count({
-  //     where: {
-  //       id_mata_pelajaran: id,
-  //     },
-  //   });
+  private async getCanDelete(id: string) {
+    const result = await this.prismaClient.mata_Pelajaran_Kelas.count({
+      where: {
+        id_mata_pelajaran: id,
+      },
+    });
 
-  //   return result > 0;
-  // }
+    return result == 0;
+  }
 
   async get(id: string) {
     const result = await this.prismaClient.mata_Pelajaran.findUnique({
@@ -167,5 +167,19 @@ export class OperatorMataPelajaranService {
         });
       } else throw e;
     }
+  }
+
+  async delete(id: string) {
+    if (!(await this.getCanDelete(id)))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Mata Pelajarn digunakan di kelas',
+      });
+
+    await this.prismaClient.mata_Pelajaran.delete({
+      where: {
+        id_mata_pelajaran: id,
+      },
+    });
   }
 }
