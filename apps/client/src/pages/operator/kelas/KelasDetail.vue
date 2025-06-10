@@ -94,7 +94,7 @@ function onDeleteMataPelajaran(idMapel: string) {
                     <v-icon>mdi-dots-vertical</v-icon>
                     <v-menu activator="parent">
                       <v-list>
-                        <v-list-item title="Hapus"
+                        <v-list-item title="Hapus" v-if="!data?.is_locked"
                           @click="onDeleteMataPelajaran(item.mata_pelajaran.id_mata_pelajaran)" />
                         <!-- TODO: update guru -->
                       </v-list>
@@ -106,7 +106,7 @@ function onDeleteMataPelajaran(idMapel: string) {
             </template>
           </v-list>
           <div class="d-flex justify-end ma-4">
-            <v-dialog persistent>
+            <v-dialog persistent v-if="!data?.is_locked">
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props">Tambah</v-btn>
               </template>
@@ -114,6 +114,10 @@ function onDeleteMataPelajaran(idMapel: string) {
                 <add-mata-pelajaran-kelas :id="id" @close="isActive.value = !isActive.value" />
               </template>
             </v-dialog>
+            <p v-else>
+              <v-icon size="small" class="mr-2">mdi-lock</v-icon>
+              <span>Dikunci</span>
+            </p>
           </div>
         </v-card>
       </v-tabs-window-item>

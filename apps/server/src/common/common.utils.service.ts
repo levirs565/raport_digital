@@ -25,8 +25,33 @@ export class CommonUtilsService {
     };
   }
 
-  async ensureCanUpdateAnggota(periodeAjarId: string, targetList: string[], lockedList: string[]) {
-    const lockedAnggota = new Set(lockedList)
+  async isKelasLocked(id: string) {
+    const count = await this.prismaClient.anggota_Kelas.count({
+      where: {
+        id_kelas: id,
+        Siswa: this.createSiswaLockedSelector(
+          await this.getPeriodeFromKelas(id)
+        ),
+      },
+    });
+
+    return count > 0;
+  }
+
+  async ensureKelasNotLocked(id: string) {
+    if (await this.isKelasLocked(id))
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Cannot edit locked Kelas',
+      });
+  }
+
+  async ensureCanUpdateAnggota(
+    periodeAjarId: string,
+    targetList: string[],
+    lockedList: string[]
+  ) {
+    const lockedAnggota = new Set(lockedList);
     const currentAnggota = new Set(targetList);
 
     if (!isSubset(lockedAnggota, currentAnggota))
