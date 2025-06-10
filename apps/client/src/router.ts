@@ -33,6 +33,7 @@ import GuruSiswaDetail from './pages/guru/wali-kelas/GuruSiswaDetail.vue';
 import KepalaSekolahKelasDetail from './pages/kepala-sekolah/KepalaSekolahKelasDetail.vue';
 import KepalaSekolahSiswa from './pages/kepala-sekolah/KepalaSekolahSiswa.vue';
 import Akun from './pages/auth/Akun.vue';
+import SiswaDetail from './pages/operator/siswa/SiswaDetail.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -75,7 +76,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/akun',
-        component: Akun
+        component: Akun,
       },
       {
         path: '/operator',
@@ -94,6 +95,11 @@ const routes: RouteRecordRaw[] = [
               {
                 path: 'add',
                 component: AddSiswa,
+              },
+              {
+                path: ':id',
+                component: SiswaDetail,
+                props: true
               },
             ],
           },

@@ -147,7 +147,7 @@ export class OperatorSiswaService {
 
   async importCsv(stream: ReadableStream) {
     const result: ({ id: string } | { error: string })[] = [];
-    let globalError: TRPCError | undefined = undefined;
+    let globalError: string | undefined = undefined;
 
     function mapError(e: any) {
       return e.message ?? 'Undefined error';

@@ -81,7 +81,7 @@ async function onSubmit(event: SubmitEventPromise) {
       semester: selectedSemester.value
     }).then((id) => {
       update();
-      router.replace(`/operator/periode/${id}`);
+      router.push(`/operator/periode/${id}`);
     })
   else
     updateAsync({
