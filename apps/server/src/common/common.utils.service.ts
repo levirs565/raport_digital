@@ -42,7 +42,7 @@ export class CommonUtilsService {
     if (await this.isKelasLocked(id))
       throw new TRPCError({
         code: 'FORBIDDEN',
-        message: 'Cannot edit locked Kelas',
+        message: 'Kelas terkunci karena ada siswa yang raportnya terkunci',
       });
   }
 
