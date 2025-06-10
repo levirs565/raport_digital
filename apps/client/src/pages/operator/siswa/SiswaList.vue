@@ -61,7 +61,7 @@ const filterSiswa = ref('');
     </div>
     <v-list>
       <template v-for="item in data?.page">
-        <v-list-item>
+        <v-list-item :to="`/operator/siswa/${item.id_siswa}`">
           <v-list-item-title>{{ item.nama }}</v-list-item-title>
           <v-list-item-subtitle>NIS. {{ item.NIS }} NISN. {{ item.NISN }}</v-list-item-subtitle>
         </v-list-item>
