@@ -468,6 +468,13 @@ export class RaportService {
     };
   }
 
+  private nilaiEsktrakurikulerMap: Record<$Enums.Nilai_Ekstrakurikuler, string> = {
+    SANGAT_BAIK: 'Sangat Baik',
+    BAIK: 'Baik',
+    CUKUP: 'Cukup',
+    KURANG: 'Kurang',
+  };
+
   private async getAkademikRaportPDF(kelasId: string, siswaId: string) {
     const rekap = await this.getRekapNilai(kelasId, siswaId);
     if (rekap == null) return null;
@@ -618,7 +625,7 @@ export class RaportService {
                 : rekap.ekstrakurikuler.map((ekstrakurikuler, index) => [
                     { text: (index + 1).toString(), alignment: 'center' },
                     { text: ekstrakurikuler.nama },
-                    { text: ekstrakurikuler.nilai },
+                    { text: ekstrakurikuler.nilai ? this.nilaiEsktrakurikulerMap[ekstrakurikuler.nilai] : "" },
                     { text: ekstrakurikuler.keterangan },
                   ])),
             ],
