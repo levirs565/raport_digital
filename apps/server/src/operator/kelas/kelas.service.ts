@@ -330,8 +330,11 @@ export class OperatorKelasService {
         id_siswa: {
           in: anggotaIdList,
         },
-        id_kelas: {
-          not: id,
+        Kelas: {
+          id_kelas: {
+            not: id,
+          },
+          id_periode_ajar: periodeAjarId,
         },
       },
       select: {
@@ -438,10 +441,11 @@ export class OperatorKelasService {
         },
       });
     } catch (e) {
-      if (PrismaHelper.isForeignConstraintFailed(e)) throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "Hapus anggota kelas dahulu"
-      })
+      if (PrismaHelper.isForeignConstraintFailed(e))
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Hapus anggota kelas dahulu',
+        });
       if (PrismaHelper.isRecordNotFoundError(e)) this.throwNotFound();
       else throw e;
     }
