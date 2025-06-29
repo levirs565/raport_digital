@@ -20,6 +20,7 @@ const pbkdf2 = promisify(crypto.pbkdf2);
 
 @Injectable()
 export class TandaTanganService {
+  private tandaTanganTempPath: string;
   private tandaTanganPath: string;
   private tandaTanganPassword: string;
 
@@ -28,6 +29,11 @@ export class TandaTanganService {
       __dirname,
       '../',
       configService.getOrThrow('TANDA_TANGAN_PATH')
+    );
+    this.tandaTanganTempPath = path.resolve(
+      __dirname,
+      '../',
+      configService.getOrThrow('TANDA_tANGAN_TEMP_PATH')
     );
     this.tandaTanganPassword = configService.getOrThrow(
       'TANDA_TANGAN_PASSWORD'
@@ -45,7 +51,11 @@ export class TandaTanganService {
 
   async set(username: string, stream: Readable) {
     await ensureDir(this.tandaTanganPath);
-    const { path: filePath, cleanup } = await tmp.file();
+    await ensureDir(this.tandaTanganTempPath);
+    const { path: filePath, cleanup } = await tmp.file({
+      tmpdir: this.tandaTanganTempPath,
+    });
+    console.log(filePath);
     try {
       const salt = crypto.randomBytes(16);
       const { key, iv } = await this.derikeKeyAndIV(
@@ -68,7 +78,7 @@ export class TandaTanganService {
       outputStream.write(salt);
       await pipeline(stream, resizer, cipher, outputStream);
 
-      await rename(filePath, path.join(this.tandaTanganPath, username))
+      await rename(filePath, path.join(this.tandaTanganPath, username));
     } finally {
       cleanup();
     }
