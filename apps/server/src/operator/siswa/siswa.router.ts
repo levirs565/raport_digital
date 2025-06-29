@@ -42,11 +42,12 @@ export class OperatorSiswaRouter {
           page_index: z.number(),
           order_by: z.enum(['NIS', 'Nama']),
           asc: z.boolean(),
+          filter: z.string().optional(),
         })
       )
       .query(
         async ({ input }) =>
-          await this.service.getAll(input.page_index, input.order_by, input.asc)
+          await this.service.getAll(input.page_index, input.order_by, input.asc, input.filter)
       ),
     count: this.trpc.operatorProcedure.query(
       async () => await this.service.count()

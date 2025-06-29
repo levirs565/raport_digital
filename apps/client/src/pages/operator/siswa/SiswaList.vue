@@ -4,6 +4,7 @@ import CAppBarHamburger from '../../../components/CAppBarHamburger.vue';
 import { injectTrpc, useTrcpQuery } from '../../../api-vue';
 import AddSiswa from './AddSiswa.vue';
 import SiswaImportCsv from './SiswaImportCsv.vue';
+import { useDebounce } from '@vueuse/core';
 
 const dialog = ref(false);
 
@@ -36,15 +37,16 @@ const orders = ([
 }))
 const selectedOrder = ref(0)
 const selectedOrderItem = computed(() => orders[selectedOrder.value])
+const filterSiswa = ref('');
+const filterSiswaDebounced = useDebounce(filterSiswa, 500);
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.operator.siswa.getAll.queryOptions({
   page_index: computed(() => pageIndex.value - 1),
   asc: computed(() => selectedOrderItem.value.asc),
-  order_by: computed(() => selectedOrderItem.value.orderBy)
+  order_by: computed(() => selectedOrderItem.value.orderBy),
+  filter: computed(() => filterSiswaDebounced.value.trim() ? filterSiswaDebounced.value.trim() : undefined)
 }));
-
-const filterSiswa = ref('');
 
 const isAddOpen = ref(false);
 const isImportOpen = ref(false);
@@ -80,7 +82,7 @@ const isImportOpen = ref(false);
     </template>
   </v-dialog>
 
-    <v-dialog persistent v-model="isImportOpen">
+  <v-dialog persistent v-model="isImportOpen">
     <template v-slot:default="{ isActive }">
       <SiswaImportCsv v-model="dialog" @close="isActive.value = !isActive.value" />
     </template>

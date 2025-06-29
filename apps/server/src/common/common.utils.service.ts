@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TRPCError } from '@trpc/server';
 import { isRaportLocked, isSubset, setDifference } from '../utils';
+import { Prisma } from '@prisma/client';
+
+const fullNumberRegex =  /^\d+$/;
 
 @Injectable()
 export class CommonUtilsService {
@@ -236,5 +239,33 @@ export class CommonUtilsService {
       });
 
     return result;
+  }
+
+  createSiswaFilter(filter: string | undefined) {
+    const filterList: Prisma.SiswaWhereInput = {};
+
+    if (filter) {
+      filterList.OR = [];
+      filterList.OR.push({
+        nama: {
+          contains: filter,
+        },
+      });
+
+      if (fullNumberRegex.test(filter)) {
+        filterList.OR.push({
+          NIS: {
+            contains: filter,
+          },
+        });
+        filterList.OR.push({
+          NISN: {
+            contains: filter,
+          },
+        });
+      }
+    }
+
+    return filterList;
   }
 }
