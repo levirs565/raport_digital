@@ -25,6 +25,7 @@ export default defineConfig(() => ({
   //  plugins: [ nxViteTsPaths() ],
   // },
   build: {
+    minify: false,
     outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,

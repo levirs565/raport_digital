@@ -8,6 +8,7 @@ import { Stream } from 'node:stream';
 import { type ReadableStream } from 'node:stream/web';
 import { parse as parseDate } from 'date-fns';
 import z from 'zod';
+import { CommonUtilsService } from '../../common/common.utils.service';
 
 export type SiswaOrderBy = 'NIS' | 'Nama';
 
@@ -87,10 +88,18 @@ const siswaCsvSchema = z
 
 @Injectable()
 export class OperatorSiswaService {
-  constructor(private readonly prismaClient: PrismaService) {}
+  constructor(
+    private readonly prismaClient: PrismaService,
+    private readonly commonUtilsService: CommonUtilsService
+  ) {}
 
   private pageSize = 20;
-  async getAll(pageIndex: number, orderBy: SiswaOrderBy, asc: boolean) {
+  async getAll(
+    pageIndex: number,
+    orderBy: SiswaOrderBy,
+    asc: boolean,
+    filter: string | undefined
+  ) {
     const count = await this.prismaClient.siswa.count();
     const result = await this.prismaClient.siswa.findMany({
       skip: pageIndex * this.pageSize,
@@ -104,6 +113,7 @@ export class OperatorSiswaService {
               nama: asc ? 'asc' : 'desc',
             },
       ],
+      where: this.commonUtilsService.createSiswaFilter(filter),
       select: {
         id_siswa: true,
         nama: true,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { injectTrpc, useTrcpQuery } from '../api-vue';
+import { useDebounce } from '@vueuse/core';
 
 const { periodeAjarId } = defineProps({
   periodeAjarId: String,
@@ -10,11 +11,12 @@ const { periodeAjarId } = defineProps({
 const model: Set<string> = defineModel() as unknown as Set<string>;
 
 const filter = ref("");
+const filterDebounced = useDebounce(filter, 500);
 
 const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.common.getSiswaList.queryOptions({
   periode_ajar_id: computed(() => periodeAjarId!),
-  filter: filter,
+  filter: filterDebounced,
   limit: 100
 }))
 
