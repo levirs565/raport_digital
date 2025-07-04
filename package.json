@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node apps/server/dist/main.js",
-    "heroku-prebuild": "cd apps/server && npx prisma generate",
-    "build": "npx nx run @raport-digital/server:build:production && npx nx run @raport-digital/client:build:production"
+    "build": "cd apps/server && npx prisma generate && cd ../../ && npx nx run @raport-digital/server:build:production && npx nx run @raport-digital/client:build:production"
   },
   "private": true,
   "engines": {
