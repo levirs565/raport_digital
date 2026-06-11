@@ -6,14 +6,15 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { UserType } from '@raport-digital/client-api-types';
 import { usePeriodeStore } from '../store';
 import { getPeriodeTitle } from '../utils';
+import { logout as logoutApi } from '../api';
 
 const trpc = injectTrpc();
 const queryClient = useQueryClient();
 const { data } = useTrcpQuery(trpc!.auth.state.queryOptions());
 const authKey = trpc!.auth.state.queryKey();
-const { mutateAsync: logout } = useMutation(
-  trpc!.auth.logout.mutationOptions()
-);
+const { mutateAsync: logout } = useMutation({
+  mutationFn: logoutApi,
+});
 
 const { data: periodeData } = useTrcpQuery(trpc!.common.getAllPeriodeAjar.queryOptions());
 const periodeSelectItems = computed(() => {

@@ -15,6 +15,8 @@ enum AkunType {
 }
 
 model Akun {
+  @@map("akun")
+
   username String @id
   password_hash String
   type AkunType
@@ -24,6 +26,8 @@ model Akun {
 }
 
 model Guru {
+  @@map("guru")
+
   username String @id
   nama_lengkap String
   NIP String? @unique
@@ -40,6 +44,8 @@ model Guru {
 }
 
 model Kepala_Sekolah {
+  @@map("kepala_sekolah")
+
   username String @id
   nama_lengkap String
   NIP String? @unique
@@ -49,6 +55,8 @@ model Kepala_Sekolah {
 }
 
 model Session {
+  @@map("session")
+
   id        String   @id
   sid       String   @unique
   data      String   @db.Text
@@ -61,6 +69,8 @@ enum Semester {
 }
 
 model Periode_Ajar {
+  @@map("periode_ajar")
+
   id_periode_ajar String @id @db.VarChar(36) @default(uuid())
   tahunAjar Int
   semester Semester
@@ -73,6 +83,8 @@ model Periode_Ajar {
 }
 
 model Mata_Pelajaran {
+  @@map("mata_pelajaran")
+
   id_mata_pelajaran String @id @db.VarChar(36) @default(uuid())
   nama String
   kelompok_mapel String?
@@ -84,6 +96,8 @@ model Mata_Pelajaran {
 }
 
 model Guru_Mata_Pelajaran {
+  @@map("guru_mata_pelajaran")
+
   id_mata_pelajaran String
   username_guru String
   @@id([id_mata_pelajaran,username_guru])
@@ -99,6 +113,8 @@ enum JenisKelamin {
 }
 
 model Siswa {
+  @@map("siswa")
+
   id_siswa String @id @db.VarChar(36) @default(uuid())
   NIS String @unique
   NISN String @unique
@@ -133,6 +149,8 @@ model Siswa {
 }
 
 model Ekstrakurikuler {
+  @@map("ekstrakurikuler")
+
   id_esktrakurikuler String @id @db.VarChar(36) @default(uuid())
   nama String
   username_guru String
@@ -144,6 +162,8 @@ model Ekstrakurikuler {
 }
 
 model Kelas {
+  @@map("kelas")
+
   id_kelas String @id @db.VarChar(36) @default(uuid())
   kelas Int
   kode_ruang_kelas String
@@ -160,6 +180,8 @@ model Kelas {
 }
 
 model Mata_Pelajaran_Kelas {
+  @@map("mata_pelajaran_kelas")
+
   id_mata_pelajaran String @db.VarChar(36)
   username_guru String
   id_kelas String @db.VarChar(36)
@@ -175,6 +197,8 @@ model Mata_Pelajaran_Kelas {
 
 // ERD/RAT salah
 model Anggota_Kelas {
+  @@map("anggota_kelas")
+
   id_kelas String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_kelas, id_siswa])
@@ -191,6 +215,8 @@ enum Nilai_Ekstrakurikuler {
 }
 
 model Anggota_Ekstrakurikuler {
+  @@map("anggota_ekstrakurikuler")
+
   id_ekstrakurikuler String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_ekstrakurikuler, id_siswa])
@@ -204,6 +230,8 @@ model Anggota_Ekstrakurikuler {
 }
 
 model Materi {
+  @@map("materi")
+
   id_materi String @id @db.VarChar(36) @default(uuid())
   nama String
   detail String
@@ -215,6 +243,8 @@ model Materi {
 }
 
 model Nilai_Materi {
+  @@map("nilai_materi")
+
   id_materi String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_materi, id_siswa])
@@ -226,6 +256,8 @@ model Nilai_Materi {
 }
 
 view Nilai_Materi_View {
+  @@map("nilai_materi_view")
+
   id_materi String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_materi, id_siswa])
@@ -236,6 +268,8 @@ view Nilai_Materi_View {
 }
 
 view Nilai_Materi_Ranked_View {
+  @@map("nilai_materi_ranked_view")
+
   id_materi         String @db.VarChar(36)
   id_siswa          String @db.VarChar(36)
   @@id([id_materi, id_siswa])
@@ -249,6 +283,8 @@ view Nilai_Materi_Ranked_View {
 }
 
 model Proyek_P5 {
+  @@map("proyek_p5")
+
   id_proyek_p5 String @id @db.VarChar(36) @default(uuid())
   tema String
   judul String
@@ -261,6 +297,8 @@ model Proyek_P5 {
 }
 
 model Catatan_Proses_P5 {
+  @@map("catatan_proses_p5")
+
   id_proyek_p5 String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_proyek_p5, id_siswa])
@@ -272,6 +310,8 @@ model Catatan_Proses_P5 {
 }
 
 model Target_P5 {
+  @@map("target_p5")
+
   id_target_p5 String @id @db.VarChar(36) @default(uuid())
   dimensi String
   elemen String
@@ -291,6 +331,8 @@ enum Nilai_P5_Enum {
 }
 
 model Nilai_P5 {
+  @@map("nilai_p5")
+
   id_target_p5 String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_target_p5, id_siswa])
@@ -307,6 +349,8 @@ enum Status_Raport {
 }
 
 model Raport {
+  @@map("raport")
+
   id_periode_ajar String @db.VarChar(36)
   id_siswa String @db.VarChar(36)
   @@id([id_periode_ajar, id_siswa])
@@ -323,6 +367,8 @@ model Raport {
 }
 
 model Prestasi {
+  @@map("prestasi")
+
   id_prestasi String @id @db.VarChar(36) @default(uuid())
   jenis String
   keterangan String

@@ -6,10 +6,15 @@ import { promisify } from 'node:util';
 import sharp from 'sharp';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { createWriteStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
 import { ensureDir } from 'fs-extra';
 import { readFile, rename } from 'node:fs/promises';
 import tmp from 'tmp-promise';
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 const algorithm = 'aes-256-cbc';
 const iterations = 100000;
@@ -18,18 +23,96 @@ const ivLength = 16;
 
 const pbkdf2 = promisify(crypto.pbkdf2);
 
+interface TandaTanganStorage {
+  set(username: string, fileTempPath: string): Promise<void>;
+  get(username: string): Promise<Buffer | null>;
+}
+
+class LocalTandaTanganStorage implements TandaTanganStorage {
+  constructor(private rootPath: string) {}
+
+  async set(username: string, fileTempPath: string): Promise<void> {
+    await ensureDir(this.rootPath);
+    await rename(fileTempPath, path.join(this.rootPath, username));
+  }
+  async get(username: string): Promise<Buffer | null> {
+    try {
+      return await readFile(path.join(this.rootPath, username));
+    } catch (err: any) {
+      if (err.code == 'ENOENT') {
+        return null;
+      }
+      throw err;
+    }
+  }
+}
+
+class S3TandaTanganStorage implements TandaTanganStorage {
+  client: S3Client;
+
+  constructor(private bucket: string, private prefix: string) {
+    this.client = new S3Client();
+  }
+
+  async set(username: string, fileTempPath: string): Promise<void> {
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: path.posix.join(this.prefix, username),
+        Body: createReadStream(fileTempPath),
+      })
+    );
+  }
+  typedArrayToBuffer(array: Uint8Array): ArrayBuffer {
+    return array.buffer.slice(
+      array.byteOffset,
+      array.byteLength + array.byteOffset
+    ) as ArrayBuffer;
+  }
+  async get(username: string): Promise<Buffer | null> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({
+          Bucket: this.bucket,
+          Key: path.posix.join(this.prefix, username),
+        })
+      );
+      if (!response.Body) return Buffer.alloc(0);
+      return Buffer.from(
+        this.typedArrayToBuffer(await response.Body?.transformToByteArray())
+      );
+    } catch (err: any) {
+      if (err.name === 'NoSuchKey' || err.$metadata.httpStatusCode === 404) {
+        return null;
+      }
+      throw err;
+    }
+  }
+}
+
 @Injectable()
 export class TandaTanganService {
+  private storage: TandaTanganStorage;
   private tandaTanganTempPath: string;
-  private tandaTanganPath: string;
   private tandaTanganPassword: string;
 
   constructor(configService: ConfigService) {
-    this.tandaTanganPath = path.resolve(
-      __dirname,
-      '../',
-      configService.getOrThrow('TANDA_TANGAN_PATH')
-    );
+    if (configService.get('TANDA_TANGAN_PATH')) {
+      const rootPath = path.resolve(
+        __dirname,
+        '../',
+        configService.getOrThrow('TANDA_TANGAN_PATH')
+      );
+      this.storage = new LocalTandaTanganStorage(rootPath);
+    } else if (configService.get('TANDA_TANGAN_S3_BUCKET')) {
+      this.storage = new S3TandaTanganStorage(
+        configService.getOrThrow('TANDA_TANGAN_S3_BUCKET'),
+        configService.get('TANDA_TANGAN_S3_PREFIX') ?? ''
+      );
+    } else {
+      throw new Error('Please provide tanda tangan config');
+    }
+
     this.tandaTanganTempPath = path.resolve(
       __dirname,
       '../',
@@ -50,12 +133,11 @@ export class TandaTanganService {
   }
 
   async set(username: string, stream: Readable) {
-    await ensureDir(this.tandaTanganPath);
     await ensureDir(this.tandaTanganTempPath);
     const { path: filePath, cleanup } = await tmp.file({
       tmpdir: this.tandaTanganTempPath,
     });
-    console.log(filePath);
+
     try {
       const salt = crypto.randomBytes(16);
       const { key, iv } = await this.derikeKeyAndIV(
@@ -78,33 +160,26 @@ export class TandaTanganService {
       outputStream.write(salt);
       await pipeline(stream, resizer, cipher, outputStream);
 
-      await rename(filePath, path.join(this.tandaTanganPath, username));
+      await this.storage.set(username, filePath);
     } finally {
-      cleanup();
+      await cleanup();
     }
   }
 
   async get(username: string) {
-    const filePath = path.join(this.tandaTanganPath, username);
+    const buffer = await this.storage.get(username);
+    if (!buffer) return null;
 
-    try {
-      const buffer = await readFile(filePath);
-      const salt = buffer.subarray(0, 16);
-      const { key, iv } = await this.derikeKeyAndIV(
-        this.tandaTanganPassword,
-        salt
-      );
-      const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    const salt = buffer.subarray(0, 16);
+    const { key, iv } = await this.derikeKeyAndIV(
+      this.tandaTanganPassword,
+      salt
+    );
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
-      return Buffer.concat([
-        decipher.update(buffer.subarray(16)),
-        decipher.final(),
-      ]);
-    } catch (e: any) {
-      if (e.code == 'ENOENT') {
-        return null;
-      }
-      throw e;
-    }
+    return Buffer.concat([
+      decipher.update(buffer.subarray(16)),
+      decipher.final(),
+    ]);
   }
 }

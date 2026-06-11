@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { injectTrpc } from '../../api-vue';
 import logo from '../../logo.png';
 import { useRouter } from 'vue-router';
-import { formatError } from '../../api';
+import { formatError, login } from '../../api';
 import { SubmitEventPromise } from 'vuetify';
 import CPasswordField from '../../components/CPasswordField.vue';
 import { useRules } from 'vuetify/labs/rules';
@@ -13,7 +13,9 @@ const trpc = injectTrpc();
 const queryClient = useQueryClient();
 const router = useRouter();
 
-const { mutateAsync, error, isPending, reset } = useMutation(trpc!.auth.login.mutationOptions());
+const { mutateAsync, error, isPending, reset } = useMutation({
+  mutationFn: ({ username, password }: any) => login(username, password),
+});
 const key = trpc!.auth.state.queryKey();
 
 const userName = ref('');
@@ -31,9 +33,6 @@ async function onLogin(result: SubmitEventPromise) {
     queryClient.invalidateQueries({
       queryKey: key,
     });
-    if (result.state == 'PENDING_VERIFICATION') {
-      router.push('/wait-verification');
-    }
   });
 }
 

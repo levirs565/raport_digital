@@ -8,14 +8,6 @@ import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
 import { $Enums } from '@prisma/client';
 
-type LoginResult =
-  | {
-      state: 'PENDING_VERIFICATION';
-    }
-  | ({
-      state: 'SUCCESS';
-    } & AccountData);
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,7 +19,10 @@ export class AuthService {
     return argon2.verify(hash, password);
   }
 
-  async login(username: string, password: string): Promise<LoginResult> {
+  async validateUser(
+    username: string,
+    password: string
+  ): Promise<AccountData | null> {
     const account = await this.prismaClient.akun.findUnique({
       where: {
         username,
@@ -38,13 +33,12 @@ export class AuthService {
       !account ||
       !(await this.verifyPassword(account.password_hash, password))
     ) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Invalid username or passsword',
-      });
+      return null;
     }
 
     let name: string | undefined = undefined;
+    let isVerified = true;
+
     if (account.type == 'GURU') {
       const guru = await this.prismaClient.guru.findUnique({
         where: {
@@ -55,12 +49,8 @@ export class AuthService {
           nama_lengkap: true,
         },
       });
-      if (!guru?.is_verified)
-        return {
-          state: 'PENDING_VERIFICATION',
-        };
-
       name = guru?.nama_lengkap;
+      isVerified = guru?.is_verified ?? false;
     } else if (account.type == 'KEPALA_SEKOLAH') {
       const kepalaSekolah = await this.prismaClient.kepala_Sekolah.findUnique({
         where: {
@@ -74,10 +64,10 @@ export class AuthService {
     }
 
     return {
-      state: 'SUCCESS',
       username,
       type: account.type,
       namaLengkap: name,
+      isVerified: isVerified,
     };
   }
 
@@ -180,7 +170,9 @@ export class AuthService {
   }
 
   async getTandaTangan(username: string) {
-    return (await this.tandaTanganService.get(username))?.toString('base64') ?? null;
+    return (
+      (await this.tandaTanganService.get(username))?.toString('base64') ?? null
+    );
   }
 
   async updateTandaTangan(username: string, stream: ReadableStream) {
