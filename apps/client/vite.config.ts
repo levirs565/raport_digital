@@ -13,6 +13,10 @@ export default defineConfig(() => ({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      '/auth': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
     },
   },
   preview: {
@@ -43,5 +47,5 @@ export default defineConfig(() => ({
       reportsDirectory: './test-output/vitest/coverage',
       provider: 'v8' as const,
     },
-  }
+  },
 }));

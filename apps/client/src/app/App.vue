@@ -11,7 +11,7 @@ const trpc = injectTrpc();
 const { data } = useTrcpQuery(trpc!.auth.state.queryOptions());
 
 watch([data, route], ([currentData, currentRoute]) => {
-  const validation = validateUserRole(currentRoute, currentData?.type);
+  const validation = validateUserRole(currentRoute, currentData?.type, currentData?.isVerified);
   if (validation != true) {
     router.push(validation.path);
   }

@@ -60,7 +60,7 @@ const routes: RouteRecordRaw[] = [
     path: '/wait-verification',
     component: WaitVerification,
     meta: {
-      userRole: 'NOT-LOGGED',
+      userRole: 'LOGGED',
     },
   },
   {
@@ -99,7 +99,7 @@ const routes: RouteRecordRaw[] = [
               {
                 path: ':id',
                 component: SiswaDetail,
-                props: true
+                props: true,
               },
             ],
           },
@@ -312,20 +312,34 @@ export const router = createRouter({
 
 export function validateUserRole(
   route: RouteLocation,
-  role: UserRole | undefined
+  role: UserRole | undefined,
+  isVerified: boolean | undefined
 ) {
   if (route.meta.userRole == null) return true;
 
   if (route.meta.userRole == 'NOT-LOGGED') {
-    if (role)
+    if (role) {
       return {
-        path: '/',
+        path: isVerified ? '/' : '/wait-verification',
       };
+    }
     return true;
   }
   if (!role) {
     return {
       path: '/login',
+    };
+  }
+
+  if (isVerified && route.path === '/wait-verification') {
+    return {
+      path: '/',
+    };
+  }
+
+  if (!isVerified && route.path !== '/wait-verification') {
+    return {
+      path: '/wait-verification',
     };
   }
 
@@ -344,18 +358,20 @@ router.beforeEach(async (route) => {
   const queryClient = injectQueryClient();
   const trpc = injectTrpc();
 
-  let currentRole: UserRole | undefined = undefined;
+  let role: UserRole | undefined = undefined;
+  let isVerified = false;
   while (true) {
     try {
       const data = await queryClient!.fetchQuery(
         trpc!.auth.state.queryOptions()
       );
-      currentRole = data?.type;
+      role = data?.type;
+      isVerified = data?.isVerified ?? false;
       break;
     } catch (error) {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 
-  return validateUserRole(route, currentRole);
+  return validateUserRole(route, role, isVerified);
 });
