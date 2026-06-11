@@ -6,12 +6,13 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { PrismaService } from '../prisma/prisma.service';
 import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import passport from 'passport';
 import { AuthModule } from '../auth/auth.module';
 import { OperatorModule } from '../operator/operator.module';
 import { GuruModule } from '../guru/guru.module';
 import { CommonModule } from '../common/common.module';
 import { KepalaSekolahModule } from '../kepala-sekolah/kepala-sekolah.module';
-import { ServeStaticModule } from "@nestjs/serve-static"
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 @Module({
@@ -48,5 +49,6 @@ export class AppModule {
         resave: true,
       })
     );
+    app.use(passport.session());
   }
 }

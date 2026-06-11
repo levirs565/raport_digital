@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { TrpcService } from '../trpc/trpc.service';
 import { AuthService } from './auth.service';
 import z from 'zod';
-import { $Enums } from '@prisma/client';
 
 const loginSchema = z.object({
   username: z.string(),
@@ -33,30 +32,6 @@ export class AuthRouter {
         );
         return true;
       }),
-    login: this.trpc.procedure
-      .meta({
-        allowedRole: 'NOT-LOGGED',
-      })
-      .input(loginSchema)
-      .mutation(async ({ ctx, input }) => {
-        const result = await this.service.login(input.username, input.password);
-        if (result.state == 'SUCCESS') {
-          ctx.session.account = {
-            username: result.username,
-            type: result.type,
-            namaLengkap: result.namaLengkap,
-          };
-        }
-        return result;
-      }),
-    logout: this.trpc.procedure
-      .meta({
-        allowedRole: 'LOGGED',
-      })
-      .mutation(({ ctx }) => {
-        ctx.session.account = undefined;
-        return true;
-      }),
     state: this.trpc.procedure.query(
       ({
         ctx: {
@@ -65,12 +40,14 @@ export class AuthRouter {
       }) => {
         if (!account) return null;
         return {
-          username: account.username as string,
-          type: account.type as $Enums.AkunType,
-          namaLengkap: account.namaLengkap as string | undefined,
+          username: account.username,
+          type: account.type,
+          namaLengkap: account.namaLengkap,
+          isVerified: account.isVerified,
         };
       }
     ),
+
     updatePassword: this.trpc.procedure
       .input(
         z.object({
@@ -93,10 +70,9 @@ export class AuthRouter {
       .meta({
         allowedRole: ['KEPALA_SEKOLAH', 'GURU'],
       })
-      .query(
-        async ({ ctx }) =>
-          await this.service.getTandaTangan(ctx.session.account!.username)
-      ),
+      .query(async ({ ctx }) => {
+        return await this.service.getTandaTangan(ctx.session.account!.username);
+      }),
     updateTandaTangan: this.trpc.procedure
       .meta({
         allowedRole: ['KEPALA_SEKOLAH', 'GURU'],
@@ -109,10 +85,9 @@ export class AuthRouter {
         );
         return true;
       }),
-    getProfile: this.trpc.procedure.query(
-      async ({ ctx }) =>
-        await this.service.getProfile(ctx.session.account!.username)
-    ),
+    getProfile: this.trpc.procedure.query(async ({ ctx }) => {
+      return await this.service.getProfile(ctx.session.account!.username);
+    }),
     updateProfile: this.trpc.procedure
       .meta({
         allowedRole: ['GURU', 'KEPALA_SEKOLAH'],

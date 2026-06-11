@@ -36,11 +36,14 @@ export class TrpcService {
     if (!meta?.allowedRole) return next();
 
     if (meta.allowedRole == 'NOT-LOGGED') {
-      if (ctx.session.account) throwForbidden();
+      if (ctx.session.account && ctx.session.account.isVerified)
+        throwForbidden();
       return next();
     }
 
     if (!ctx.session.account) throwForbidden();
+
+    if (!ctx.session.account!.isVerified) throwForbidden();
 
     if (
       meta.allowedRole != 'LOGGED' &&

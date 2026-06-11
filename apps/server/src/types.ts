@@ -4,6 +4,7 @@ export type AccountData = {
   username: string;
   type: $Enums.AkunType;
   namaLengkap?: string;
+  isVerified: boolean;
 };
 
 declare module 'express-session' {
